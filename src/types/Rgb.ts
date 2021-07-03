@@ -1,12 +1,14 @@
 type Comma = `,` | `, `
 type NumberArgument = `${number}${Comma}`
 
-export type RgbObject = { r: RgbColor; g: RgbColor; b: RgbColor; a?: RgbColor }
+export type RgbObject = { r: RgbColor; g: RgbColor; b: RgbColor }
+export type RgbaObject = { r: RgbColor; g: RgbColor; b: RgbColor; a?: number }
+
 export type RgbString = `rgb(${NumberArgument}${NumberArgument}${number})`
 export type RgbaString =
   `rgba(${NumberArgument}${NumberArgument}${NumberArgument}${number})`
 
-export type RgbColorInput = RgbObject | RgbString | RgbaString
+export type RgbColorInput = RgbObject | RgbaObject | RgbString | RgbaString
 
 export type RgbColor =
   | 0

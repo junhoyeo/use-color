@@ -71,3 +71,6 @@ useColor('rgb(255, 255,)')
 useColor('rgba(255, 255, 255)')
 // Argument of type '"rgba(255, 255, 255)"' is not assignable to parameter of type '...'.ts(2345)
 ```
+
+### Credits
+- Color hex string type implementation with generic constraints: https://stackoverflow.com/questions/54674576/typescript-is-it-possible-validate-string-types-based-on-pattern-matching-or-e#answer-54675049

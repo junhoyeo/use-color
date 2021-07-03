@@ -3,9 +3,32 @@
 
 __metadata:
   version: 4
+  cacheKey: 7
 
 "react-use-color@workspace:.":
   version: 0.0.0-use.local
   resolution: "react-use-color@workspace:."
+  dependencies:
+    typescript: ^4.3.5
   languageName: unknown
   linkType: soft
+
+typescript@^4.3.5:
+  version: 4.3.5
+  resolution: "typescript@npm:4.3.5"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: d9a8e78d72dd19896e6bfa73ab2a0fcea6eca2700d1d6e7c33f67a970af54a3e0fed8f715a8c4e6a0ff7fc0995067b394b2003518ab0aa84cd396377e54b760c
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@^4.3.5#builtin<compat/typescript>":
+  version: 4.3.5
+  resolution: "typescript@patch:typescript@npm%3A4.3.5#builtin<compat/typescript>::version=4.3.5&hash=ddfc1b"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 7f0b8343f71ecac18095be1476b398aca420ab60dc207cc1efe078f381eef5527b80a518297720257114cdbda65612f8839e4b63e85dc95e67ac5cbbade8bdf0
+  languageName: node
+  linkType: hard

@@ -56,8 +56,14 @@ setColor(({ b }) => ({ r: 144, g: 194, b }))
 color.rgb // { r: 144, g: 194, b: 255 }
 ```
 
-## Type checking
+## Compile-time Type checking
 ```tsx
 useColor('#00ffzaz')
-// Type '"00ffzaz"' is not assignable to type '...'
+// Argument of type '"#00ffzaz"' is not assignable to parameter of type '...'.ts(2345)
+
+useColor('rgb(255, 255,)')
+// Argument of type '"rgba(255, 255,)"' is not assignable to parameter of type '...'.ts(2345)
+
+useColor('rgba(255, 255, 255)')
+// Argument of type '"rgba(255, 255, 255)"' is not assignable to parameter of type '...'.ts(2345)
 ```

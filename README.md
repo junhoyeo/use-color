@@ -1,5 +1,9 @@
-# use-color
-The powerful color hook that all designers deserve.
+<p align="center">
+  <img alt="roller skate emoji" src="./docs/images/roller-skate-emoji.png" width="96" />
+  <h1 align="center">use-color</h1>
+</p>
+
+> The powerful **color** hook that all designers deserve.
 
 ```
 yarn add use-color

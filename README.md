@@ -3,7 +3,7 @@
   <h1 align="center">use-color</h1>
 </p>
 
-[![codecov](https://codecov.io/gh/junhoyeo/use-color/branch/main/graph/badge.svg?token=OQKSGYD5UI)](https://codecov.io/gh/junhoyeo/use-color) [![Build](https://github.com/junhoyeo/use-color/actions/workflows/build.yml/badge.svg)](https://github.com/junhoyeo/use-color/actions/workflows/build.yml)
+[![NPM version](https://badgen.net/npm/v/use-color)](https://www.npmjs.com/package/use-color) [![Package size](https://badgen.net/bundlephobia/minzip/use-color)](https://bundlephobia.com/result?p=use-color) [![codecov](https://codecov.io/gh/junhoyeo/use-color/branch/main/graph/badge.svg?token=OQKSGYD5UI)](https://codecov.io/gh/junhoyeo/use-color) [![Build](https://github.com/junhoyeo/use-color/actions/workflows/build.yml/badge.svg)](https://github.com/junhoyeo/use-color/actions/workflows/build.yml)
 
 > The powerful **color** hook that all designers deserve.
 

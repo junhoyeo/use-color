@@ -61,14 +61,17 @@ color.rgb // { r: 144, g: 194, b: 255 }
 ```
 
 ## Compile-time Type checking
-```tsx
-useColor('#00ffzaz')
+```diff
++ useColor('#00fffa')
+- useColor('#00ffzz')
 // Argument of type '"#00ffzaz"' is not assignable to parameter of type '...'.ts(2345)
 
-useColor('rgb(255, 255,)')
++ useColor('rgb(255, 255, 255)')
+- useColor('rgb(255, 255,)')
 // Argument of type '"rgba(255, 255,)"' is not assignable to parameter of type '...'.ts(2345)
 
-useColor('rgba(255, 255, 255)')
++ useColor('rgba(255, 255, 255, 1)')
+- useColor('rgba(255, 255, 255)')
 // Argument of type '"rgba(255, 255, 255)"' is not assignable to parameter of type '...'.ts(2345)
 ```
 

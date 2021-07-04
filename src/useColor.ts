@@ -2,9 +2,9 @@ import { useState } from 'react';
 
 import { Color } from './Color';
 import { Config } from './Config';
-import { parseColorFromRgbaString } from './Parser/Rgba';
+import { parseColorFromRgbaString, parseColorFromRgbString } from './Parser';
 import { ColorInput } from './types/ColorInput';
-import { RgbaString } from './types/rgb';
+import { RgbaString, RgbString } from './types/rgb';
 import { toRgbRange, toTwoDigitHex } from './utils/filters';
 
 export const useColor = <Str extends string>(
@@ -20,19 +20,7 @@ export const useColor = <Str extends string>(
 
       if (colorInput.startsWith('rgb')) {
         // RgbString
-        let [red, green, blue] = colorInput
-          .replace(/^rgb?\(|\s+|\)$/g, '')
-          .split(',')
-          .map((v) => parseFloat(v))
-
-        return new Color(
-          {
-            r: toRgbRange(red),
-            g: toRgbRange(green),
-            b: toRgbRange(blue),
-          },
-          config,
-        )
+        return parseColorFromRgbString(colorInput as RgbString, config)
       }
 
       // TODO: HexString

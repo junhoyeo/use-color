@@ -14,7 +14,7 @@ describe('RGB string', () => {
   ])('When RGB string is given', (colorInput) => {
     // when
     const { result } = renderHook(() => useColor(colorInput))
-    const color = result.current[0]!
+    const color = result.current[0]
 
     it('Parse RGB/RGBA object', () => {
       expect(color.rgb).toEqual({ r: 34, g: 114, b: 235 })
@@ -33,7 +33,7 @@ describe('RGB string', () => {
 
   it('Each value cannot be greater than the maximum', () => {
     const { result } = renderHook(() => useColor('rgb(0, 0, 260)'))
-    const color = result.current[0]!
+    const color = result.current[0]
 
     expect(color.rgb).toEqual({ r: 0, g: 0, b: 255 })
     expect(color.rgba).toEqual({ r: 0, g: 0, b: 255, a: 1 })
@@ -42,7 +42,7 @@ describe('RGB string', () => {
 
   it('Each value cannot be less than the minimum value', () => {
     const { result } = renderHook(() => useColor('rgb(-2, 0, 255)'))
-    const color = result.current[0]!
+    const color = result.current[0]
 
     expect(color.rgb).toEqual({ r: 0, g: 0, b: 255 })
     expect(color.rgba).toEqual({ r: 0, g: 0, b: 255, a: 1 })
@@ -59,7 +59,7 @@ describe('RGBA string', () => {
   ])('When RGBA string is given', (colorInput) => {
     // when
     const { result } = renderHook(() => useColor(colorInput))
-    const color = result.current[0]!
+    const color = result.current[0]
 
     it('Parse RGB/RGBA object', () => {
       expect(color.rgb).toEqual({ r: 34, g: 114, b: 235 })
@@ -78,7 +78,7 @@ describe('RGBA string', () => {
 
   it('Each value cannot be greater than the maximum', () => {
     const { result } = renderHook(() => useColor('rgba(0, 0, 260, 2)'))
-    const color = result.current[0]!
+    const color = result.current[0]
 
     expect(color.rgb).toEqual({ r: 0, g: 0, b: 255 })
     expect(color.rgba).toEqual({ r: 0, g: 0, b: 255, a: 1 })
@@ -87,7 +87,7 @@ describe('RGBA string', () => {
 
   it('Each value cannot be less than the minimum value', () => {
     const { result } = renderHook(() => useColor('rgba(-2, 0, 255, -1)'))
-    const color = result.current[0]!
+    const color = result.current[0]
 
     expect(color.rgb).toEqual({ r: 0, g: 0, b: 255 })
     expect(color.rgba).toEqual({ r: 0, g: 0, b: 255, a: 0 })
@@ -102,7 +102,7 @@ describe('Hex string', () => {
 
     // when
     const { result } = renderHook(() => useColor(colorInput))
-    const color = result.current[0]!
+    const color = result.current[0]
 
     it('Parse RGB/RGBA object', () => {
       expect(color.rgb).toEqual({ r: 255, g: 255, b: 170 })
@@ -125,7 +125,7 @@ describe('Hex string', () => {
 
     // when
     const { result } = renderHook(() => useColor(colorInput))
-    const color = result.current[0]!
+    const color = result.current[0]
 
     it('Parse RGB/RGBA object', () => {
       expect(color.rgb).toEqual({ r: 255, g: 51, b: 170 })
@@ -148,7 +148,7 @@ describe('Hex string', () => {
 
     // when
     const { result } = renderHook(() => useColor(colorInput))
-    const color = result.current[0]!
+    const color = result.current[0]
 
     it('Parse RGB/RGBA object', () => {
       expect(color.rgb).toEqual({ r: 255, g: 170, b: 250 })
@@ -171,7 +171,7 @@ describe('Hex string', () => {
 
     // when
     const { result } = renderHook(() => useColor(colorInput))
-    const color = result.current[0]!
+    const color = result.current[0]
 
     it('Parse RGB/RGBA object', () => {
       expect(color.rgb).toEqual({ r: 34, g: 114, b: 235 })
@@ -195,7 +195,7 @@ describe('When RGB object is given', () => {
 
   // when
   const { result } = renderHook(() => useColor(colorInput))
-  const color = result.current[0]!
+  const color = result.current[0]
 
   it('Parse RGB/RGBA object', () => {
     expect(color.rgb).toEqual({ r: 34, g: 114, b: 235 })
@@ -218,7 +218,7 @@ describe('When RGBA object is given', () => {
 
   // when
   const { result } = renderHook(() => useColor(colorInput))
-  const color = result.current[0]!
+  const color = result.current[0]
 
   it('Parse RGB/RGBA object', () => {
     expect(color.rgb).toEqual({ r: 34, g: 114, b: 235 })

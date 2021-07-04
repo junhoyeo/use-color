@@ -12,7 +12,7 @@ const toTwoDigitHex = (value: string) =>
 
 export const useColor = <Str extends string>(
   colorInput: ColorInput<Str>,
-): [Color | undefined] => {
+): [Color] => {
   const [color] = useState(() => {
     if (typeof colorInput === 'string') {
       if (colorInput.startsWith('rgba')) {

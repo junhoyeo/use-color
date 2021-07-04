@@ -9,9 +9,21 @@ type AsValidColorString<Str extends string> =
     ? `#${ToHexDigit<D1>}${ToHexDigit<D2>}${ToHexDigit<D3>}`
     : '#000'
 
+type AsValidColorStringWithOpacity<Str extends string> =
+  Str extends `#${infer D1}${infer D2}${infer D3}${infer D4}${infer D5}${infer D6}${infer D7}${infer D8}`
+    ? `#${ToHexDigit<D1>}${ToHexDigit<D2>}${ToHexDigit<D3>}${ToHexDigit<D4>}${ToHexDigit<D5>}${ToHexDigit<D6>}${ToHexDigit<D7>}${ToHexDigit<D8>}`
+    : Str extends `#${infer D1}${infer D2}${infer D3}${infer D4}`
+    ? `#${ToHexDigit<D1>}${ToHexDigit<D2>}${ToHexDigit<D3>}${ToHexDigit<D4>}`
+    : '#0000'
+
 export type HexString<T extends string> = T extends AsValidColorString<T>
   ? T
   : AsValidColorString<T>
+
+export type HexStringWithOpacity<T extends string> =
+  T extends AsValidColorStringWithOpacity<T>
+    ? T
+    : AsValidColorStringWithOpacity<T>
 
 type UppercaseHexDigit =
   | '0'

@@ -264,7 +264,25 @@ describe('Stringify Options', () => {
     })
 
     describe('ignoreAlpha', () => {
-      // TODO: ignore alpha channel with configuration
+      it('Hex string includes alpha channel as default if it exists', () => {
+        const { result } = renderHook(() => useColor('rgba(34, 114, 235, 0.8)'))
+        const color = result.current[0]
+
+        expect(color?.strings.hex).toEqual('#2272ebcc')
+      })
+
+      it('Hex string excludes alpha channel when enabled', () => {
+        const { result } = renderHook(() =>
+          useColor('rgba(34, 114, 235, 0.8)', {
+            hex: {
+              ignoreAlpha: true,
+            },
+          }),
+        )
+        const color = result.current[0]
+
+        expect(color?.strings.hex).toEqual('#2272eb')
+      })
     })
   })
 })

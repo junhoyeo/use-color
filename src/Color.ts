@@ -32,7 +32,12 @@ export class Color {
       }, ${alpha})`,
 
       get hex() {
-        let hexString = rgbaToHex(rgbaObject)
+        let hexString = rgbaToHex({
+          ...rgbaObject,
+          a: this._color.config?.hex?.ignoreAlpha //
+            ? 1
+            : alpha,
+        })
         if (this._color.config?.hex?.transform === 'uppercase') {
           hexString = hexString.toUpperCase()
         }

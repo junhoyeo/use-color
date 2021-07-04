@@ -1,4 +1,4 @@
-import { RgbaObject } from '../types/rgb';
+import { RgbaObject } from '../types/Rgb';
 
 export const numberToHex = (value: number) =>
   (value | (1 << 8)).toString(16).slice(1)

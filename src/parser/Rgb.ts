@@ -1,6 +1,6 @@
 import { Color } from '../Color';
 import { Config } from '../Config';
-import { RgbString } from '../types/rgb';
+import { RgbString } from '../types/Rgb';
 import { toRgbRange } from '../utils/filters';
 
 export const parseColorFromRgbString = (

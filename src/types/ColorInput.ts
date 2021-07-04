@@ -1,5 +1,5 @@
-import { HexString, HexStringWithOpacity } from './hex';
-import { RgbColorInput } from './rgb';
+import { HexString, HexStringWithOpacity } from './Hex';
+import { RgbColorInput } from './Rgb';
 
 export type ColorInput<Str extends string> =
   | RgbColorInput

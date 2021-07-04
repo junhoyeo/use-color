@@ -1,7 +1,7 @@
 import { Color } from '../Color';
 import { Config } from '../Config';
 import { ColorInput } from '../types/ColorInput';
-import { RgbaString, RgbString } from '../types/rgb';
+import { RgbaString, RgbString } from '../types/Rgb';
 import { parseColorFromHexString } from './Hex';
 import { parseColorFromRgbString } from './Rgb';
 import { parseColorFromRgbaString } from './Rgba';

@@ -4,7 +4,7 @@ import { Color } from './Color';
 import { Config, defaultConfig } from './Config';
 import { parseColor } from './parser';
 import { ColorInput } from './types/ColorInput';
-import { RgbaObject } from './types/rgb';
+import { RgbaObject } from './types/Rgb';
 
 export type SetColor = <NewString extends string>(
   nextColor:

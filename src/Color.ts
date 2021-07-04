@@ -1,5 +1,5 @@
 import { Config } from './Config';
-import { RgbaObject, RgbaString, RgbObject, RgbString } from './types/rgb';
+import { RgbaObject, RgbaString, RgbObject, RgbString } from './types/Rgb';
 import { rgbaToHex } from './utils/rgbaToHex';
 
 type Strings = {

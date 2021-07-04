@@ -50,12 +50,15 @@ const [color] = useColor({ r: 255, g: 255, b: 255 }, {
 ```tsx
 // when
 const [color, setColor] = useColor({ r: 144, g: 194, b: 255 })
+setColor('#fff')
+setColor('rgb(255, 255, 255)')
 setColor({ r: 255, g: 255, b: 255 })
 
 // then
 color.rgb // { r: 255, g: 255, b: 255 }
 
 // when
+setColor(({ b }) => `rgba(144, 194, ${b})`)
 setColor(({ b }) => ({ r: 144, g: 194, b }))
 
 // then

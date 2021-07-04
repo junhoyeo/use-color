@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { Color } from './Color';
-import { Config } from './Config';
+import { Config, defaultConfig } from './Config';
 import { parseColor } from './parser';
 import { ColorInput } from './types/ColorInput';
 import { RgbaObject } from './types/rgb';
@@ -14,7 +14,7 @@ export type SetColor = <NewString extends string>(
 
 export const useColor = <Str extends string>(
   colorInput: ColorInput<Str>,
-  config?: Config,
+  config: Config = defaultConfig,
 ): [Color, SetColor] => {
   const [color, setColor] = useState(() => parseColor(colorInput, config))
 

@@ -1,6 +1,7 @@
 {
   "name": "react-use-color",
   "scripts": {
+    "build": "tsc",
     "test": "jest"
   },
   "dependencies": {

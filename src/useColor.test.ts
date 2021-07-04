@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react-hooks';
 
 import { ColorInput } from './types/ColorInput';
 import { useColor } from './useColor';
@@ -321,5 +321,78 @@ describe('Stringify Options', () => {
         expect(color?.strings.hex).toEqual('#2272eb')
       })
     })
+  })
+})
+
+describe('Set color', () => {
+  it('Change color with Hex string', () => {
+    // given
+    const { result } = renderHook(() => useColor('rgb(255, 0, 80)'))
+    const [oldColor, setColor] = result.current
+
+    expect(oldColor.rgb).toEqual({ r: 255, g: 0, b: 80 })
+    expect(oldColor.strings.hex).toEqual('#ff0050')
+
+    // when
+    act(() => setColor('#00f2ea'))
+    const [newColor] = result.current
+
+    // then
+    expect(newColor.rgb).toEqual({ r: 0, g: 242, b: 234 })
+    expect(newColor.strings.hex).toEqual('#00f2ea')
+  })
+
+  it('Change color with RGB string', () => {
+    // given
+    const { result } = renderHook(() => useColor('#4b917d'))
+    const [oldColor, setColor] = result.current
+
+    expect(oldColor.rgb).toEqual({ r: 75, g: 145, b: 125 })
+    expect(oldColor.strings.rgb).toEqual('rgb(75, 145, 125)')
+
+    // when
+    act(() => setColor('rgb(205, 245, 100)'))
+    const [newColor] = result.current
+
+    // then
+    expect(newColor.rgb).toEqual({ r: 205, g: 245, b: 100 })
+    expect(newColor.strings.hex).toEqual('#cdf564')
+  })
+
+  it('Change color with RGBA string', () => {
+    // given
+    const { result } = renderHook(() => useColor('#4b917dff'))
+    const [oldColor, setColor] = result.current
+
+    expect(oldColor.rgba).toEqual({ r: 75, g: 145, b: 125, a: 1 })
+    expect(oldColor.strings.rgba).toEqual('rgba(75, 145, 125, 1)')
+
+    // when
+    act(() => setColor('rgba(205, 245, 100, 0.8)'))
+    const [newColor] = result.current
+
+    // then
+    expect(newColor.rgba).toEqual({ r: 205, g: 245, b: 100, a: 0.8 })
+    expect(newColor.strings.hex).toEqual('#cdf564cc')
+  })
+
+  it.each([
+    [{ r: 0, g: 242, b: 234 }, '#00f2ea'],
+    [{ r: 0, g: 242, b: 234, a: 0.35 }, '#00f2ea59'],
+  ])('Change color with RGB/RGBA object', (givenColor, expectedColor) => {
+    // given
+    const { result } = renderHook(() => useColor('rgba(255, 0, 80, 1)'))
+    const [oldColor, setColor] = result.current
+
+    expect(oldColor.rgba).toEqual({ r: 255, g: 0, b: 80, a: 1 })
+    expect(oldColor.strings.hex).toEqual('#ff0050')
+
+    // when
+    act(() => setColor(givenColor))
+    const [newColor] = result.current
+
+    // then
+    expect(newColor.rgb).toEqual({ r: 0, g: 242, b: 234 })
+    expect(newColor.strings.hex).toEqual(expectedColor)
   })
 })

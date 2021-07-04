@@ -1,15 +1,26 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Color } from './Color';
 import { Config } from './Config';
 import { parseColor } from './parser';
 import { ColorInput } from './types/ColorInput';
 
+export type SetColor = <NewString extends string>(
+  nextColor: ColorInput<NewString>,
+) => void
+
 export const useColor = <Str extends string>(
   colorInput: ColorInput<Str>,
   config?: Config,
-): [Color] => {
-  const [color] = useState(() => parseColor(colorInput, config))
+): [Color, SetColor] => {
+  const [color, setColor] = useState(() => parseColor(colorInput, config))
 
-  return [color]
+  const updateColor = useCallback(
+    <NewString extends string>(nextColor: ColorInput<NewString>) => {
+      setColor(parseColor(nextColor, config))
+    },
+    [],
+  )
+
+  return [color, updateColor]
 }

@@ -1,7 +1,5 @@
 import { Color } from '../Color';
 import { Config } from '../Config';
-import { HexString } from '../types/hex';
-import { RgbString } from '../types/rgb';
 import { toTwoDigitHex } from '../utils/filters';
 
 export const parseColorFromHexString = (hexString: string, config?: Config) => {

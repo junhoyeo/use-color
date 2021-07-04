@@ -260,7 +260,44 @@ describe('Stringify Options', () => {
     })
 
     describe('compress', () => {
-      // TODO: disable compress with configuration
+      it.each([
+        [toColorInput('#000000'), '#000000'],
+        [toColorInput('#ffffff'), '#ffffff'],
+        [toColorInput('#ff33ff'), '#ff33ff'],
+        [toColorInput('#aa3300ff'), '#aa3300'],
+        [toColorInput('#ffff0000'), '#ffff0000'],
+      ])(
+        'Return hex string without compression',
+        (givenColor, expectedColor) => {
+          // when
+          const { result } = renderHook(() => useColor(givenColor))
+          const color = result.current[0]
+
+          // then
+          expect(color?.strings.hex).toEqual(expectedColor)
+        },
+      )
+
+      it.each([
+        [toColorInput('#000000'), '#000'],
+        [toColorInput('#ffffff'), '#fff'],
+        [toColorInput('#ff33ff'), '#f3f'],
+        [toColorInput('#aa3300ff'), '#a30'],
+        [toColorInput('#ffff0000'), '#ff00'],
+      ])('Compress hex string when enabled', (givenColor, expectedColor) => {
+        // when
+        const { result } = renderHook(() =>
+          useColor(givenColor, {
+            hex: {
+              compress: true,
+            },
+          }),
+        )
+        const color = result.current[0]
+
+        // then
+        expect(color?.strings.hex).toEqual(expectedColor)
+      })
     })
 
     describe('ignoreAlpha', () => {

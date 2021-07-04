@@ -3,13 +3,7 @@ import { useState } from 'react';
 import { Color } from './Color';
 import { Config } from './Config';
 import { ColorInput } from './types/ColorInput';
-
-const toRgbRange = (value: number) => Math.max(Math.min(value, 255), 0)
-const toAlphaRange = (value: number) => Math.max(Math.min(value, 1), 0)
-const toTwoDigitHex = (value: string) =>
-  value.length === 1 //
-    ? value + value
-    : value
+import { toAlphaRange, toRgbRange, toTwoDigitHex } from './utils/filters';
 
 export const useColor = <Str extends string>(
   colorInput: ColorInput<Str>,

@@ -1,3 +1,4 @@
+import { Config } from './Config';
 import { RgbaObject, RgbaString, RgbObject, RgbString } from './types/rgb';
 
 type Strings = {
@@ -11,8 +12,11 @@ export class Color {
   public rgb: RgbObject
   public rgba: RgbaObject
   public strings: Strings
+  public config?: Config
 
-  constructor(rgbaObject: RgbaObject) {
+  constructor(rgbaObject: RgbaObject, config?: Config) {
+    this.config = config
+
     const { a: alpha = 1, ...rgbObject } = rgbaObject
     const { r: red, b: blue, g: green } = rgbObject
     this.rgb = rgbObject
@@ -28,7 +32,11 @@ export class Color {
       }, ${alpha})`,
 
       get hex() {
-        return rgbaToHex(rgbaObject)
+        let hexString = rgbaToHex(rgbaObject)
+        if (this._color.config?.hex?.transform === 'uppercase') {
+          hexString = hexString.toUpperCase()
+        }
+        return hexString
       },
     }
   }

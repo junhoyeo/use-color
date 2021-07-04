@@ -234,3 +234,37 @@ describe('When RGBA object is given', () => {
     expect(color.strings.rgba).toEqual('rgba(34, 114, 235, 0.8)')
   })
 })
+
+describe('Stringify Options', () => {
+  describe('Hex string', () => {
+    describe('transform', () => {
+      it('Transform Hex string to lowercase as default', () => {
+        const { result } = renderHook(() => useColor('#6AE1E1'))
+        const color = result.current[0]
+
+        expect(color?.strings.hex).toEqual('#6ae1e1')
+      })
+
+      it('Transform Hex string to uppercase when enabled', () => {
+        const { result } = renderHook(() =>
+          useColor('#6AE1E1', {
+            hex: {
+              transform: 'uppercase',
+            },
+          }),
+        )
+        const color = result.current[0]
+
+        expect(color?.strings.hex).toEqual('#6AE1E1')
+      })
+    })
+
+    describe('compress', () => {
+      // TODO: disable compress with configuration
+    })
+
+    describe('ignoreAlpha', () => {
+      // TODO: ignore alpha channel with configuration
+    })
+  })
+})

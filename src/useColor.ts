@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { Color } from './Color';
+import { Config } from './Config';
 import { ColorInput } from './types/ColorInput';
 
 const toRgbRange = (value: number) => Math.max(Math.min(value, 255), 0)
@@ -12,6 +13,7 @@ const toTwoDigitHex = (value: string) =>
 
 export const useColor = <Str extends string>(
   colorInput: ColorInput<Str>,
+  config?: Config,
 ): [Color] => {
   const [color] = useState(() => {
     if (typeof colorInput === 'string') {
@@ -22,12 +24,15 @@ export const useColor = <Str extends string>(
           .split(',')
           .map((v) => parseFloat(v))
 
-        return new Color({
-          r: toRgbRange(red),
-          g: toRgbRange(green),
-          b: toRgbRange(blue),
-          a: toAlphaRange(alpha),
-        })
+        return new Color(
+          {
+            r: toRgbRange(red),
+            g: toRgbRange(green),
+            b: toRgbRange(blue),
+            a: toAlphaRange(alpha),
+          },
+          config,
+        )
       }
 
       if (colorInput.startsWith('rgb')) {
@@ -37,11 +42,14 @@ export const useColor = <Str extends string>(
           .split(',')
           .map((v) => parseFloat(v))
 
-        return new Color({
-          r: toRgbRange(red),
-          g: toRgbRange(green),
-          b: toRgbRange(blue),
-        })
+        return new Color(
+          {
+            r: toRgbRange(red),
+            g: toRgbRange(green),
+            b: toRgbRange(blue),
+          },
+          config,
+        )
       }
 
       // TODO: HexString
@@ -72,18 +80,21 @@ export const useColor = <Str extends string>(
           break
       }
 
-      return new Color({
-        r: parseInt(red, 16),
-        g: parseInt(green, 16),
-        b: parseInt(blue, 16),
-        a: alpha //
-          ? parseFloat((parseInt(alpha, 16) / 255).toFixed(2))
-          : 1,
-      })
+      return new Color(
+        {
+          r: parseInt(red, 16),
+          g: parseInt(green, 16),
+          b: parseInt(blue, 16),
+          a: alpha //
+            ? parseFloat((parseInt(alpha, 16) / 255).toFixed(2))
+            : 1,
+        },
+        config,
+      )
     }
 
     // RgbaObject
-    return new Color(colorInput)
+    return new Color(colorInput, config)
   })
 
   return [color]

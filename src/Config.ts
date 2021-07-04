@@ -1,9 +1,11 @@
+export type HexConfig = {
+  transform?: 'lowercase' | 'uppercase'
+  compress?: boolean
+  ignoreAlpha?: boolean
+}
+
 export type Config = {
-  hex?: {
-    transform?: 'lowercase' | 'uppercase'
-    compress?: boolean
-    ignoreAlpha?: boolean
-  }
+  hex?: HexConfig
 }
 
 export const defaultConfig: Config = {

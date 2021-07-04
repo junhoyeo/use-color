@@ -95,6 +95,54 @@ describe('RGBA string', () => {
   })
 })
 
+describe('Hex string', () => {
+  describe('When 3-digit Hex string is given', () => {
+    // given
+    const colorInput = '#ffa'
+
+    // when
+    const { result } = renderHook(() => useColor(colorInput))
+    const color = result.current[0]!
+
+    it('Parse RGB/RGBA object', () => {
+      expect(color.rgb).toEqual({ r: 255, g: 255, b: 170 })
+      expect(color.rgba).toEqual({ r: 255, g: 255, b: 170, a: 1 })
+    })
+
+    it('Stringifies to Hex string', () => {
+      expect(color.strings.hex).toEqual('#ffffaa')
+    })
+
+    it('Stringifies to RGB/RGBA string', () => {
+      expect(color.strings.rgb).toEqual('rgb(255, 255, 170)')
+      expect(color.strings.rgba).toEqual('rgba(255, 255, 170, 1)')
+    })
+  })
+
+  describe('When 6-digit Hex string is given', () => {
+    // given
+    const colorInput = '#ffaafa'
+
+    // when
+    const { result } = renderHook(() => useColor(colorInput))
+    const color = result.current[0]!
+
+    it('Parse RGB/RGBA object', () => {
+      expect(color.rgb).toEqual({ r: 255, g: 170, b: 250 })
+      expect(color.rgba).toEqual({ r: 255, g: 170, b: 250, a: 1 })
+    })
+
+    it('Stringifies to Hex string', () => {
+      expect(color.strings.hex).toEqual('#ffaafa')
+    })
+
+    it('Stringifies to RGB/RGBA string', () => {
+      expect(color.strings.rgb).toEqual('rgb(255, 170, 250)')
+      expect(color.strings.rgba).toEqual('rgba(255, 170, 250, 1)')
+    })
+  })
+})
+
 describe('When RGB object is given', () => {
   // given
   const colorInput = { r: 34, g: 114, b: 235, a: 1 }

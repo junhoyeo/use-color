@@ -5,6 +5,10 @@ import { ColorInput } from './types/ColorInput';
 
 const toRgbRange = (value: number) => Math.max(Math.min(value, 255), 0)
 const toAlphaRange = (value: number) => Math.max(Math.min(value, 1), 0)
+const toTwoDigitHex = (value: string) =>
+  value.length === 1 //
+    ? value + value
+    : value
 
 export const useColor = <Str extends string>(
   colorInput: ColorInput<Str>,
@@ -41,7 +45,30 @@ export const useColor = <Str extends string>(
       }
 
       // TODO: HexString
-      return undefined
+      const hexString = colorInput.replace('#', '')
+      let red: string, green: string, blue: string, alpha: string | undefined
+
+      switch (hexString.length) {
+        default:
+          ;[red, green, blue] = hexString.split('').map(toTwoDigitHex)
+          break
+        case 6:
+          ;[red, green, blue] = [
+            hexString.substring(0, 2),
+            hexString.substring(2, 4),
+            hexString.substring(4, 6),
+          ].map(toTwoDigitHex)
+          break
+      }
+
+      return new Color({
+        r: parseInt(red, 16),
+        g: parseInt(green, 16),
+        b: parseInt(blue, 16),
+        a: alpha //
+          ? parseInt(alpha, 16) / 255
+          : 1,
+      })
     }
 
     // RgbaObject

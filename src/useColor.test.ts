@@ -1,9 +1,16 @@
-import { Color } from './Color';
+import { act, renderHook } from '@testing-library/react-hooks';
+
+import { useColor } from './useColor';
 
 describe('When RGB object is given', () => {
-  const color = new Color({ r: 34, g: 114, b: 235 })
+  // given
+  const colorInput = { r: 34, g: 114, b: 235, a: 1 }
 
-  it('Compute RGB/RGBA object', () => {
+  // when
+  const { result } = renderHook(() => useColor(colorInput))
+  const color = result.current[0]!
+
+  it('Parse RGB/RGBA object', () => {
     expect(color.rgb).toEqual({ r: 34, g: 114, b: 235 })
     expect(color.rgba).toEqual({ r: 34, g: 114, b: 235, a: 1 })
   })
@@ -19,9 +26,14 @@ describe('When RGB object is given', () => {
 })
 
 describe('When RGBA object is given', () => {
-  const color = new Color({ r: 34, g: 114, b: 235, a: 0.8 })
+  // given
+  const colorInput = { r: 34, g: 114, b: 235, a: 0.8 }
 
-  it('Compute RGB/RGBA object', () => {
+  // when
+  const { result } = renderHook(() => useColor(colorInput))
+  const color = result.current[0]!
+
+  it('Parse RGB/RGBA object', () => {
     expect(color.rgb).toEqual({ r: 34, g: 114, b: 235 })
     expect(color.rgba).toEqual({ r: 34, g: 114, b: 235, a: 0.8 })
   })

@@ -396,3 +396,20 @@ describe('Set color', () => {
     expect(newColor.strings.hex).toEqual(expectedColor)
   })
 })
+
+it('Update color', () => {
+  // given
+  const { result } = renderHook(() => useColor('rgb(34, 114, 235)'))
+  const [oldColor, setColor] = result.current
+
+  expect(oldColor.rgb).toEqual({ r: 34, g: 114, b: 235 })
+  expect(oldColor.strings.hex).toEqual('#2272eb')
+
+  // when
+  act(() => setColor(({ g, b }) => ({ r: 127, g, b })))
+  const [newColor] = result.current
+
+  // then
+  expect(newColor.rgb).toEqual({ r: 127, g: 114, b: 235 })
+  expect(newColor.strings.hex).toEqual('#7f72eb')
+})

@@ -11,6 +11,10 @@
 yarn add use-color
 ```
 
+```tsx
+import { useColor } from 'use-color'
+```
+
 ## Parse
 ```tsx
 const [color] = useColor('#2272eb')

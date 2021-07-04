@@ -59,7 +59,7 @@ type RgbaToHexOptions = {
   compress?: boolean
 }
 export const rgbaToHex = (
-  { r: red, g: green, b: blue, a: alpha = 1 }: RgbaObject,
+  { r: red, g: green, b: blue, a: alpha }: RgbaObject,
   options?: RgbaToHexOptions,
 ) => {
   const redHex = numberToHex(red)
@@ -67,7 +67,7 @@ export const rgbaToHex = (
   const blueHex = numberToHex(blue)
 
   let digits = [redHex, greenHex, blueHex]
-  if (alpha !== 1) {
+  if (typeof alpha !== 'undefined' && alpha !== 1) {
     const hexAlpha = ((alpha * 255) | (1 << 8)).toString(16).slice(1)
     digits.push(hexAlpha)
   }

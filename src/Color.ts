@@ -1,7 +1,7 @@
-import { HexString } from './types/hex';
 import { RgbaObject, RgbaString, RgbObject, RgbString } from './types/rgb';
 
 type Strings = {
+  _color: Color
   rgb: RgbString
   rgba: RgbaString
   hex: string
@@ -20,11 +20,16 @@ export class Color {
     this.rgba = { ...rgbaObject, a: alpha }
 
     this.strings = {
+      _color: this,
+
       rgb: `rgb(${red as number}, ${green as number}, ${blue as number})`,
       rgba: `rgba(${red as number}, ${green as number}, ${
         blue as number
       }, ${alpha})`,
-      hex: rgbaToHex(rgbaObject),
+
+      get hex() {
+        return rgbaToHex(rgbaObject)
+      },
     }
   }
 }

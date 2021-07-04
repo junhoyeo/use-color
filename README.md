@@ -3,6 +3,8 @@
   <h1 align="center">use-color</h1>
 </p>
 
+[![codecov](https://codecov.io/gh/junhoyeo/use-color/branch/main/graph/badge.svg?token=OQKSGYD5UI)](https://codecov.io/gh/junhoyeo/use-color)
+
 > The powerful **color** hook that all designers deserve.
 
 ```

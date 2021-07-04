@@ -15,6 +15,17 @@ yarn add use-color
 import { useColor } from 'use-color'
 ```
 
+## Core functions
+All the functions and types that power the hook are exported. Detailed documentation is TBD(planning to detach them as a core module).
+
+```tsx
+import { parseColor } from 'use-color/parser'
+import { ColorInput } from 'use-color/types/ColorInput'
+
+const givenColor: colorInput = 'rgb(34, 114, 235)'
+const color = parseColor(givenColor)
+```
+
 ## Parse
 ```tsx
 const [color] = useColor('#2272eb')

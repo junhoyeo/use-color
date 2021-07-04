@@ -1,5 +1,11 @@
 {
-  "name": "react-use-color",
+  "name": "use-color",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/junhoyeo/use-color",
+  "author": "Junho Yeo <hanaro0704@gmail.com>",
+  "license": "MIT",
   "scripts": {
     "build": "tsc",
     "test": "jest"
@@ -18,5 +24,8 @@
     "@types/react-dom": "^17.0.8",
     "jest": "^27.0.6",
     "typescript": "^4.3.5"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

@@ -3590,24 +3590,6 @@ fsevents@^2.3.2:
   languageName: node
   linkType: hard
 
-"react-use-color@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "react-use-color@workspace:."
-  dependencies:
-    "@babel/plugin-transform-modules-commonjs": ^7.14.5
-    "@babel/preset-react": ^7.14.5
-    "@babel/preset-typescript": ^7.14.5
-    "@testing-library/react-hooks": ^7.0.1
-    "@types/jest": ^26.0.23
-    "@types/react": ^17.0.13
-    "@types/react-dom": ^17.0.8
-    jest: ^27.0.6
-    react: ^17.0.2
-    react-dom: ^17.0.2
-    typescript: ^4.3.5
-  languageName: unknown
-  linkType: soft
-
 "react@npm:^17.0.2":
   version: 17.0.2
   resolution: "react@npm:17.0.2"
@@ -4179,6 +4161,24 @@ typescript@^4.3.5:
   checksum: 420fc6547357782c700d53e9a92506a8e95345b13e97684c8f9ab75237912ec2ebb6af8ac10d4f7406b7b6bd21c58f6c5c0811414fb0b4091b78b4743fa6806e
   languageName: node
   linkType: hard
+
+"use-color@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "use-color@workspace:."
+  dependencies:
+    "@babel/plugin-transform-modules-commonjs": ^7.14.5
+    "@babel/preset-react": ^7.14.5
+    "@babel/preset-typescript": ^7.14.5
+    "@testing-library/react-hooks": ^7.0.1
+    "@types/jest": ^26.0.23
+    "@types/react": ^17.0.13
+    "@types/react-dom": ^17.0.8
+    jest: ^27.0.6
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    typescript: ^4.3.5
+  languageName: unknown
+  linkType: soft
 
 "util-deprecate@npm:~1.0.1":
   version: 1.0.2

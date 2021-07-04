@@ -1,7 +1,7 @@
 {
   "name": "use-color",
   "description": "The powerful color hook that all designers deserve.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": "https://github.com/junhoyeo/use-color",

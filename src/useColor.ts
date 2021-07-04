@@ -27,9 +27,17 @@ export const useColor = <Str extends string>(
       }
 
       if (colorInput.startsWith('rgb')) {
-        // TODO: RgbString
-        colorInput
-        return undefined
+        // RgbString
+        let [red, green, blue] = colorInput
+          .replace(/^rgb?\(|\s+|\)$/g, '')
+          .split(',')
+          .map((v) => parseFloat(v))
+
+        return new Color({
+          r: toRgbRange(red),
+          g: toRgbRange(green),
+          b: toRgbRange(blue),
+        })
       }
 
       // TODO: HexString

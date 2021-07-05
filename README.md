@@ -22,7 +22,7 @@ All the functions and types that power the hook are exported. Detailed documenta
 import { parseColor } from 'use-color/parser'
 import { ColorInput } from 'use-color/types/ColorInput'
 
-const givenColor: colorInput = 'rgb(34, 114, 235)'
+const givenColor: ColorInput = 'rgb(34, 114, 235)'
 const color = parseColor(givenColor)
 ```
 

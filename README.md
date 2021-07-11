@@ -33,10 +33,10 @@ color.rgb // { r: 34, g: 114, b: 235 }
 color.rgba // { r: 34, g: 114, b: 235, a: 1 }
 
 const [color] = useColor('rgb(34, 114, 235)')
-color.string.hex // #2272eb
+color.strings.hex // #2272eb
 
 const [color] = useColor('rgba(34, 114, 235, 0.5)')
-color.string.hex // #2272eb80
+color.strings.hex // #2272eb80
 color.rgb // { r: 34, g: 114, b: 235 }
 color.rgba // { r: 34, g: 114, b: 235, a: 0.5 }
 ```
@@ -45,9 +45,9 @@ color.rgba // { r: 34, g: 114, b: 235, a: 0.5 }
 ```tsx
 const [color] = useColor({ r: 255, g: 255, b: 255 })
 
-color.string.hex // '#ffffff'
-color.string.rgb // 'rgb(255, 255, 255)'
-color.string.rgba // 'rgb(255, 255, 255, 1)'
+color.strings.hex // '#ffffff'
+color.strings.rgb // 'rgb(255, 255, 255)'
+color.strings.rgba // 'rgb(255, 255, 255, 1)'
 ```
 
 ### Stringify Options

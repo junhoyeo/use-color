@@ -25,8 +25,7 @@ export const useColor = <Str extends string>(
         | ((prevColor: RgbaObject) => ColorInput<NewString>),
     ) => {
       if (typeof nextColor === 'function') {
-        const nextColorInput = nextColor(color.rgba)
-        setColor(parseColor(nextColorInput))
+        setColor((currentColor) => parseColor(nextColor(currentColor.rgba)))
         return
       }
       setColor(parseColor(nextColor, config))

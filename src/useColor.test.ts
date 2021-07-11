@@ -395,6 +395,31 @@ describe('Set color', () => {
     expect(newColor.rgb).toEqual({ r: 0, g: 242, b: 234 })
     expect(newColor.strings.hex).toEqual(expectedColor)
   })
+
+  it('Should pass current color when setColor takes a function', () => {
+    // given
+    const { result } = renderHook(() => useColor({ r: 0, g: 0, b: 0, a: 0 }))
+    const [_, setColor] = result.current
+
+    // when
+    act(() =>
+      setColor((currentColor) => {
+        // then
+        expect(currentColor).toStrictEqual({ r: 0, g: 0, b: 0, a: 0 })
+        return { r: 255, g: 255, b: 255, a: 1 }
+      }),
+    )
+
+    const [newColor, newSetColor] = result.current
+    expect(newColor.rgba).toEqual({ r: 255, g: 255, b: 255, a: 1 })
+
+    act(() =>
+      newSetColor((currentColor) => {
+        expect(currentColor).toStrictEqual({ r: 255, g: 255, b: 255, a: 1 })
+        return { r: 200, g: 200, b: 200, a: 0.5 }
+      }),
+    )
+  })
 })
 
 it('Update color', () => {

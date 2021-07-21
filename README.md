@@ -6,6 +6,8 @@
 [![NPM version](https://badgen.net/npm/v/use-color)](https://www.npmjs.com/package/use-color) [![Package size](https://badgen.net/bundlephobia/minzip/use-color)](https://bundlephobia.com/result?p=use-color) [![codecov](https://codecov.io/gh/junhoyeo/use-color/branch/main/graph/badge.svg?token=OQKSGYD5UI)](https://codecov.io/gh/junhoyeo/use-color) [![Build](https://github.com/junhoyeo/use-color/actions/workflows/build.yml/badge.svg)](https://github.com/junhoyeo/use-color/actions/workflows/build.yml)
 
 > The powerful **color** hook that all designers deserve.
+> 
+> 👉 *I'm planning to detach the core to [@roller-skates/core](https://github.com/junhoyeo/roller-skates). The same workspace will include a lot of cool packages that will help you to **"use colors"**, so stay tuned!*
 
 ```
 yarn add use-color

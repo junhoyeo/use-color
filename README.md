@@ -7,6 +7,8 @@
 
 > The powerful **color** hook that all designers deserve.
 > 
+> **⚠️ Archiving this repo; Pretty much useless to have this as an hook ⚠️**
+> 
 > 👉 *I'm planning to detach the core class to [@roller-skates/core](https://github.com/junhoyeo/roller-skates). The same workspace will include a lot of cool packages that will help you to **"use colors"**, so stay tuned!*
 
 ```

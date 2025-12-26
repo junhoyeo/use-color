@@ -1,14 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import {
-  hasSpace,
-  detectColorType,
-  toOklch,
-  toRgba,
-  fromOklch,
-  fromRgba,
-} from '../utils.js';
-import type { RGBA, OKLCH, HSLA, P3 } from '../../types/color.js';
-import type { RgbColor, OklchColor, HslColor, P3Color } from '../../types/ColorObject.js';
+import { describe, expect, it } from 'vitest';
+import type { HslColor, OklchColor, P3Color, RgbColor } from '../../types/ColorObject.js';
+import type { HSLA, OKLCH, P3, RGBA } from '../../types/color.js';
+import { detectColorType, fromOklch, fromRgba, hasSpace, toOklch, toRgba } from '../utils.js';
 
 describe('hasSpace', () => {
   it('returns true for AnyColor with space property', () => {

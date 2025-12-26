@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { toOklchString } from '../oklch.js';
+import { describe, expect, it } from 'vitest';
+import type { HslColor, OklchColor, RgbColor } from '../../types/ColorObject.js';
 import type { OKLCH } from '../../types/color.js';
-import type { OklchColor, RgbColor, HslColor } from '../../types/ColorObject.js';
+import { toOklchString } from '../oklch.js';
 
 describe('toOklchString', () => {
   describe('basic OKLCH colors', () => {
@@ -54,9 +54,7 @@ describe('toOklchString', () => {
 
     it('includes alpha with forceAlpha even when 1', () => {
       const color: OKLCH = { l: 0.5, c: 0.2, h: 180, a: 1 };
-      expect(toOklchString(color, { forceAlpha: true })).toBe(
-        'oklch(0.5 0.2 180 / 1)',
-      );
+      expect(toOklchString(color, { forceAlpha: true })).toBe('oklch(0.5 0.2 180 / 1)');
     });
   });
 
@@ -68,9 +66,7 @@ describe('toOklchString', () => {
 
     it('respects precision option of 2', () => {
       const color: OKLCH = { l: 0.62796, c: 0.25768, h: 29.2339, a: 1 };
-      expect(toOklchString(color, { precision: 2 })).toBe(
-        'oklch(0.63 0.26 29.23)',
-      );
+      expect(toOklchString(color, { precision: 2 })).toBe('oklch(0.63 0.26 29.23)');
     });
 
     it('respects precision option of 1', () => {
@@ -85,16 +81,12 @@ describe('toOklchString', () => {
 
     it('respects precision option of 5', () => {
       const color: OKLCH = { l: 0.6279612, c: 0.2576834, h: 29.233901, a: 1 };
-      expect(toOklchString(color, { precision: 5 })).toBe(
-        'oklch(0.62796 0.25768 29.2339)',
-      );
+      expect(toOklchString(color, { precision: 5 })).toBe('oklch(0.62796 0.25768 29.2339)');
     });
 
     it('applies precision to alpha as well', () => {
       const color: OKLCH = { l: 0.5, c: 0.2, h: 180, a: 0.333 };
-      expect(toOklchString(color, { precision: 2 })).toBe(
-        'oklch(0.5 0.2 180 / 0.33)',
-      );
+      expect(toOklchString(color, { precision: 2 })).toBe('oklch(0.5 0.2 180 / 0.33)');
     });
 
     it('removes trailing zeros', () => {

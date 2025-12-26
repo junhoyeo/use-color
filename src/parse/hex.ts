@@ -1,7 +1,7 @@
+import { ColorErrorCode, ColorParseError } from '../errors.js';
 import type { RGBA } from '../types/color.js';
 import type { Result } from '../types/Result.js';
-import { ok, err } from '../types/Result.js';
-import { ColorParseError, ColorErrorCode } from '../errors.js';
+import { err, ok } from '../types/Result.js';
 
 const HEX_CHAR_PATTERN = /^[0-9a-fA-F]+$/;
 

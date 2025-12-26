@@ -92,7 +92,7 @@ export function srgbToLinear(value: number): number {
   if (v <= 0.04045) {
     return v / 12.92;
   }
-  return Math.pow((v + 0.055) / 1.055, 2.4);
+  return ((v + 0.055) / 1.055) ** 2.4;
 }
 
 /**
@@ -125,10 +125,7 @@ export function srgbToLinear(value: number): number {
  */
 export function linearToSrgb(value: number): number {
   // Linear segment (≤ 0.0031308) vs power curve (gamma 1/2.4)
-  const v =
-    value <= 0.0031308
-      ? value * 12.92
-      : 1.055 * Math.pow(value, 1 / 2.4) - 0.055;
+  const v = value <= 0.0031308 ? value * 12.92 : 1.055 * value ** (1 / 2.4) - 0.055;
 
   return Math.round(v * 255);
 }

@@ -1,6 +1,6 @@
-import type { ColorInput } from './utils.js';
-import { hasSpace, detectColorType, toOklch, fromOklch } from './utils.js';
 import { clampToGamut } from '../convert/gamut.js';
+import type { ColorInput } from './utils.js';
+import { detectColorType, fromOklch, hasSpace, toOklch } from './utils.js';
 
 export type { ColorInput };
 

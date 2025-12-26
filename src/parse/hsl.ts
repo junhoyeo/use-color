@@ -26,9 +26,9 @@
  * ```
  */
 
+import { ColorErrorCode, ColorParseError } from '../errors.js';
 import type { HSLA } from '../types/color.js';
-import { ColorParseError, ColorErrorCode } from '../errors.js';
-import { type Result, ok, err } from '../types/Result.js';
+import { err, ok, type Result } from '../types/Result.js';
 
 /**
  * Normalizes a hue value to the range [0, 360).
@@ -106,19 +106,22 @@ const HSL_LEGACY_REGEX = /^hsl\(\s*([+-]?[\d.]+)\s*,\s*([+-]?[\d.]+%)\s*,\s*([+-
  * Regex for legacy HSLA format: hsla(h, s%, l%, a)
  * Captures: hue, saturation%, lightness%, alpha
  */
-const HSLA_LEGACY_REGEX = /^hsla\(\s*([+-]?[\d.]+)\s*,\s*([+-]?[\d.]+%)\s*,\s*([+-]?[\d.]+%)\s*,\s*([+-]?[\d.]+%?)\s*\)$/i;
+const HSLA_LEGACY_REGEX =
+  /^hsla\(\s*([+-]?[\d.]+)\s*,\s*([+-]?[\d.]+%)\s*,\s*([+-]?[\d.]+%)\s*,\s*([+-]?[\d.]+%?)\s*\)$/i;
 
 /**
  * Regex for modern CSS4 HSL format: hsl(h s% l%) or hsl(h s% l% / a)
  * Captures: hue, saturation%, lightness%, optional alpha
  */
-const HSL_MODERN_REGEX = /^hsl\(\s*([+-]?[\d.]+)\s+([+-]?[\d.]+%)\s+([+-]?[\d.]+%)(?:\s*\/\s*([+-]?[\d.]+%?))?\s*\)$/i;
+const HSL_MODERN_REGEX =
+  /^hsl\(\s*([+-]?[\d.]+)\s+([+-]?[\d.]+%)\s+([+-]?[\d.]+%)(?:\s*\/\s*([+-]?[\d.]+%?))?\s*\)$/i;
 
 /**
  * Regex for modern CSS4 HSLA format: hsla(h s% l% / a)
  * Note: In CSS4, hsla() is an alias for hsl() with space syntax
  */
-const HSLA_MODERN_REGEX = /^hsla\(\s*([+-]?[\d.]+)\s+([+-]?[\d.]+%)\s+([+-]?[\d.]+%)(?:\s*\/\s*([+-]?[\d.]+%?))?\s*\)$/i;
+const HSLA_MODERN_REGEX =
+  /^hsla\(\s*([+-]?[\d.]+)\s+([+-]?[\d.]+%)\s+([+-]?[\d.]+%)(?:\s*\/\s*([+-]?[\d.]+%?))?\s*\)$/i;
 
 /**
  * Parses a legacy HSL string: `hsl(h, s%, l%)`
@@ -142,7 +145,7 @@ export function parseHslLegacy(str: string): HSLA {
   if (!match) {
     throw new ColorParseError(
       ColorErrorCode.INVALID_HSL,
-      `Invalid legacy HSL format: "${str}". Expected format: hsl(h, s%, l%)`
+      `Invalid legacy HSL format: "${str}". Expected format: hsl(h, s%, l%)`,
     );
   }
 
@@ -152,11 +155,8 @@ export function parseHslLegacy(str: string): HSLA {
   const sat = parsePercentage(satStr);
   const light = parsePercentage(lightStr);
 
-  if (isNaN(hue) || isNaN(sat) || isNaN(light)) {
-    throw new ColorParseError(
-      ColorErrorCode.INVALID_HSL,
-      `Invalid HSL values in: "${str}"`
-    );
+  if (Number.isNaN(hue) || Number.isNaN(sat) || Number.isNaN(light)) {
+    throw new ColorParseError(ColorErrorCode.INVALID_HSL, `Invalid HSL values in: "${str}"`);
   }
 
   return {
@@ -189,7 +189,7 @@ export function parseHslaLegacy(str: string): HSLA {
   if (!match) {
     throw new ColorParseError(
       ColorErrorCode.INVALID_HSL,
-      `Invalid legacy HSLA format: "${str}". Expected format: hsla(h, s%, l%, a)`
+      `Invalid legacy HSLA format: "${str}". Expected format: hsla(h, s%, l%, a)`,
     );
   }
 
@@ -200,11 +200,8 @@ export function parseHslaLegacy(str: string): HSLA {
   const light = parsePercentage(lightStr);
   const alpha = parseAlpha(alphaStr);
 
-  if (isNaN(hue) || isNaN(sat) || isNaN(light) || isNaN(alpha)) {
-    throw new ColorParseError(
-      ColorErrorCode.INVALID_HSL,
-      `Invalid HSLA values in: "${str}"`
-    );
+  if (Number.isNaN(hue) || Number.isNaN(sat) || Number.isNaN(light) || Number.isNaN(alpha)) {
+    throw new ColorParseError(ColorErrorCode.INVALID_HSL, `Invalid HSLA values in: "${str}"`);
   }
 
   return {
@@ -246,22 +243,25 @@ export function parseHslModern(str: string): HSLA {
   if (!match) {
     throw new ColorParseError(
       ColorErrorCode.INVALID_HSL,
-      `Invalid modern HSL format: "${str}". Expected format: hsl(h s% l%) or hsl(h s% l% / a)`
+      `Invalid modern HSL format: "${str}". Expected format: hsl(h s% l%) or hsl(h s% l% / a)`,
     );
   }
 
-  const [, hueStr, satStr, lightStr, alphaStr] = match as [string, string, string, string, string | undefined];
+  const [, hueStr, satStr, lightStr, alphaStr] = match as [
+    string,
+    string,
+    string,
+    string,
+    string | undefined,
+  ];
 
   const hue = parseFloat(hueStr);
   const sat = parsePercentage(satStr);
   const light = parsePercentage(lightStr);
   const alpha = alphaStr !== undefined ? parseAlpha(alphaStr) : 1;
 
-  if (isNaN(hue) || isNaN(sat) || isNaN(light) || isNaN(alpha)) {
-    throw new ColorParseError(
-      ColorErrorCode.INVALID_HSL,
-      `Invalid HSL values in: "${str}"`
-    );
+  if (Number.isNaN(hue) || Number.isNaN(sat) || Number.isNaN(light) || Number.isNaN(alpha)) {
+    throw new ColorParseError(ColorErrorCode.INVALID_HSL, `Invalid HSL values in: "${str}"`);
   }
 
   return {
@@ -321,7 +321,7 @@ export function parseHsl(str: string): HSLA {
   // No format matched
   throw new ColorParseError(
     ColorErrorCode.INVALID_HSL,
-    `Invalid HSL format: "${str}". Expected hsl(h, s%, l%), hsla(h, s%, l%, a), or hsl(h s% l% / a)`
+    `Invalid HSL format: "${str}". Expected hsl(h, s%, l%), hsla(h, s%, l%, a), or hsl(h s% l% / a)`,
   );
 }
 
@@ -358,8 +358,8 @@ export function tryParseHsl(str: string): Result<HSLA, ColorParseError> {
     return err(
       new ColorParseError(
         ColorErrorCode.INVALID_HSL,
-        `Unexpected error parsing HSL: ${error instanceof Error ? error.message : String(error)}`
-      )
+        `Unexpected error parsing HSL: ${error instanceof Error ? error.message : String(error)}`,
+      ),
     );
     /* v8 ignore stop */
   }
@@ -382,8 +382,8 @@ export function tryParseHslLegacy(str: string): Result<HSLA, ColorParseError> {
     return err(
       new ColorParseError(
         ColorErrorCode.INVALID_HSL,
-        `Unexpected error parsing legacy HSL: ${error instanceof Error ? error.message : String(error)}`
-      )
+        `Unexpected error parsing legacy HSL: ${error instanceof Error ? error.message : String(error)}`,
+      ),
     );
     /* v8 ignore stop */
   }
@@ -406,8 +406,8 @@ export function tryParseHslaLegacy(str: string): Result<HSLA, ColorParseError> {
     return err(
       new ColorParseError(
         ColorErrorCode.INVALID_HSL,
-        `Unexpected error parsing legacy HSLA: ${error instanceof Error ? error.message : String(error)}`
-      )
+        `Unexpected error parsing legacy HSLA: ${error instanceof Error ? error.message : String(error)}`,
+      ),
     );
     /* v8 ignore stop */
   }
@@ -430,8 +430,8 @@ export function tryParseHslModern(str: string): Result<HSLA, ColorParseError> {
     return err(
       new ColorParseError(
         ColorErrorCode.INVALID_HSL,
-        `Unexpected error parsing modern HSL: ${error instanceof Error ? error.message : String(error)}`
-      )
+        `Unexpected error parsing modern HSL: ${error instanceof Error ? error.message : String(error)}`,
+      ),
     );
     /* v8 ignore stop */
   }

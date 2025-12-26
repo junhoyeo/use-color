@@ -1,5 +1,5 @@
 import type { ColorInput } from './utils.js';
-import { hasSpace, detectColorType, toRgba, toOklch, fromRgba, fromOklch } from './utils.js';
+import { detectColorType, fromOklch, fromRgba, hasSpace, toOklch, toRgba } from './utils.js';
 
 export type { ColorInput };
 

@@ -1,39 +1,36 @@
-export type { ColorSpace, RGBA, OKLCH, HSLA, Oklab, P3 } from './color.js';
 export type {
-  ColorOf,
-  RgbColor,
-  OklchColor,
-  HslColor,
-  P3Color,
-  AnyColor,
-} from './ColorObject.js';
-
-export type {
-  ColorInput,
-  ColorStringInput,
-  ColorObjectInput,
   AnyColorInput,
   AsValidColor,
+  ColorInput,
+  ColorObjectInput,
+  ColorStringInput,
 } from './ColorInput.js';
+export type {
+  AnyColor,
+  ColorOf,
+  HslColor,
+  OklchColor,
+  P3Color,
+  RgbColor,
+} from './ColorObject.js';
+export type { ColorSpace, HSLA, OKLCH, Oklab, P3, RGBA } from './color.js';
 
 export type {
+  AnyHexString,
   HexDigit,
   HexString,
   HexStringWithOpacity,
-  AnyHexString,
 } from './Hex.js';
-
 export type {
-  RgbObject,
-  RgbaObject,
-  RgbString,
-  RgbaString,
-  RgbColorInput,
-} from './Rgb.js';
-
-export type {
-  PercentString,
-  OklchString,
   OklchAlphaString,
   OklchInputString,
+  OklchString,
+  PercentString,
 } from './Oklch.js';
+export type {
+  RgbaObject,
+  RgbaString,
+  RgbColorInput,
+  RgbObject,
+  RgbString,
+} from './Rgb.js';

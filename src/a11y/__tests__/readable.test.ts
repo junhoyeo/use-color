@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { isReadable, getReadabilityLevel, WCAG_THRESHOLDS } from '../readable.js';
+import { describe, expect, it } from 'vitest';
+import { getReadabilityLevel, isReadable, WCAG_THRESHOLDS } from '../readable.js';
 
 describe('WCAG_THRESHOLDS', () => {
   it('has correct values', () => {

@@ -1,10 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import {
-  color,
-  tryColor,
-  Color,
-  ColorErrorCode,
-} from '../index.js';
+import { describe, expect, it } from 'vitest';
+import { Color, ColorErrorCode, color, tryColor } from '../index.js';
 
 describe('color() factory function', () => {
   describe('hex input', () => {
@@ -471,12 +466,7 @@ describe('Color property getters', () => {
 
 describe('Color chaining', () => {
   it('chains multiple operations', () => {
-    const result = color('#ff0000')
-      .lighten(0.1)
-      .saturate(0.05)
-      .rotate(10)
-      .alpha(0.8)
-      .toHex8();
+    const result = color('#ff0000').lighten(0.1).saturate(0.05).rotate(10).alpha(0.8).toHex8();
 
     expect(result).toMatch(/^#[0-9a-f]{8}$/);
   });
@@ -494,10 +484,7 @@ describe('Color chaining', () => {
 
   it('complex workflow', () => {
     const bg = color('#1a1a2e');
-    const accent = bg
-      .lighten(0.3)
-      .saturate(0.2)
-      .rotate(180);
+    const accent = bg.lighten(0.3).saturate(0.2).rotate(180);
 
     expect(accent.toHex()).not.toBe(bg.toHex());
     expect(accent.isLight()).not.toBe(bg.isLight());

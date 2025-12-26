@@ -1,21 +1,21 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { ColorErrorCode, ColorParseError } from '../../errors.js';
 import {
-  parseColor,
-  tryParseColor,
   detectFormat,
   isValidColor,
+  parseColor,
   parseHex,
-  parseRgb,
   parseHsl,
-  parseOklch,
   parseNamed,
+  parseOklch,
+  parseRgb,
+  tryParseColor,
   tryParseHex,
-  tryParseRgb,
   tryParseHsl,
-  tryParseOklch,
   tryParseNamed,
+  tryParseOklch,
+  tryParseRgb,
 } from '../index.js';
-import { ColorParseError, ColorErrorCode } from '../../errors.js';
 
 describe('detectFormat', () => {
   it('detects hex format', () => {
@@ -407,7 +407,13 @@ describe('edge cases', () => {
 
   it('handles white', () => {
     expect(parseColor('#ffffff')).toEqual({ space: 'rgb', r: 255, g: 255, b: 255, a: 1 });
-    expect(parseColor('rgb(255, 255, 255)')).toEqual({ space: 'rgb', r: 255, g: 255, b: 255, a: 1 });
+    expect(parseColor('rgb(255, 255, 255)')).toEqual({
+      space: 'rgb',
+      r: 255,
+      g: 255,
+      b: 255,
+      a: 1,
+    });
     expect(parseColor('white')).toEqual({ space: 'rgb', r: 255, g: 255, b: 255, a: 1 });
   });
 

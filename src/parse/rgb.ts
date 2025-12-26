@@ -25,7 +25,7 @@
 
 import { ColorErrorCode, ColorParseError } from '../errors.js';
 import type { RGBA } from '../types/color.js';
-import { type Result, err, ok } from '../types/Result.js';
+import { err, ok, type Result } from '../types/Result.js';
 
 /**
  * Clamps a value to the RGB range (0-255).
@@ -75,11 +75,9 @@ const RGB_PATTERNS = {
   // Legacy: rgb(255, 0, 0) or rgb(255,0,0)
   legacy: /^rgb\(\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]+)\s*\)$/i,
   // Legacy: rgba(255, 0, 0, 0.5) or rgba(255,0,0,0.5)
-  legacyAlpha:
-    /^rgba\(\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]+)\s*\)$/i,
+  legacyAlpha: /^rgba\(\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]+)\s*\)$/i,
   // Modern: rgb(255 0 0) or rgb(255 0 0 / 0.5) - values must be numbers or percentages (no commas)
-  modern:
-    /^rgb\(\s*(-?[\d.]+%?)\s+(-?[\d.]+%?)\s+(-?[\d.]+%?)(?:\s*\/\s*(-?[\d.]+%?))?\s*\)$/i,
+  modern: /^rgb\(\s*(-?[\d.]+%?)\s+(-?[\d.]+%?)\s+(-?[\d.]+%?)(?:\s*\/\s*(-?[\d.]+%?))?\s*\)$/i,
   // Detect if string looks like an RGB function
   isRgb: /^rgba?\(/i,
 } as const;

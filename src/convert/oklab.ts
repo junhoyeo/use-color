@@ -27,14 +27,9 @@
  * ```
  */
 
-import type { Oklab, OKLCH } from '../types/color.js';
+import type { OKLCH, Oklab } from '../types/color.js';
+import { OKLAB_M1, OKLAB_M1_INV, OKLAB_M2, OKLAB_M2_INV } from './constants.js';
 import type { XYZ } from './xyz.js';
-import {
-  OKLAB_M1,
-  OKLAB_M2,
-  OKLAB_M1_INV,
-  OKLAB_M2_INV,
-} from './constants.js';
 
 const ACHROMATIC_THRESHOLD = 0.0001;
 

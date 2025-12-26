@@ -1,5 +1,5 @@
 import { bench, describe } from 'vitest';
-import { parseColor, parseHex, parseRgb, parseHsl } from '../src/parse/index.js';
+import { parseColor, parseHex, parseHsl, parseRgb } from '../src/parse/index.js';
 
 describe('Parsing performance', () => {
   describe('Hex parsing', () => {

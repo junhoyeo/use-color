@@ -114,9 +114,7 @@ export type HexString<T extends string> = [ValidHex3<T>] extends [never]
  * HexStringWithOpacity<'#fff0'>      // '#fff0'
  * HexStringWithOpacity<'#ff0000ff'>  // '#ff0000ff'
  */
-export type HexStringWithOpacity<T extends string> = [ValidHex4<T>] extends [
-  never,
-]
+export type HexStringWithOpacity<T extends string> = [ValidHex4<T>] extends [never]
   ? [ValidHex8<T>] extends [never]
     ? never
     : ValidHex8<T>

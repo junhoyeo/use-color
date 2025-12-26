@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { linearRgbToXyz, xyzToLinearRgb } from '../xyz.js';
+import { describe, expect, it } from 'vitest';
 import type { LinearRGB, XYZ } from '../xyz.js';
+import { linearRgbToXyz, xyzToLinearRgb } from '../xyz.js';
 
 describe('linearRgbToXyz', () => {
   describe('reference colors', () => {
@@ -103,16 +103,13 @@ describe('round-trip conversion', () => {
     { name: 'arbitrary color', lrgb: { r: 0.3, g: 0.6, b: 0.9 } },
   ];
 
-  it.each(testCases)(
-    'Linear RGB → XYZ → Linear RGB preserves $name',
-    ({ lrgb }) => {
-      const xyz = linearRgbToXyz(lrgb);
-      const result = xyzToLinearRgb(xyz);
-      expect(result.r).toBeCloseTo(lrgb.r, 3);
-      expect(result.g).toBeCloseTo(lrgb.g, 3);
-      expect(result.b).toBeCloseTo(lrgb.b, 3);
-    }
-  );
+  it.each(testCases)('Linear RGB → XYZ → Linear RGB preserves $name', ({ lrgb }) => {
+    const xyz = linearRgbToXyz(lrgb);
+    const result = xyzToLinearRgb(xyz);
+    expect(result.r).toBeCloseTo(lrgb.r, 3);
+    expect(result.g).toBeCloseTo(lrgb.g, 3);
+    expect(result.b).toBeCloseTo(lrgb.b, 3);
+  });
 
   const xyzCases: Array<{ name: string; xyz: XYZ }> = [
     { name: 'D65 white', xyz: { x: 0.9505, y: 1.0, z: 1.089 } },
@@ -120,16 +117,13 @@ describe('round-trip conversion', () => {
     { name: 'arbitrary XYZ', xyz: { x: 0.4, y: 0.5, z: 0.6 } },
   ];
 
-  it.each(xyzCases)(
-    'XYZ → Linear RGB → XYZ preserves $name',
-    ({ xyz }) => {
-      const lrgb = xyzToLinearRgb(xyz);
-      const result = linearRgbToXyz(lrgb);
-      expect(result.x).toBeCloseTo(xyz.x, 3);
-      expect(result.y).toBeCloseTo(xyz.y, 3);
-      expect(result.z).toBeCloseTo(xyz.z, 3);
-    }
-  );
+  it.each(xyzCases)('XYZ → Linear RGB → XYZ preserves $name', ({ xyz }) => {
+    const lrgb = xyzToLinearRgb(xyz);
+    const result = linearRgbToXyz(lrgb);
+    expect(result.x).toBeCloseTo(xyz.x, 3);
+    expect(result.y).toBeCloseTo(xyz.y, 3);
+    expect(result.z).toBeCloseTo(xyz.z, 3);
+  });
 });
 
 describe('matrix properties', () => {
@@ -152,7 +146,7 @@ describe('matrix properties', () => {
     const color: LinearRGB = { r: 0.4, g: 0.6, b: 0.8 };
     const xyz1 = linearRgbToXyz(color);
     const xyz2 = linearRgbToXyz({ r: color.r * 2, g: color.g * 2, b: color.b * 2 });
-    
+
     expect(xyz2.x).toBeCloseTo(xyz1.x * 2, 10);
     expect(xyz2.y).toBeCloseTo(xyz1.y * 2, 10);
     expect(xyz2.z).toBeCloseTo(xyz1.z * 2, 10);
@@ -161,7 +155,7 @@ describe('matrix properties', () => {
   it('preserves linearity (additivity)', () => {
     const color1: LinearRGB = { r: 0.3, g: 0.4, b: 0.5 };
     const color2: LinearRGB = { r: 0.2, g: 0.1, b: 0.3 };
-    
+
     const xyz1 = linearRgbToXyz(color1);
     const xyz2 = linearRgbToXyz(color2);
     const xyzSum = linearRgbToXyz({

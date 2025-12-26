@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { xyzToOklab, oklabToXyz, oklabToOklch, oklchToOklab } from '../oklab.js';
-import type { Oklab, OKLCH } from '../../types/color.js';
-import type { XYZ } from '../xyz.js';
+import { describe, expect, it } from 'vitest';
+import type { OKLCH, Oklab } from '../../types/color.js';
 import { D65 } from '../constants.js';
+import { oklabToOklch, oklabToXyz, oklchToOklab, xyzToOklab } from '../oklab.js';
+import type { XYZ } from '../xyz.js';
 
 describe('xyzToOklab', () => {
   describe('achromatic colors', () => {
@@ -41,7 +41,7 @@ describe('xyzToOklab', () => {
     });
 
     it('converts sRGB green XYZ to Oklab', () => {
-      const xyz: XYZ = { x: 0.3575761, y: 0.7151522, z: 0.1191920 };
+      const xyz: XYZ = { x: 0.3575761, y: 0.7151522, z: 0.119192 };
       const result = xyzToOklab(xyz);
       expect(result.L).toBeCloseTo(0.866, 2);
       expect(result.a).toBeLessThan(0);
@@ -49,7 +49,7 @@ describe('xyzToOklab', () => {
     });
 
     it('converts sRGB blue XYZ to Oklab', () => {
-      const xyz: XYZ = { x: 0.1804375, y: 0.0721750, z: 0.9505494 };
+      const xyz: XYZ = { x: 0.1804375, y: 0.072175, z: 0.9505494 };
       const result = xyzToOklab(xyz);
       expect(result.L).toBeCloseTo(0.452, 2);
       expect(result.a).toBeLessThan(0);
@@ -119,30 +119,27 @@ describe('XYZ ↔ Oklab round-trip conversion', () => {
     { name: 'black', xyz: { x: 0, y: 0, z: 0 } },
     { name: 'D65 white', xyz: { x: D65.x, y: D65.y, z: D65.z } },
     { name: 'sRGB red', xyz: { x: 0.4124564, y: 0.2126729, z: 0.0193339 } },
-    { name: 'sRGB green', xyz: { x: 0.3575761, y: 0.7151522, z: 0.1191920 } },
-    { name: 'sRGB blue', xyz: { x: 0.1804375, y: 0.0721750, z: 0.9505494 } },
+    { name: 'sRGB green', xyz: { x: 0.3575761, y: 0.7151522, z: 0.119192 } },
+    { name: 'sRGB blue', xyz: { x: 0.1804375, y: 0.072175, z: 0.9505494 } },
     { name: 'sRGB yellow', xyz: { x: 0.7700325, y: 0.9278251, z: 0.1385259 } },
     { name: 'sRGB cyan', xyz: { x: 0.5380136, y: 0.7873272, z: 1.0697414 } },
     { name: 'sRGB magenta', xyz: { x: 0.5928939, y: 0.2848479, z: 0.9698833 } },
   ];
 
-  it.each(xyzCases)(
-    'XYZ → Oklab → XYZ preserves $name',
-    ({ xyz }) => {
-      const lab = xyzToOklab(xyz);
-      const result = oklabToXyz(lab);
+  it.each(xyzCases)('XYZ → Oklab → XYZ preserves $name', ({ xyz }) => {
+    const lab = xyzToOklab(xyz);
+    const result = oklabToXyz(lab);
 
-      if (xyz.x === 0 && xyz.y === 0 && xyz.z === 0) {
-        expect(result.x).toBe(0);
-        expect(result.y).toBe(0);
-        expect(result.z).toBe(0);
-      } else {
-        expect(result.x).toBeCloseTo(xyz.x, 6);
-        expect(result.y).toBeCloseTo(xyz.y, 6);
-        expect(result.z).toBeCloseTo(xyz.z, 6);
-      }
+    if (xyz.x === 0 && xyz.y === 0 && xyz.z === 0) {
+      expect(result.x).toBe(0);
+      expect(result.y).toBe(0);
+      expect(result.z).toBe(0);
+    } else {
+      expect(result.x).toBeCloseTo(xyz.x, 6);
+      expect(result.y).toBeCloseTo(xyz.y, 6);
+      expect(result.z).toBeCloseTo(xyz.z, 6);
     }
-  );
+  });
 
   const oklabCases: Array<{ name: string; lab: Oklab }> = [
     { name: 'black', lab: { L: 0, a: 0, b: 0 } },
@@ -154,23 +151,20 @@ describe('XYZ ↔ Oklab round-trip conversion', () => {
     { name: 'high chroma', lab: { L: 0.5, a: 0.3, b: -0.2 } },
   ];
 
-  it.each(oklabCases)(
-    'Oklab → XYZ → Oklab preserves $name',
-    ({ lab }) => {
-      const xyz = oklabToXyz(lab);
-      const result = xyzToOklab(xyz);
+  it.each(oklabCases)('Oklab → XYZ → Oklab preserves $name', ({ lab }) => {
+    const xyz = oklabToXyz(lab);
+    const result = xyzToOklab(xyz);
 
-      if (lab.L === 0) {
-        expect(result.L).toBe(0);
-        expect(result.a).toBe(0);
-        expect(result.b).toBe(0);
-      } else {
-        expect(result.L).toBeCloseTo(lab.L, 6);
-        expect(result.a).toBeCloseTo(lab.a, 6);
-        expect(result.b).toBeCloseTo(lab.b, 6);
-      }
+    if (lab.L === 0) {
+      expect(result.L).toBe(0);
+      expect(result.a).toBe(0);
+      expect(result.b).toBe(0);
+    } else {
+      expect(result.L).toBeCloseTo(lab.L, 6);
+      expect(result.a).toBeCloseTo(lab.a, 6);
+      expect(result.b).toBeCloseTo(lab.b, 6);
     }
-  );
+  });
 });
 
 describe('oklabToOklch', () => {
@@ -373,7 +367,7 @@ describe('oklchToOklab', () => {
     it('h=45 gives equal positive a and b', () => {
       const lch: OKLCH = { l: 0.5, c: 0.2, h: 45, a: 1 };
       const result = oklchToOklab(lch);
-      const expected = 0.2 * Math.cos(45 * Math.PI / 180);
+      const expected = 0.2 * Math.cos((45 * Math.PI) / 180);
       expect(result.a).toBeCloseTo(expected, 10);
       expect(result.b).toBeCloseTo(expected, 10);
     });
@@ -381,8 +375,8 @@ describe('oklchToOklab', () => {
     it('h=135 gives negative a and positive b', () => {
       const lch: OKLCH = { l: 0.5, c: 0.2, h: 135, a: 1 };
       const result = oklchToOklab(lch);
-      const expectedA = 0.2 * Math.cos(135 * Math.PI / 180);
-      const expectedB = 0.2 * Math.sin(135 * Math.PI / 180);
+      const expectedA = 0.2 * Math.cos((135 * Math.PI) / 180);
+      const expectedB = 0.2 * Math.sin((135 * Math.PI) / 180);
       expect(result.a).toBeCloseTo(expectedA, 10);
       expect(result.b).toBeCloseTo(expectedB, 10);
     });
@@ -390,7 +384,7 @@ describe('oklchToOklab', () => {
     it('h=225 gives equal negative a and b', () => {
       const lch: OKLCH = { l: 0.5, c: 0.2, h: 225, a: 1 };
       const result = oklchToOklab(lch);
-      const expected = 0.2 * Math.cos(225 * Math.PI / 180);
+      const expected = 0.2 * Math.cos((225 * Math.PI) / 180);
       expect(result.a).toBeCloseTo(expected, 10);
       expect(result.b).toBeCloseTo(expected, 10);
     });
@@ -398,8 +392,8 @@ describe('oklchToOklab', () => {
     it('h=315 gives positive a and negative b', () => {
       const lch: OKLCH = { l: 0.5, c: 0.2, h: 315, a: 1 };
       const result = oklchToOklab(lch);
-      const expectedA = 0.2 * Math.cos(315 * Math.PI / 180);
-      const expectedB = 0.2 * Math.sin(315 * Math.PI / 180);
+      const expectedA = 0.2 * Math.cos((315 * Math.PI) / 180);
+      const expectedB = 0.2 * Math.sin((315 * Math.PI) / 180);
       expect(result.a).toBeCloseTo(expectedA, 10);
       expect(result.b).toBeCloseTo(expectedB, 10);
     });
@@ -419,23 +413,20 @@ describe('round-trip conversion', () => {
     { name: 'yellow-ish', lab: { L: 0.968, a: -0.071, b: 0.199 } },
   ];
 
-  it.each(oklabCases)(
-    'Oklab -> OKLCH -> Oklab preserves $name',
-    ({ lab }) => {
-      const oklch = oklabToOklch(lab);
-      const result = oklchToOklab(oklch);
+  it.each(oklabCases)('Oklab -> OKLCH -> Oklab preserves $name', ({ lab }) => {
+    const oklch = oklabToOklch(lab);
+    const result = oklchToOklab(oklch);
 
-      if (lab.a === 0 && lab.b === 0) {
-        expect(result.L).toBe(lab.L);
-        expect(result.a).toBe(0);
-        expect(result.b).toBe(0);
-      } else {
-        expect(result.L).toBe(lab.L);
-        expect(result.a).toBeCloseTo(lab.a, 10);
-        expect(result.b).toBeCloseTo(lab.b, 10);
-      }
+    if (lab.a === 0 && lab.b === 0) {
+      expect(result.L).toBe(lab.L);
+      expect(result.a).toBe(0);
+      expect(result.b).toBe(0);
+    } else {
+      expect(result.L).toBe(lab.L);
+      expect(result.a).toBeCloseTo(lab.a, 10);
+      expect(result.b).toBeCloseTo(lab.b, 10);
     }
-  );
+  });
 
   const oklchCases: Array<{ name: string; lch: OKLCH }> = [
     { name: 'black', lch: { l: 0, c: 0, h: 0, a: 1 } },
@@ -451,23 +442,20 @@ describe('round-trip conversion', () => {
     { name: 'h=359', lch: { l: 0.5, c: 0.2, h: 359, a: 1 } },
   ];
 
-  it.each(oklchCases)(
-    'OKLCH -> Oklab -> OKLCH preserves $name',
-    ({ lch }) => {
-      const lab = oklchToOklab(lch);
-      const result = oklabToOklch(lab);
+  it.each(oklchCases)('OKLCH -> Oklab -> OKLCH preserves $name', ({ lch }) => {
+    const lab = oklchToOklab(lch);
+    const result = oklabToOklch(lab);
 
-      if (lch.c === 0) {
-        expect(result.l).toBe(lch.l);
-        expect(result.c).toBe(0);
-        expect(result.h).toBe(0);
-      } else {
-        expect(result.l).toBe(lch.l);
-        expect(result.c).toBeCloseTo(lch.c, 10);
-        expect(result.h).toBeCloseTo(lch.h, 5);
-      }
+    if (lch.c === 0) {
+      expect(result.l).toBe(lch.l);
+      expect(result.c).toBe(0);
+      expect(result.h).toBe(0);
+    } else {
+      expect(result.l).toBe(lch.l);
+      expect(result.c).toBeCloseTo(lch.c, 10);
+      expect(result.h).toBeCloseTo(lch.h, 5);
     }
-  );
+  });
 });
 
 describe('edge cases', () => {
@@ -481,7 +469,7 @@ describe('edge cases', () => {
   it('handles very large chroma values (out of sRGB gamut)', () => {
     const lab: Oklab = { L: 0.5, a: 0.5, b: 0.5 };
     const result = oklabToOklch(lab);
-    expect(result.c).toBeCloseTo(0.707, 3);
+    expect(result.c).toBeCloseTo(Math.SQRT1_2, 3);
     expect(result.h).toBeCloseTo(45, 1);
   });
 

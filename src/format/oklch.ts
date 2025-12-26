@@ -1,20 +1,18 @@
-import type { OKLCH } from '../types/color.js';
-import type { AnyColor, OklchColor } from '../types/ColorObject.js';
 import { convert } from '../convert/index.js';
+import type { AnyColor, OklchColor } from '../types/ColorObject.js';
+import type { OKLCH } from '../types/color.js';
 
 export interface OklchFormatOptions {
   precision?: number;
   forceAlpha?: boolean;
 }
 
-function hasSpaceProperty(
-  color: OKLCH | OklchColor | AnyColor,
-): color is OklchColor | AnyColor {
+function hasSpaceProperty(color: OKLCH | OklchColor | AnyColor): color is OklchColor | AnyColor {
   return 'space' in color;
 }
 
 function round(value: number, precision: number): string {
-  const factor = Math.pow(10, precision);
+  const factor = 10 ** precision;
   const rounded = Math.round(value * factor) / factor;
   return String(parseFloat(rounded.toFixed(precision)));
 }

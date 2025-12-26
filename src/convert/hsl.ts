@@ -18,7 +18,7 @@
  * ```
  */
 
-import type { RGBA, HSLA } from '../types/color.js';
+import type { HSLA, RGBA } from '../types/color.js';
 
 /**
  * Converts an RGBA color to HSLA color space.

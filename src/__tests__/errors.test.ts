@@ -1,9 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import {
-  ColorErrorCode,
-  ColorParseError,
-  ColorOutOfGamutError,
-} from '../errors.js';
+import { describe, expect, it } from 'vitest';
+import { ColorErrorCode, ColorOutOfGamutError, ColorParseError } from '../errors.js';
 
 describe('ColorErrorCode', () => {
   it('has all expected error codes', () => {
@@ -19,10 +15,7 @@ describe('ColorErrorCode', () => {
 
 describe('ColorParseError', () => {
   it('creates error with code and message', () => {
-    const error = new ColorParseError(
-      ColorErrorCode.INVALID_HEX,
-      'Invalid hex color: #gggggg'
-    );
+    const error = new ColorParseError(ColorErrorCode.INVALID_HEX, 'Invalid hex color: #gggggg');
 
     expect(error.code).toBe(ColorErrorCode.INVALID_HEX);
     expect(error.message).toBe('Invalid hex color: #gggggg');
@@ -38,18 +31,12 @@ describe('ColorParseError', () => {
     const hslError = new ColorParseError(ColorErrorCode.INVALID_HSL, 'bad hsl');
     expect(hslError.code).toBe(ColorErrorCode.INVALID_HSL);
 
-    const oklchError = new ColorParseError(
-      ColorErrorCode.INVALID_OKLCH,
-      'bad oklch'
-    );
+    const oklchError = new ColorParseError(ColorErrorCode.INVALID_OKLCH, 'bad oklch');
     expect(oklchError.code).toBe(ColorErrorCode.INVALID_OKLCH);
   });
 
   it('has proper stack trace', () => {
-    const error = new ColorParseError(
-      ColorErrorCode.INVALID_FORMAT,
-      'Unknown format'
-    );
+    const error = new ColorParseError(ColorErrorCode.INVALID_FORMAT, 'Unknown format');
     expect(error.stack).toBeDefined();
     expect(error.stack).toContain('ColorParseError');
   });
@@ -60,7 +47,7 @@ describe('ColorOutOfGamutError', () => {
     const error = new ColorOutOfGamutError(
       'oklch(0.9 0.4 150)',
       'sRGB',
-      'Color exceeds sRGB gamut boundaries'
+      'Color exceeds sRGB gamut boundaries',
     );
 
     expect(error.code).toBe(ColorErrorCode.OUT_OF_GAMUT);
@@ -76,9 +63,7 @@ describe('ColorOutOfGamutError', () => {
   it('uses default message when not provided', () => {
     const error = new ColorOutOfGamutError('oklch(0.95 0.3 120)', 'sRGB');
 
-    expect(error.message).toBe(
-      "Color 'oklch(0.95 0.3 120)' is outside the sRGB gamut"
-    );
+    expect(error.message).toBe("Color 'oklch(0.95 0.3 120)' is outside the sRGB gamut");
     expect(error.sourceColor).toBe('oklch(0.95 0.3 120)');
     expect(error.targetGamut).toBe('sRGB');
   });

@@ -1,8 +1,8 @@
 import { bench, describe } from 'vitest';
 import { toHex, toHex8 } from '../src/format/hex.js';
-import { toRgbString, toRgbaString, toRgbModern } from '../src/format/rgb.js';
 import { toOklchString } from '../src/format/oklch.js';
-import type { RGBA, OKLCH } from '../src/types/color.js';
+import { toRgbaString, toRgbModern, toRgbString } from '../src/format/rgb.js';
+import type { OKLCH, RGBA } from '../src/types/color.js';
 
 const red: RGBA = { r: 255, g: 0, b: 0, a: 1 };
 const semiTransparent: RGBA = { r: 255, g: 128, b: 0, a: 0.5 };

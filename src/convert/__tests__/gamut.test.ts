@@ -1,13 +1,13 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import type { OKLCH } from '../../types/color.js';
 import {
-  isInGamut,
   clampToGamut,
-  mapToGamut,
-  isInP3Gamut,
   clampToP3Gamut,
   DEFAULT_JND,
+  isInGamut,
+  isInP3Gamut,
+  mapToGamut,
 } from '../gamut.js';
-import type { OKLCH } from '../../types/color.js';
 
 describe('isInGamut', () => {
   describe('achromatic colors (grayscale)', () => {
@@ -240,18 +240,15 @@ describe('integration: clamped colors produce valid RGB', () => {
     { name: 'extreme chroma', oklch: { l: 0.5, c: 0.5, h: 180, a: 1 } },
   ];
 
-  it.each(testCases)(
-    'clamped $name is valid sRGB',
-    ({ oklch }) => {
-      const clamped = clampToGamut(oklch);
+  it.each(testCases)('clamped $name is valid sRGB', ({ oklch }) => {
+    const clamped = clampToGamut(oklch);
 
-      expect(isInGamut(clamped)).toBe(true);
-      expect(clamped.l).toBe(oklch.l);
-      expect(clamped.h).toBe(oklch.h);
-      expect(clamped.a).toBe(oklch.a);
-      expect(clamped.c).toBeLessThanOrEqual(oklch.c);
-    }
-  );
+    expect(isInGamut(clamped)).toBe(true);
+    expect(clamped.l).toBe(oklch.l);
+    expect(clamped.h).toBe(oklch.h);
+    expect(clamped.a).toBe(oklch.a);
+    expect(clamped.c).toBeLessThanOrEqual(oklch.c);
+  });
 });
 
 describe('isInP3Gamut', () => {

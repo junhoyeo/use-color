@@ -1,17 +1,16 @@
 export {
-  isHex,
-  isRgb,
-  isHsl,
-  isOklch,
-  isColor,
-  isColorString,
-} from './guards.js';
-
-export {
-  assertHex,
-  assertRgb,
-  assertHsl,
-  assertOklch,
   assertColor,
   assertColorString,
+  assertHex,
+  assertHsl,
+  assertOklch,
+  assertRgb,
 } from './assert.js';
+export {
+  isColor,
+  isColorString,
+  isHex,
+  isHsl,
+  isOklch,
+  isRgb,
+} from './guards.js';

@@ -16,14 +16,14 @@
  * ```
  */
 
-import type { RGBA, OKLCH, HSLA } from '../types/color.js';
+import { ColorErrorCode, ColorParseError } from '../errors.js';
 import type { AnyColor } from '../types/ColorObject.js';
-import { ColorParseError, ColorErrorCode } from '../errors.js';
+import type { HSLA, OKLCH, RGBA } from '../types/color.js';
 
 import { toHex, toHex8 } from './hex.js';
-import { toRgbString, toRgbaString, toRgbModern } from './rgb.js';
-import { toHslString, toHslaString, toHslModern } from './hsl.js';
+import { toHslaString, toHslModern, toHslString } from './hsl.js';
 import { toOklchString } from './oklch.js';
+import { toRgbaString, toRgbModern, toRgbString } from './rgb.js';
 
 export type CssFormat = 'hex' | 'hex8' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'oklch';
 

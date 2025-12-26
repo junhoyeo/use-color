@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { luminance } from '../luminance.js';
+import { describe, expect, it } from 'vitest';
 import type { RGBA } from '../../types/color.js';
+import { luminance } from '../luminance.js';
 
 describe('luminance', () => {
   describe('boundary values', () => {

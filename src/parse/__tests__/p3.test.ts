@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { parseP3, tryParseP3, isP3String } from '../p3.js';
+import { describe, expect, it } from 'vitest';
 import { ColorParseError } from '../../errors.js';
+import { isP3String, parseP3, tryParseP3 } from '../p3.js';
 
 describe('P3 parsing functions', () => {
   describe('parseP3', () => {

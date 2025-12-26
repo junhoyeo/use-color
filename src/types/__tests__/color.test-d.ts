@@ -1,21 +1,14 @@
-import { describe, it } from 'vitest';
 import { expectTypeOf } from 'expect-type';
+import { describe, it } from 'vitest';
 import type {
-  ColorOf,
-  RgbColor,
-  OklchColor,
-  HslColor,
-  P3Color,
-  AnyColor,
-} from '../ColorObject.js';
-import type {
-  ColorInput,
-  ColorStringInput,
   AnyColorInput,
   AsValidColor,
+  ColorInput,
   ColorObjectInput,
+  ColorStringInput,
 } from '../ColorInput.js';
-import type { RGBA, OKLCH, HSLA, P3 } from '../color.js';
+import type { AnyColor, ColorOf, HslColor, OklchColor, P3Color, RgbColor } from '../ColorObject.js';
+import type { HSLA, OKLCH, RGBA } from '../color.js';
 
 describe('ColorOf discriminated union types', () => {
   it('ColorOf<rgb> produces correct type with space: rgb', () => {
@@ -38,17 +31,35 @@ describe('ColorOf discriminated union types', () => {
 
   it('RgbColor alias equals ColorOf<rgb>', () => {
     expectTypeOf<RgbColor>().toEqualTypeOf<ColorOf<'rgb'>>();
-    expectTypeOf<RgbColor>().toMatchTypeOf<{ space: 'rgb'; r: number; g: number; b: number; a: number }>();
+    expectTypeOf<RgbColor>().toMatchTypeOf<{
+      space: 'rgb';
+      r: number;
+      g: number;
+      b: number;
+      a: number;
+    }>();
   });
 
   it('OklchColor alias equals ColorOf<oklch>', () => {
     expectTypeOf<OklchColor>().toEqualTypeOf<ColorOf<'oklch'>>();
-    expectTypeOf<OklchColor>().toMatchTypeOf<{ space: 'oklch'; l: number; c: number; h: number; a: number }>();
+    expectTypeOf<OklchColor>().toMatchTypeOf<{
+      space: 'oklch';
+      l: number;
+      c: number;
+      h: number;
+      a: number;
+    }>();
   });
 
   it('HslColor alias equals ColorOf<hsl>', () => {
     expectTypeOf<HslColor>().toEqualTypeOf<ColorOf<'hsl'>>();
-    expectTypeOf<HslColor>().toMatchTypeOf<{ space: 'hsl'; h: number; s: number; l: number; a: number }>();
+    expectTypeOf<HslColor>().toMatchTypeOf<{
+      space: 'hsl';
+      h: number;
+      s: number;
+      l: number;
+      a: number;
+    }>();
   });
 
   it('AnyColor union accepts all four color types', () => {
@@ -98,14 +109,18 @@ describe('ColorInput types', () => {
 
   it('ColorStringInput accepts valid rgb strings', () => {
     expectTypeOf<ColorStringInput<'rgb(255, 0, 0)'>>().toEqualTypeOf<'rgb(255, 0, 0)'>();
-    expectTypeOf<ColorStringInput<'rgba(255, 0, 0, 0.5)'>>().toEqualTypeOf<'rgba(255, 0, 0, 0.5)'>();
+    expectTypeOf<
+      ColorStringInput<'rgba(255, 0, 0, 0.5)'>
+    >().toEqualTypeOf<'rgba(255, 0, 0, 0.5)'>();
     expectTypeOf<ColorStringInput<'rgb(255 0 0)'>>().toEqualTypeOf<'rgb(255 0 0)'>();
     expectTypeOf<ColorStringInput<'rgb(255 0 0 / 0.5)'>>().toEqualTypeOf<'rgb(255 0 0 / 0.5)'>();
   });
 
   it('ColorStringInput accepts valid oklch strings', () => {
     expectTypeOf<ColorStringInput<'oklch(0.5 0.2 180)'>>().toEqualTypeOf<'oklch(0.5 0.2 180)'>();
-    expectTypeOf<ColorStringInput<'oklch(0.5 0.2 180 / 0.5)'>>().toEqualTypeOf<'oklch(0.5 0.2 180 / 0.5)'>();
+    expectTypeOf<
+      ColorStringInput<'oklch(0.5 0.2 180 / 0.5)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180 / 0.5)'>();
   });
 
   it('ColorStringInput returns never for invalid strings', () => {
@@ -155,7 +170,9 @@ describe('AsValidColor constraint helper', () => {
 
   it('AsValidColor returns T for valid oklch strings', () => {
     expectTypeOf<AsValidColor<'oklch(0.5 0.2 180)'>>().toEqualTypeOf<'oklch(0.5 0.2 180)'>();
-    expectTypeOf<AsValidColor<'oklch(0.7 0.15 45 / 0.8)'>>().toEqualTypeOf<'oklch(0.7 0.15 45 / 0.8)'>();
+    expectTypeOf<
+      AsValidColor<'oklch(0.7 0.15 45 / 0.8)'>
+    >().toEqualTypeOf<'oklch(0.7 0.15 45 / 0.8)'>();
   });
 
   it('AsValidColor returns never for invalid strings', () => {

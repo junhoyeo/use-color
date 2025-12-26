@@ -1,11 +1,11 @@
 import { bench, describe } from 'vitest';
-import { lighten } from '../src/ops/lighten.js';
-import { darken } from '../src/ops/darken.js';
-import { saturate, desaturate, grayscale } from '../src/ops/saturate.js';
-import { mix, mixColors } from '../src/ops/mix.js';
-import { rotate, complement } from '../src/ops/rotate.js';
 import { alpha, opacify, transparentize } from '../src/ops/alpha.js';
+import { darken } from '../src/ops/darken.js';
 import { invert, invertLightness } from '../src/ops/invert.js';
+import { lighten } from '../src/ops/lighten.js';
+import { mix, mixColors } from '../src/ops/mix.js';
+import { complement, rotate } from '../src/ops/rotate.js';
+import { desaturate, grayscale, saturate } from '../src/ops/saturate.js';
 import type { RGBA } from '../src/types/color.js';
 
 const red: RGBA = { r: 255, g: 0, b: 0, a: 1 };

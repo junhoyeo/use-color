@@ -25,38 +25,32 @@
  * ```
  */
 
-import type { ColorSpace, RGBA, OKLCH, HSLA, P3 } from '../types/color.js';
-import type { AnyColor, RgbColor, OklchColor, HslColor, P3Color } from '../types/ColorObject.js';
-import { ColorParseError, ColorErrorCode } from '../errors.js';
+import { ColorErrorCode, ColorParseError } from '../errors.js';
+import type { AnyColor, HslColor, OklchColor, P3Color, RgbColor } from '../types/ColorObject.js';
+import type { ColorSpace, HSLA, OKLCH, P3, RGBA } from '../types/color.js';
+import { hslToRgb, rgbToHsl } from './hsl.js';
+import { p3ToRgb, rgbToP3 } from './p3.js';
+import { oklchToRgb, rgbToOklch } from './rgb-oklch.js';
 
-import { rgbToOklch, oklchToRgb } from './rgb-oklch.js';
-import { rgbToHsl, hslToRgb } from './hsl.js';
-import { rgbToP3, p3ToRgb } from './p3.js';
-
-export { rgbToLinearRgb, linearRgbToRgb } from './linear.js';
-export type { LinearRGB } from './linear.js';
-
-export { linearRgbToXyz, xyzToLinearRgb } from './xyz.js';
-export type { LinearRGB as XyzLinearRGB, XYZ } from './xyz.js';
-
-export { xyzToOklab, oklabToXyz, oklabToOklch, oklchToOklab } from './oklab.js';
-
-export { rgbToOklch, oklchToRgb } from './rgb-oklch.js';
-
-export { rgbToHsl, hslToRgb } from './hsl.js';
-
-export { rgbToP3, p3ToRgb, linearP3ToXyz, xyzToLinearP3 } from './p3.js';
-export type { LinearP3 } from './p3.js';
-
+export type { GamutMapOptions } from './gamut.js';
 export {
-  isInGamut,
   clampToGamut,
-  mapToGamut,
-  isInP3Gamut,
   clampToP3Gamut,
   DEFAULT_JND,
+  isInGamut,
+  isInP3Gamut,
+  mapToGamut,
 } from './gamut.js';
-export type { GamutMapOptions } from './gamut.js';
+export { hslToRgb, rgbToHsl } from './hsl.js';
+export type { LinearRGB } from './linear.js';
+export { linearRgbToRgb, rgbToLinearRgb } from './linear.js';
+export { oklabToOklch, oklabToXyz, oklchToOklab, xyzToOklab } from './oklab.js';
+export type { LinearP3 } from './p3.js';
+
+export { linearP3ToXyz, p3ToRgb, rgbToP3, xyzToLinearP3 } from './p3.js';
+export { oklchToRgb, rgbToOklch } from './rgb-oklch.js';
+export type { LinearRGB as XyzLinearRGB, XYZ } from './xyz.js';
+export { linearRgbToXyz, xyzToLinearRgb } from './xyz.js';
 
 /**
  * Converts a color from one color space to another.
@@ -108,10 +102,7 @@ type ConvertResult<T extends ColorSpace> = T extends 'rgb'
         ? P3Color
         : never;
 
-export function convert<T extends ColorSpace>(
-  color: AnyColor,
-  toSpace: T
-): ConvertResult<T> {
+export function convert<T extends ColorSpace>(color: AnyColor, toSpace: T): ConvertResult<T> {
   if (color.space === toSpace) {
     return { ...color } as ConvertResult<T>;
   }
@@ -151,7 +142,10 @@ export function convert<T extends ColorSpace>(
     default: {
       // Internal invariant - should never reach here
       const _exhaustive: never = toSpace;
-      throw new ColorParseError(ColorErrorCode.INVALID_FORMAT, `Unknown color space: ${_exhaustive}`);
+      throw new ColorParseError(
+        ColorErrorCode.INVALID_FORMAT,
+        `Unknown color space: ${_exhaustive}`,
+      );
     }
   }
 }

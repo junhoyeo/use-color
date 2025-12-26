@@ -18,9 +18,9 @@
  * ```
  */
 
-import type { RGBA } from '../types/color.js';
-import type { AnyColor, RgbColor } from '../types/ColorObject.js';
 import { convert } from '../convert/index.js';
+import type { AnyColor, RgbColor } from '../types/ColorObject.js';
+import type { RGBA } from '../types/color.js';
 
 export interface HexOptions {
   uppercase?: boolean;

@@ -20,7 +20,7 @@
 
 import { ColorErrorCode, ColorParseError } from '../errors.js';
 import type { RGBA } from '../types/color.js';
-import { type Result, err, ok } from '../types/Result.js';
+import { err, ok, type Result } from '../types/Result.js';
 
 /**
  * CSS4 named colors map.
@@ -236,10 +236,7 @@ export function parseNamed(str: string): RGBA {
 export function tryParseNamed(str: string): Result<RGBA, ColorParseError> {
   if (!str || str.trim() === '') {
     return err(
-      new ColorParseError(
-        ColorErrorCode.INVALID_NAMED,
-        `Invalid named color: empty string`,
-      ),
+      new ColorParseError(ColorErrorCode.INVALID_NAMED, `Invalid named color: empty string`),
     );
   }
 
@@ -247,12 +244,7 @@ export function tryParseNamed(str: string): Result<RGBA, ColorParseError> {
   const color = NAMED_COLORS[normalizedName];
 
   if (!color) {
-    return err(
-      new ColorParseError(
-        ColorErrorCode.INVALID_NAMED,
-        `Unknown named color: '${str}'`,
-      ),
-    );
+    return err(new ColorParseError(ColorErrorCode.INVALID_NAMED, `Unknown named color: '${str}'`));
   }
 
   return ok({

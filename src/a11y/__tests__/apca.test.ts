@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { apcaContrast, APCA_THRESHOLDS } from '../apca.js';
+import { describe, expect, it } from 'vitest';
+import { APCA_THRESHOLDS, apcaContrast } from '../apca.js';
 
 describe('apcaContrast', () => {
   const black = { r: 0, g: 0, b: 0, a: 1 };

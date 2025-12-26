@@ -45,10 +45,10 @@
  * ```
  */
 
-import type { RGBA } from '../types/color.js';
-import type { AnyColor } from '../types/ColorObject.js';
 import { convert } from '../convert/index.js';
 import { srgbToLinear } from '../convert/linear.js';
+import type { AnyColor } from '../types/ColorObject.js';
+import type { RGBA } from '../types/color.js';
 
 /**
  * APCA constants from SAPC 0.0.98G-4g (W3 Working Draft)
@@ -58,7 +58,7 @@ const APCA_CONSTANTS = {
   // sRGB coefficients for Y (luminance)
   sRco: 0.2126729,
   sGco: 0.7151522,
-  sBco: 0.0721750,
+  sBco: 0.072175,
 
   // Soft clamp for low luminance
   normBG: 0.56,
@@ -68,7 +68,7 @@ const APCA_CONSTANTS = {
 
   // Power curve exponents
   blkThrs: 0.022,
-  blkClmp: 1.414,
+  blkClmp: Math.SQRT2,
   scaleBoW: 1.14,
   scaleWoB: 1.14,
   loBoWoffset: 0.027,
@@ -112,11 +112,7 @@ function calcAPCALuminance(rgba: RGBA): number {
   const g = srgbToLinear(rgba.g);
   const b = srgbToLinear(rgba.b);
 
-  return (
-    APCA_CONSTANTS.sRco * r +
-    APCA_CONSTANTS.sGco * g +
-    APCA_CONSTANTS.sBco * b
-  );
+  return APCA_CONSTANTS.sRco * r + APCA_CONSTANTS.sGco * g + APCA_CONSTANTS.sBco * b;
 }
 
 /**
@@ -130,7 +126,7 @@ function softClamp(Y: number): number {
   }
   /* v8 ignore stop */
   if (Y < APCA_CONSTANTS.blkThrs) {
-    return Y + Math.pow(APCA_CONSTANTS.blkThrs - Y, APCA_CONSTANTS.blkClmp);
+    return Y + (APCA_CONSTANTS.blkThrs - Y) ** APCA_CONSTANTS.blkClmp;
   }
   return Y;
 }
@@ -204,15 +200,10 @@ export function apcaContrast(foreground: APCAInput, background: APCAInput): numb
   if (bgY > txtY) {
     // Dark text on light background (positive contrast)
     SAPC =
-      (Math.pow(bgY, APCA_CONSTANTS.normBG) -
-        Math.pow(txtY, APCA_CONSTANTS.normTXT)) *
-      APCA_CONSTANTS.scaleBoW;
+      (bgY ** APCA_CONSTANTS.normBG - txtY ** APCA_CONSTANTS.normTXT) * APCA_CONSTANTS.scaleBoW;
   } else {
     // Light text on dark background (negative contrast)
-    SAPC =
-      (Math.pow(bgY, APCA_CONSTANTS.revBG) -
-        Math.pow(txtY, APCA_CONSTANTS.revTXT)) *
-      APCA_CONSTANTS.scaleWoB;
+    SAPC = (bgY ** APCA_CONSTANTS.revBG - txtY ** APCA_CONSTANTS.revTXT) * APCA_CONSTANTS.scaleWoB;
   }
 
   // Apply low contrast clipping

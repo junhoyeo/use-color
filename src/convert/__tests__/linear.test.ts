@@ -1,12 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import {
-  srgbToLinear,
-  linearToSrgb,
-  rgbToLinearRgb,
-  linearRgbToRgb,
-} from '../linear.js';
+import { describe, expect, it } from 'vitest';
 import type { RGBA } from '../../types/color.js';
 import type { LinearRGB } from '../linear.js';
+import { linearRgbToRgb, linearToSrgb, rgbToLinearRgb, srgbToLinear } from '../linear.js';
 
 describe('srgbToLinear', () => {
   describe('boundary values', () => {
@@ -22,13 +17,13 @@ describe('srgbToLinear', () => {
   describe('linear segment (dark values)', () => {
     it('handles very dark values with linear formula', () => {
       const result = srgbToLinear(10);
-      const expected = (10 / 255) / 12.92;
+      const expected = 10 / 255 / 12.92;
       expect(result).toBeCloseTo(expected, 10);
     });
 
     it('converts sRGB 1 correctly in linear segment', () => {
       const result = srgbToLinear(1);
-      expect(result).toBeCloseTo((1 / 255) / 12.92, 10);
+      expect(result).toBeCloseTo(1 / 255 / 12.92, 10);
     });
   });
 
@@ -45,7 +40,7 @@ describe('srgbToLinear', () => {
 
     it('converts sRGB 128 correctly with power formula', () => {
       const v = 128 / 255;
-      const expected = Math.pow((v + 0.055) / 1.055, 2.4);
+      const expected = ((v + 0.055) / 1.055) ** 2.4;
       const result = srgbToLinear(128);
       expect(result).toBeCloseTo(expected, 10);
     });
@@ -104,7 +99,7 @@ describe('linearToSrgb', () => {
 
     it('converts using power formula for bright values', () => {
       const linearValue = 0.75;
-      const v = 1.055 * Math.pow(linearValue, 1 / 2.4) - 0.055;
+      const v = 1.055 * linearValue ** (1 / 2.4) - 0.055;
       const expected = Math.round(v * 255);
       expect(linearToSrgb(linearValue)).toBe(expected);
     });
@@ -312,18 +307,15 @@ describe('round-trip conversion', () => {
       { name: 'with alpha', lrgb: { r: 0.3, g: 0.6, b: 0.9, a: 0.5 } },
     ];
 
-    it.each(testCases)(
-      'Linear → RGB → Linear approximately preserves $name',
-      ({ lrgb }) => {
-        const rgb = linearRgbToRgb(lrgb);
-        const result = rgbToLinearRgb(rgb);
+    it.each(testCases)('Linear → RGB → Linear approximately preserves $name', ({ lrgb }) => {
+      const rgb = linearRgbToRgb(lrgb);
+      const result = rgbToLinearRgb(rgb);
 
-        expect(result.r).toBeCloseTo(lrgb.r, 2);
-        expect(result.g).toBeCloseTo(lrgb.g, 2);
-        expect(result.b).toBeCloseTo(lrgb.b, 2);
-        expect(result.a).toBe(lrgb.a);
-      }
-    );
+      expect(result.r).toBeCloseTo(lrgb.r, 2);
+      expect(result.g).toBeCloseTo(lrgb.g, 2);
+      expect(result.b).toBeCloseTo(lrgb.b, 2);
+      expect(result.a).toBe(lrgb.a);
+    });
   });
 });
 

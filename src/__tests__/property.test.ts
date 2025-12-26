@@ -1,21 +1,28 @@
-import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-
-import { parseHex, parseRgb, parseHsl, parseOklch } from '../parse/index.js';
-import { tryParseHex, tryParseRgb } from '../parse/index.js';
-import { toHex, toHex8 } from '../format/hex.js';
-import { toRgbString, toRgbaString, toRgbModern } from '../format/rgb.js';
-import { toHslModern } from '../format/hsl.js';
-import { toOklchString } from '../format/oklch.js';
-import { rgbToOklch, oklchToRgb } from '../convert/rgb-oklch.js';
-import { rgbToHsl, hslToRgb } from '../convert/hsl.js';
+import { describe, expect, it } from 'vitest';
 import { contrast } from '../a11y/contrast.js';
 import { luminance } from '../a11y/luminance.js';
+import { hslToRgb, rgbToHsl } from '../convert/hsl.js';
+import { oklchToRgb, rgbToOklch } from '../convert/rgb-oklch.js';
+import { toHex, toHex8 } from '../format/hex.js';
+import { toHslModern } from '../format/hsl.js';
+import { toOklchString } from '../format/oklch.js';
+import { toRgbaString, toRgbModern, toRgbString } from '../format/rgb.js';
 import { mix, mixColors } from '../ops/mix.js';
-import type { RGBA, OKLCH, HSLA } from '../types/color.js';
+import {
+  parseHex,
+  parseHsl,
+  parseOklch,
+  parseRgb,
+  tryParseHex,
+  tryParseRgb,
+} from '../parse/index.js';
+import type { HSLA, OKLCH, RGBA } from '../types/color.js';
 
 const rgbChannel = fc.integer({ min: 0, max: 255 });
-const alphaValue = fc.double({ min: 0, max: 1, noNaN: true }).map(a => Math.round(a * 1000) / 1000);
+const alphaValue = fc
+  .double({ min: 0, max: 1, noNaN: true })
+  .map((a) => Math.round(a * 1000) / 1000);
 const rgbaArbitrary: fc.Arbitrary<RGBA> = fc.record({
   r: rgbChannel,
   g: rgbChannel,
@@ -23,12 +30,10 @@ const rgbaArbitrary: fc.Arbitrary<RGBA> = fc.record({
   a: alphaValue,
 });
 
-const hexColorArbitrary = fc.tuple(rgbChannel, rgbChannel, rgbChannel).map(
-  ([r, g, b]) => {
-    const hex = (n: number) => n.toString(16).padStart(2, '0');
-    return `#${hex(r)}${hex(g)}${hex(b)}`;
-  }
-);
+const hexColorArbitrary = fc.tuple(rgbChannel, rgbChannel, rgbChannel).map(([r, g, b]) => {
+  const hex = (n: number) => n.toString(16).padStart(2, '0');
+  return `#${hex(r)}${hex(g)}${hex(b)}`;
+});
 
 const hueValue = fc.double({ min: 0, max: 360, noNaN: true });
 const slValue = fc.double({ min: 0, max: 1, noNaN: true });
@@ -62,7 +67,7 @@ describe('Property: Parse ∘ Format = Identity', () => {
           expect(parsed.b).toBe(rgba.b);
           expect(parsed.a).toBe(1);
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
 
@@ -77,7 +82,7 @@ describe('Property: Parse ∘ Format = Identity', () => {
           expect(parsed.b).toBe(rgba.b);
           expect(parsed.a).toBeCloseTo(rgba.a, 2);
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
   });
@@ -94,7 +99,7 @@ describe('Property: Parse ∘ Format = Identity', () => {
           expect(parsed.b).toBe(rgba.b);
           expect(parsed.a).toBe(1);
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
 
@@ -109,7 +114,7 @@ describe('Property: Parse ∘ Format = Identity', () => {
           expect(parsed.b).toBe(rgba.b);
           expect(parsed.a).toBeCloseTo(rgba.a, 10);
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
 
@@ -128,7 +133,7 @@ describe('Property: Parse ∘ Format = Identity', () => {
             expect(parsed.a).toBeCloseTo(rgba.a, 10);
           }
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
   });
@@ -147,7 +152,7 @@ describe('Property: Parse ∘ Format = Identity', () => {
           expect(parsed.l).toBeGreaterThanOrEqual(0);
           expect(parsed.l).toBeLessThanOrEqual(1);
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
   });
@@ -166,7 +171,7 @@ describe('Property: Parse ∘ Format = Identity', () => {
           }
           expect(parsed.a).toBeCloseTo(oklch.a, 5);
         }),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
   });
@@ -184,7 +189,7 @@ describe('Property: RGB ↔ OKLCH Roundtrip', () => {
         expect(Math.abs(back.b - rgba.b)).toBeLessThanOrEqual(1);
         expect(back.a).toBeCloseTo(rgba.a, 10);
       }),
-      { numRuns: 200 }
+      { numRuns: 200 },
     );
   });
 
@@ -204,7 +209,7 @@ describe('Property: RGB ↔ OKLCH Roundtrip', () => {
           }
         }
       }),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -221,7 +226,7 @@ describe('Property: RGB ↔ OKLCH Roundtrip', () => {
         expect(oklch.a).toBeGreaterThanOrEqual(0);
         expect(oklch.a).toBeLessThanOrEqual(1);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });
@@ -238,7 +243,7 @@ describe('Property: RGB ↔ HSL Roundtrip', () => {
         expect(back.b).toBeCloseTo(rgba.b, 0);
         expect(back.a).toBeCloseTo(rgba.a, 10);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -256,7 +261,7 @@ describe('Property: RGB ↔ HSL Roundtrip', () => {
         expect(hsl.a).toBeGreaterThanOrEqual(0);
         expect(hsl.a).toBeLessThanOrEqual(1);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });
@@ -270,7 +275,7 @@ describe('Property: Contrast Symmetry', () => {
 
         expect(contrastAB).toBeCloseTo(contrastBA, 10);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -280,7 +285,7 @@ describe('Property: Contrast Symmetry', () => {
         const c = contrast(rgba, rgba);
         expect(c).toBe(1);
       }),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -292,7 +297,7 @@ describe('Property: Contrast Symmetry', () => {
         expect(c).toBeGreaterThanOrEqual(1);
         expect(c).toBeLessThanOrEqual(21);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -314,7 +319,7 @@ describe('Property: Luminance Properties', () => {
         expect(lum).toBeGreaterThanOrEqual(0);
         expect(lum).toBeLessThanOrEqual(1);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -336,7 +341,7 @@ describe('Property: Luminance Properties', () => {
 
         expect(luminance(lighter)).toBeGreaterThanOrEqual(luminance(darker));
       }),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 });
@@ -351,7 +356,7 @@ describe('Property: Mix Boundary Conditions', () => {
         expect(result.b).toBe(a.b);
         expect(result.a).toBeCloseTo(a.a, 2);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -364,7 +369,7 @@ describe('Property: Mix Boundary Conditions', () => {
         expect(result.b).toBe(b.b);
         expect(result.a).toBeCloseTo(b.a, 2);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -377,7 +382,7 @@ describe('Property: Mix Boundary Conditions', () => {
         expect(result.b).toBe(a.b);
         expect(result.a).toBeCloseTo(a.a, 2);
       }),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -390,7 +395,7 @@ describe('Property: Mix Boundary Conditions', () => {
         expect(Math.abs(result.b - (a.b + b.b) / 2)).toBeLessThanOrEqual(1);
         expect(result.a).toBeCloseTo((a.a + b.a) / 2, 2);
       }),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -407,7 +412,7 @@ describe('Property: Mix Boundary Conditions', () => {
         expect(resultOver.g).toBe(b.g);
         expect(resultOver.b).toBe(b.b);
       }),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 });
@@ -427,7 +432,7 @@ describe('Property: Mix in OKLCH Space', () => {
         expect(result.a).toBeGreaterThanOrEqual(0);
         expect(result.a).toBeLessThanOrEqual(1);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -439,7 +444,7 @@ describe('Property: Mix in OKLCH Space', () => {
         expect(result).toHaveProperty('space');
         expect(['rgb', 'oklch', 'hsl']).toContain(result.space);
       }),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 });
@@ -452,7 +457,7 @@ describe('Property: Valid Hex String Generation', () => {
 
         expect(hex).toMatch(/^#[0-9a-f]{6}$/);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -463,7 +468,7 @@ describe('Property: Valid Hex String Generation', () => {
 
         expect(hex).toMatch(/^#[0-9a-f]{8}$/);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -474,7 +479,7 @@ describe('Property: Valid Hex String Generation', () => {
 
         expect(result.ok).toBe(true);
       }),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });
@@ -487,9 +492,9 @@ describe('Property: Error Handling', () => {
         (invalidStr) => {
           const result = tryParseHex(invalidStr);
           expect(result.ok).toBe(false);
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 
@@ -500,9 +505,9 @@ describe('Property: Error Handling', () => {
         (invalidStr) => {
           const result = tryParseRgb(invalidStr);
           expect(result.ok).toBe(false);
-        }
+        },
       ),
-      { numRuns: 50 }
+      { numRuns: 50 },
     );
   });
 });

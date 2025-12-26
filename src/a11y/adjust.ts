@@ -20,10 +20,10 @@
  * ```
  */
 
-import type { RGBA } from '../types/color.js';
-import type { AnyColor, RgbColor } from '../types/ColorObject.js';
 import { convert } from '../convert/index.js';
 import { oklchToRgb, rgbToOklch } from '../convert/rgb-oklch.js';
+import type { AnyColor, RgbColor } from '../types/ColorObject.js';
+import type { RGBA } from '../types/color.js';
 import { contrast } from './contrast.js';
 import type { LuminanceInput } from './luminance.js';
 import { luminance } from './luminance.js';

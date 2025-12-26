@@ -1,6 +1,6 @@
+import { ColorErrorCode, ColorParseError } from '../errors.js';
 import type { P3 } from '../types/color.js';
-import { ColorParseError, ColorErrorCode } from '../errors.js';
-import { type Result, ok, err } from '../types/Result.js';
+import { err, ok, type Result } from '../types/Result.js';
 
 // Number pattern: matches valid floats like 0, 0.5, .5, 1.0, -0.5, but NOT 1.2.3
 const NUM = '-?(?:\\d+(?:\\.\\d+)?|\\.\\d+)%?';
@@ -26,7 +26,12 @@ function isInRange(value: number, min: number, max: number): boolean {
 
 function isValidP3(p3: P3): { valid: boolean; reason?: string } {
   /* v8 ignore start - regex ensures numeric patterns */
-  if (!isValidNumber(p3.r) || !isValidNumber(p3.g) || !isValidNumber(p3.b) || !isValidNumber(p3.a)) {
+  if (
+    !isValidNumber(p3.r) ||
+    !isValidNumber(p3.g) ||
+    !isValidNumber(p3.b) ||
+    !isValidNumber(p3.a)
+  ) {
     return { valid: false, reason: 'Values must be valid numbers' };
   }
   /* v8 ignore stop */

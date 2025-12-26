@@ -1,11 +1,6 @@
-import { describe, it } from 'vitest';
 import { expectTypeOf } from 'expect-type';
-import type {
-  PercentString,
-  OklchString,
-  OklchAlphaString,
-  OklchInputString,
-} from '../Oklch.js';
+import { describe, it } from 'vitest';
+import type { OklchAlphaString, OklchInputString, OklchString, PercentString } from '../Oklch.js';
 
 describe('Oklch types', () => {
   // === PercentString Tests ===
@@ -68,28 +63,54 @@ describe('Oklch types', () => {
 
   // === OklchAlphaString Tests (with alpha) ===
   it('OklchAlphaString validates oklch with alpha', () => {
-    expectTypeOf<OklchAlphaString<'oklch(0.5 0.2 180 / 0.5)'>>().toEqualTypeOf<'oklch(0.5 0.2 180 / 0.5)'>();
-    expectTypeOf<OklchAlphaString<'oklch(0.5 0.2 180 / 1)'>>().toEqualTypeOf<'oklch(0.5 0.2 180 / 1)'>();
-    expectTypeOf<OklchAlphaString<'oklch(0.5 0.2 180 / 0)'>>().toEqualTypeOf<'oklch(0.5 0.2 180 / 0)'>();
+    expectTypeOf<
+      OklchAlphaString<'oklch(0.5 0.2 180 / 0.5)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180 / 0.5)'>();
+    expectTypeOf<
+      OklchAlphaString<'oklch(0.5 0.2 180 / 1)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180 / 1)'>();
+    expectTypeOf<
+      OklchAlphaString<'oklch(0.5 0.2 180 / 0)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180 / 0)'>();
   });
 
   it('OklchAlphaString validates percentage lightness with alpha', () => {
-    expectTypeOf<OklchAlphaString<'oklch(50% 0.2 180 / 1)'>>().toEqualTypeOf<'oklch(50% 0.2 180 / 1)'>();
-    expectTypeOf<OklchAlphaString<'oklch(100% 0.3 270 / 0.5)'>>().toEqualTypeOf<'oklch(100% 0.3 270 / 0.5)'>();
-    expectTypeOf<OklchAlphaString<'oklch(0% 0 0 / 0.75)'>>().toEqualTypeOf<'oklch(0% 0 0 / 0.75)'>();
+    expectTypeOf<
+      OklchAlphaString<'oklch(50% 0.2 180 / 1)'>
+    >().toEqualTypeOf<'oklch(50% 0.2 180 / 1)'>();
+    expectTypeOf<
+      OklchAlphaString<'oklch(100% 0.3 270 / 0.5)'>
+    >().toEqualTypeOf<'oklch(100% 0.3 270 / 0.5)'>();
+    expectTypeOf<
+      OklchAlphaString<'oklch(0% 0 0 / 0.75)'>
+    >().toEqualTypeOf<'oklch(0% 0 0 / 0.75)'>();
   });
 
   it('OklchAlphaString validates percentage alpha', () => {
-    expectTypeOf<OklchAlphaString<'oklch(0.5 0.2 180 / 50%)'>>().toEqualTypeOf<'oklch(0.5 0.2 180 / 50%)'>();
-    expectTypeOf<OklchAlphaString<'oklch(0.5 0.2 180 / 100%)'>>().toEqualTypeOf<'oklch(0.5 0.2 180 / 100%)'>();
-    expectTypeOf<OklchAlphaString<'oklch(50% 0.2 180 / 80%)'>>().toEqualTypeOf<'oklch(50% 0.2 180 / 80%)'>();
+    expectTypeOf<
+      OklchAlphaString<'oklch(0.5 0.2 180 / 50%)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180 / 50%)'>();
+    expectTypeOf<
+      OklchAlphaString<'oklch(0.5 0.2 180 / 100%)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180 / 100%)'>();
+    expectTypeOf<
+      OklchAlphaString<'oklch(50% 0.2 180 / 80%)'>
+    >().toEqualTypeOf<'oklch(50% 0.2 180 / 80%)'>();
   });
 
   it('OklchAlphaString validates flexible whitespace around slash', () => {
-    expectTypeOf<OklchAlphaString<'oklch(0.5 0.2 180/0.5)'>>().toEqualTypeOf<'oklch(0.5 0.2 180/0.5)'>();
-    expectTypeOf<OklchAlphaString<'oklch(0.5 0.2 180 /0.5)'>>().toEqualTypeOf<'oklch(0.5 0.2 180 /0.5)'>();
-    expectTypeOf<OklchAlphaString<'oklch(0.5 0.2 180/ 0.5)'>>().toEqualTypeOf<'oklch(0.5 0.2 180/ 0.5)'>();
-    expectTypeOf<OklchAlphaString<'oklch(0.5 0.2 180 / 0.5)'>>().toEqualTypeOf<'oklch(0.5 0.2 180 / 0.5)'>();
+    expectTypeOf<
+      OklchAlphaString<'oklch(0.5 0.2 180/0.5)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180/0.5)'>();
+    expectTypeOf<
+      OklchAlphaString<'oklch(0.5 0.2 180 /0.5)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180 /0.5)'>();
+    expectTypeOf<
+      OklchAlphaString<'oklch(0.5 0.2 180/ 0.5)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180/ 0.5)'>();
+    expectTypeOf<
+      OklchAlphaString<'oklch(0.5 0.2 180 / 0.5)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180 / 0.5)'>();
   });
 
   it('OklchAlphaString rejects missing alpha value', () => {
@@ -110,9 +131,15 @@ describe('Oklch types', () => {
   });
 
   it('OklchInputString accepts oklch with alpha', () => {
-    expectTypeOf<OklchInputString<'oklch(0.5 0.2 180 / 0.5)'>>().toEqualTypeOf<'oklch(0.5 0.2 180 / 0.5)'>();
-    expectTypeOf<OklchInputString<'oklch(50% 0.2 180 / 80%)'>>().toEqualTypeOf<'oklch(50% 0.2 180 / 80%)'>();
-    expectTypeOf<OklchInputString<'oklch(1 0.4 360 / 1)'>>().toEqualTypeOf<'oklch(1 0.4 360 / 1)'>();
+    expectTypeOf<
+      OklchInputString<'oklch(0.5 0.2 180 / 0.5)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180 / 0.5)'>();
+    expectTypeOf<
+      OklchInputString<'oklch(50% 0.2 180 / 80%)'>
+    >().toEqualTypeOf<'oklch(50% 0.2 180 / 80%)'>();
+    expectTypeOf<
+      OklchInputString<'oklch(1 0.4 360 / 1)'>
+    >().toEqualTypeOf<'oklch(1 0.4 360 / 1)'>();
   });
 
   it('OklchInputString rejects invalid formats', () => {
@@ -132,9 +159,17 @@ describe('Oklch types', () => {
   });
 
   it('OklchInputString validates various alpha formats with different slash spacing', () => {
-    expectTypeOf<OklchInputString<'oklch(0.5 0.2 180/1)'>>().toEqualTypeOf<'oklch(0.5 0.2 180/1)'>();
-    expectTypeOf<OklchInputString<'oklch(0.5 0.2 180 /1)'>>().toEqualTypeOf<'oklch(0.5 0.2 180 /1)'>();
-    expectTypeOf<OklchInputString<'oklch(0.5 0.2 180/ 1)'>>().toEqualTypeOf<'oklch(0.5 0.2 180/ 1)'>();
-    expectTypeOf<OklchInputString<'oklch(0.5 0.2 180 / 1)'>>().toEqualTypeOf<'oklch(0.5 0.2 180 / 1)'>();
+    expectTypeOf<
+      OklchInputString<'oklch(0.5 0.2 180/1)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180/1)'>();
+    expectTypeOf<
+      OklchInputString<'oklch(0.5 0.2 180 /1)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180 /1)'>();
+    expectTypeOf<
+      OklchInputString<'oklch(0.5 0.2 180/ 1)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180/ 1)'>();
+    expectTypeOf<
+      OklchInputString<'oklch(0.5 0.2 180 / 1)'>
+    >().toEqualTypeOf<'oklch(0.5 0.2 180 / 1)'>();
   });
 });

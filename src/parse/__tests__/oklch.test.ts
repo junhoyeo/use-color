@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { ColorErrorCode, ColorParseError } from '../../errors.js';
 import { parseOklch, tryParseOklch } from '../oklch.js';
-import { ColorParseError, ColorErrorCode } from '../../errors.js';
 
 describe('parseOklch', () => {
   describe('valid basic formats', () => {

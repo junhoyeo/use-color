@@ -1,16 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { ColorErrorCode } from '../../errors.js';
 import {
+  normalizeHue,
   parseHsl,
-  parseHslLegacy,
   parseHslaLegacy,
+  parseHslLegacy,
   parseHslModern,
   tryParseHsl,
-  tryParseHslLegacy,
   tryParseHslaLegacy,
+  tryParseHslLegacy,
   tryParseHslModern,
-  normalizeHue,
 } from '../hsl.js';
-import { ColorErrorCode } from '../../errors.js';
 
 describe('normalizeHue', () => {
   it('returns 0-360 values unchanged', () => {
@@ -534,5 +534,3 @@ describe('unexpected error handling', () => {
     }
   });
 });
-
-

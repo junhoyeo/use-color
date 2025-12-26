@@ -19,9 +19,9 @@
  * ```
  */
 
-import type { RGBA } from '../types/color.js';
-import type { AnyColor, RgbColor } from '../types/ColorObject.js';
 import { convert } from '../convert/index.js';
+import type { AnyColor, RgbColor } from '../types/ColorObject.js';
+import type { RGBA } from '../types/color.js';
 
 /**
  * Type representing a color input that can be converted to RGB string.

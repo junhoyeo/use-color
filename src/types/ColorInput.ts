@@ -1,7 +1,7 @@
+import type { HSLA, OKLCH, RGBA } from './color.js';
 import type { HexString, HexStringWithOpacity } from './Hex.js';
-import type { RgbColorInput, RgbString } from './Rgb.js';
 import type { OklchInputString } from './Oklch.js';
-import type { RGBA, OKLCH, HSLA } from './color.js';
+import type { RgbColorInput, RgbString } from './Rgb.js';
 
 /**
  * Validated color string input types.
@@ -62,9 +62,7 @@ export type ColorObjectInput = RGBA | OKLCH | HSLA;
  * const rgba: ColorInput = { r: 255, g: 0, b: 0, a: 1 };
  * ```
  */
-export type ColorInput<T extends string = string> =
-  | ColorStringInput<T>
-  | RgbColorInput;
+export type ColorInput<T extends string = string> = ColorStringInput<T> | RgbColorInput;
 
 /**
  * Comprehensive color input type that accepts ALL color formats including
@@ -111,8 +109,4 @@ export type AnyColorInput<T extends string = string> =
  * type C = AsValidColor<'invalid'>;        // never
  * ```
  */
-export type AsValidColor<T extends string> = [ColorStringInput<T>] extends [
-  never,
-]
-  ? never
-  : T;
+export type AsValidColor<T extends string> = [ColorStringInput<T>] extends [never] ? never : T;

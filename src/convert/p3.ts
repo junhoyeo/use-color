@@ -1,7 +1,7 @@
-import type { RGBA, P3 } from '../types/color.js';
+import type { P3, RGBA } from '../types/color.js';
 import { P3_TO_XYZ, XYZ_TO_P3 } from './constants.js';
-import { linearRgbToXyz, xyzToLinearRgb } from './xyz.js';
 import type { XYZ } from './xyz.js';
+import { linearRgbToXyz, xyzToLinearRgb } from './xyz.js';
 
 /**
  * Linear P3 RGB color representation.
@@ -17,14 +17,14 @@ function srgbToLinear(value: number): number {
   if (value <= 0.04045) {
     return value / 12.92;
   }
-  return Math.pow((value + 0.055) / 1.055, 2.4);
+  return ((value + 0.055) / 1.055) ** 2.4;
 }
 
 function linearToSrgb(value: number): number {
   if (value <= 0.0031308) {
     return value * 12.92;
   }
-  return 1.055 * Math.pow(value, 1 / 2.4) - 0.055;
+  return 1.055 * value ** (1 / 2.4) - 0.055;
 }
 
 export function linearP3ToXyz(p3: LinearP3): XYZ {

@@ -1,5 +1,5 @@
-import { describe, it } from 'vitest';
 import { expectTypeOf } from 'expect-type';
+import { describe, it } from 'vitest';
 import type {
   AnyHexString,
   HexChar,

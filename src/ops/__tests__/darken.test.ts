@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import type { OklchColor, RgbColor } from '../../types/ColorObject.js';
+import type { OKLCH, RGBA } from '../../types/color.js';
 import { darken } from '../darken.js';
-import type { RGBA, OKLCH } from '../../types/color.js';
-import type { RgbColor, OklchColor } from '../../types/ColorObject.js';
 
 describe('darken', () => {
   describe('with RGBA input', () => {

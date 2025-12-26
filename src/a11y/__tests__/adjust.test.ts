@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { ensureContrast } from '../adjust.js';
 import { contrast } from '../contrast.js';
-import { WCAG_THRESHOLDS } from '../readable.js';
 import { luminance } from '../luminance.js';
+import { WCAG_THRESHOLDS } from '../readable.js';
 
 describe('ensureContrast', () => {
   const white = { r: 255, g: 255, b: 255, a: 1 };
@@ -125,7 +125,7 @@ describe('ensureContrast', () => {
       // Calculate RGB value that gives exactly 0.5 luminance
       // srgbToLinear(v) = ((v/255 + 0.055) / 1.055)^2.4 = 0.5
       // Solving: v = (0.5^(1/2.4) * 1.055 - 0.055) * 255
-      const x = Math.pow(0.5, 1 / 2.4);
+      const x = 0.5 ** (1 / 2.4);
       const v = (x * 1.055 - 0.055) * 255;
       const exactMidBg = { r: v, g: v, b: v, a: 1 };
 

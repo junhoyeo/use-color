@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { toP3String } from '../p3.js';
+import { describe, expect, it } from 'vitest';
+import type { P3Color, RgbColor } from '../../types/ColorObject.js';
 import type { P3 } from '../../types/color.js';
-import type { RgbColor, P3Color } from '../../types/ColorObject.js';
+import { toP3String } from '../p3.js';
 
 describe('P3 formatting functions', () => {
   describe('toP3String', () => {

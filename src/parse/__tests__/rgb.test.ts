@@ -452,8 +452,6 @@ describe('tryParseRgb', () => {
       expect(() => tryParseRgb('completely invalid')).not.toThrow();
     });
   });
-
-
 });
 
 describe('isRgbString', () => {

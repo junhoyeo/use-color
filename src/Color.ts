@@ -3,23 +3,31 @@
  * Main Color class and factory functions for use-color v2.
  */
 
-import type { ColorSpace, RGBA, OKLCH, HSLA, P3 } from './types/color.js';
-import type { AnyColor, HslColor, P3Color } from './types/ColorObject.js';
-import type { Result } from './types/Result.js';
-import { ok, err } from './types/Result.js';
-import { ColorParseError, ColorErrorCode } from './errors.js';
-import { tryParseColor } from './parse/index.js';
-import { convert, rgbToOklch, oklchToRgb, rgbToHsl, rgbToP3, p3ToRgb, clampToGamut } from './convert/index.js';
-import { toHex, toHex8, toHexShort } from './format/hex.js';
-import { toRgbString, toRgbaString, toRgbModern } from './format/rgb.js';
-import { toHslString, toHslaString, toHslModern } from './format/hsl.js';
-import { toOklchString } from './format/oklch.js';
-import { toP3String } from './format/p3.js';
-import { toCss } from './format/css.js';
+import {
+  clampToGamut,
+  convert,
+  oklchToRgb,
+  p3ToRgb,
+  rgbToHsl,
+  rgbToOklch,
+  rgbToP3,
+} from './convert/index.js';
+import { ColorErrorCode, ColorParseError } from './errors.js';
 import type { CssOptions } from './format/css.js';
-import type { OklchFormatOptions } from './format/oklch.js';
-import type { P3FormatOptions } from './format/p3.js';
+import { toCss } from './format/css.js';
 import type { HexOptions } from './format/hex.js';
+import { toHex, toHex8, toHexShort } from './format/hex.js';
+import { toHslaString, toHslModern, toHslString } from './format/hsl.js';
+import type { OklchFormatOptions } from './format/oklch.js';
+import { toOklchString } from './format/oklch.js';
+import type { P3FormatOptions } from './format/p3.js';
+import { toP3String } from './format/p3.js';
+import { toRgbaString, toRgbModern, toRgbString } from './format/rgb.js';
+import { tryParseColor } from './parse/index.js';
+import type { AnyColor, HslColor } from './types/ColorObject.js';
+import type { ColorSpace, HSLA, OKLCH, RGBA } from './types/color.js';
+import type { Result } from './types/Result.js';
+import { err, ok } from './types/Result.js';
 
 /** Input types accepted by color() and tryColor() */
 export type ColorInputValue = string | RGBA | OKLCH | HSLA | AnyColor;

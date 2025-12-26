@@ -1,4 +1,4 @@
-import type { ColorSpace, RGBA, OKLCH, HSLA, P3 } from './color.js';
+import type { ColorSpace, HSLA, OKLCH, P3, RGBA } from './color.js';
 
 /**
  * A discriminated union type representing a color in a specific color space.

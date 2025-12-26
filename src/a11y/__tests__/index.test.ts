@@ -1,13 +1,13 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  luminance,
-  contrast,
-  isReadable,
-  getReadabilityLevel,
-  ensureContrast,
-  WCAG_THRESHOLDS,
-  apcaContrast,
   APCA_THRESHOLDS,
+  apcaContrast,
+  contrast,
+  ensureContrast,
+  getReadabilityLevel,
+  isReadable,
+  luminance,
+  WCAG_THRESHOLDS,
 } from '../index.js';
 
 describe('a11y module exports', () => {

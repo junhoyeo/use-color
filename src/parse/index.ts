@@ -1,21 +1,35 @@
 import { ColorErrorCode, ColorParseError } from '../errors.js';
-import type { HSLA, OKLCH, RGBA, P3 } from '../types/color.js';
-import type { AnyColor, HslColor, OklchColor, RgbColor, P3Color } from '../types/ColorObject.js';
-import { type Result, err, ok } from '../types/Result.js';
+import type { AnyColor, HslColor, OklchColor, P3Color, RgbColor } from '../types/ColorObject.js';
+import type { HSLA, OKLCH, P3, RGBA } from '../types/color.js';
+import { err, ok, type Result } from '../types/Result.js';
 
 import { tryParseHex } from './hex.js';
 import { tryParseHsl } from './hsl.js';
 import { tryParseNamed } from './named.js';
 import { tryParseOklch } from './oklch.js';
-import { tryParseRgb } from './rgb.js';
 import { tryParseP3 } from './p3.js';
+import { tryParseRgb } from './rgb.js';
 
 export { parseHex, parseHex3, parseHex4, parseHex6, parseHex8, tryParseHex } from './hex.js';
-export { parseRgb, parseRgbLegacy, parseRgbaLegacy, parseRgbModern, tryParseRgb, isRgbString } from './rgb.js';
-export { parseHsl, parseHslLegacy, parseHslaLegacy, parseHslModern, tryParseHsl, normalizeHue } from './hsl.js';
+export {
+  normalizeHue,
+  parseHsl,
+  parseHslaLegacy,
+  parseHslLegacy,
+  parseHslModern,
+  tryParseHsl,
+} from './hsl.js';
+export { isNamedColor, NAMED_COLORS, parseNamed, tryParseNamed } from './named.js';
 export { parseOklch, tryParseOklch } from './oklch.js';
-export { parseP3, tryParseP3, isP3String } from './p3.js';
-export { parseNamed, tryParseNamed, isNamedColor, NAMED_COLORS } from './named.js';
+export { isP3String, parseP3, tryParseP3 } from './p3.js';
+export {
+  isRgbString,
+  parseRgb,
+  parseRgbaLegacy,
+  parseRgbLegacy,
+  parseRgbModern,
+  tryParseRgb,
+} from './rgb.js';
 
 export type ColorFormat = 'hex' | 'rgb' | 'hsl' | 'oklch' | 'p3' | 'named';
 
@@ -76,12 +90,7 @@ export function tryParseColor(str: string): Result<AnyColor, ColorParseError> {
   const trimmed = str.trim();
 
   if (trimmed === '') {
-    return err(
-      new ColorParseError(
-        ColorErrorCode.INVALID_FORMAT,
-        'Invalid color: empty string',
-      ),
-    );
+    return err(new ColorParseError(ColorErrorCode.INVALID_FORMAT, 'Invalid color: empty string'));
   }
 
   const format = detectFormat(trimmed);

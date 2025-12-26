@@ -1,28 +1,28 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import type { HslColor, OklchColor, RgbColor } from '../../types/ColorObject.js';
+import type { HSLA, OKLCH, RGBA } from '../../types/color.js';
+import type {
+  CssColorInput,
+  CssFormat,
+  CssOptions,
+  HexInput,
+  HexOptions,
+  OklchFormatOptions,
+  RgbFormattableColor,
+} from '../index.js';
 import {
   toCss,
   toHex,
   toHex8,
   toHexShort,
-  toRgbString,
-  toRgbaString,
-  toRgbModern,
-  toHslString,
   toHslaString,
   toHslModern,
+  toHslString,
   toOklchString,
+  toRgbaString,
+  toRgbModern,
+  toRgbString,
 } from '../index.js';
-import type {
-  CssFormat,
-  CssOptions,
-  CssColorInput,
-  HexOptions,
-  HexInput,
-  RgbFormattableColor,
-  OklchFormatOptions,
-} from '../index.js';
-import type { RGBA, OKLCH, HSLA } from '../../types/color.js';
-import type { RgbColor, OklchColor, HslColor } from '../../types/ColorObject.js';
 
 describe('toCss unified formatter', () => {
   describe('default format selection', () => {
@@ -257,7 +257,9 @@ describe('toCss unified formatter', () => {
 
     it('throws error for unknown format (exhaustive check)', () => {
       const color: RGBA = { r: 255, g: 0, b: 0, a: 1 };
-      expect(() => toCss(color, { format: 'invalid' as CssFormat })).toThrow('Unknown format: invalid');
+      expect(() => toCss(color, { format: 'invalid' as CssFormat })).toThrow(
+        'Unknown format: invalid',
+      );
     });
   });
 });
@@ -311,7 +313,9 @@ describe('barrel exports', () => {
     });
 
     it('exports toOklchString with options', () => {
-      expect(toOklchString({ l: 0.5, c: 0.2, h: 180, a: 1 }, { precision: 2 })).toBe('oklch(0.5 0.2 180)');
+      expect(toOklchString({ l: 0.5, c: 0.2, h: 180, a: 1 }, { precision: 2 })).toBe(
+        'oklch(0.5 0.2 180)',
+      );
     });
   });
 });

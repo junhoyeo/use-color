@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { toRgbString, toRgbaString, toRgbModern } from '../rgb.js';
+import type { HslColor, OklchColor, RgbColor } from '../../types/ColorObject.js';
 import type { RGBA } from '../../types/color.js';
-import type { RgbColor, OklchColor, HslColor } from '../../types/ColorObject.js';
+import { toRgbaString, toRgbModern, toRgbString } from '../rgb.js';
 
 describe('toRgbString', () => {
   describe('basic colors', () => {

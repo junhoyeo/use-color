@@ -4,10 +4,10 @@
  */
 
 import { tryParseHex } from '../parse/hex.js';
-import { tryParseRgb } from '../parse/rgb.js';
 import { tryParseHsl } from '../parse/hsl.js';
-import { tryParseOklch } from '../parse/oklch.js';
 import { tryParseColor } from '../parse/index.js';
+import { tryParseOklch } from '../parse/oklch.js';
+import { tryParseRgb } from '../parse/rgb.js';
 import type { AnyColor } from '../types/ColorObject.js';
 
 /**

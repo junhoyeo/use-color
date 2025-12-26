@@ -1,10 +1,9 @@
+import { ColorErrorCode, ColorParseError } from '../errors.js';
 import type { OKLCH } from '../types/color.js';
-import { ColorParseError, ColorErrorCode } from '../errors.js';
-import { type Result, ok, err } from '../types/Result.js';
+import { err, ok, type Result } from '../types/Result.js';
 
 /** Matches: oklch(L C H) or oklch(L C H / A) where L and A can be percentages */
-const OKLCH_REGEX =
-  /^oklch\(\s*([0-9.]+%?)\s+([0-9.]+)\s+([0-9.]+)\s*(?:\/\s*([0-9.]+%?))?\s*\)$/i;
+const OKLCH_REGEX = /^oklch\(\s*([0-9.]+%?)\s+([0-9.]+)\s+([0-9.]+)\s*(?:\/\s*([0-9.]+%?))?\s*\)$/i;
 
 function parsePercentageOrNumber(value: string, scale = 1): number {
   if (value.endsWith('%')) {

@@ -1,28 +1,23 @@
-import type { P3 } from '../types/color.js';
-import type { AnyColor, P3Color } from '../types/ColorObject.js';
 import { convert } from '../convert/index.js';
+import type { AnyColor, P3Color } from '../types/ColorObject.js';
+import type { P3 } from '../types/color.js';
 
 export interface P3FormatOptions {
   precision?: number;
   forceAlpha?: boolean;
 }
 
-function hasSpaceProperty(
-  color: P3 | P3Color | AnyColor,
-): color is P3Color | AnyColor {
+function hasSpaceProperty(color: P3 | P3Color | AnyColor): color is P3Color | AnyColor {
   return 'space' in color;
 }
 
 function round(value: number, precision: number): string {
-  const factor = Math.pow(10, precision);
+  const factor = 10 ** precision;
   const rounded = Math.round(value * factor) / factor;
   return String(parseFloat(rounded.toFixed(precision)));
 }
 
-export function toP3String(
-  color: P3 | P3Color | AnyColor,
-  options: P3FormatOptions = {},
-): string {
+export function toP3String(color: P3 | P3Color | AnyColor, options: P3FormatOptions = {}): string {
   const { precision = 4, forceAlpha = false } = options;
 
   let p3: P3;

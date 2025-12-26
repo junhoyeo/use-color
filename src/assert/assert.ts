@@ -4,14 +4,14 @@
  * These functions throw ColorParseError if validation fails.
  */
 
+import { ColorErrorCode, ColorParseError } from '../errors.js';
 import { parseHex } from '../parse/hex.js';
-import { parseRgb } from '../parse/rgb.js';
 import { parseHsl } from '../parse/hsl.js';
-import { parseOklch } from '../parse/oklch.js';
 import { parseColor } from '../parse/index.js';
-import { ColorParseError, ColorErrorCode } from '../errors.js';
-import { isColor } from './guards.js';
+import { parseOklch } from '../parse/oklch.js';
+import { parseRgb } from '../parse/rgb.js';
 import type { AnyColor } from '../types/ColorObject.js';
+import { isColor } from './guards.js';
 
 /**
  * Asserts that a string is a valid hex color.

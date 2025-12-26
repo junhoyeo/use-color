@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  rgbToP3,
-  p3ToRgb,
-  linearP3ToXyz,
-  xyzToLinearP3,
-  p3ToLinearP3,
   linearP3ToP3,
+  linearP3ToXyz,
+  p3ToLinearP3,
+  p3ToRgb,
+  rgbToP3,
+  xyzToLinearP3,
 } from '../p3.js';
 
 describe('P3 conversion functions', () => {

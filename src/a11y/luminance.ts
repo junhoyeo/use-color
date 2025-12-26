@@ -25,10 +25,10 @@
  * ```
  */
 
-import type { RGBA } from '../types/color.js';
-import type { AnyColor } from '../types/ColorObject.js';
-import { srgbToLinear } from '../convert/linear.js';
 import { convert } from '../convert/index.js';
+import { srgbToLinear } from '../convert/linear.js';
+import type { AnyColor } from '../types/ColorObject.js';
+import type { RGBA } from '../types/color.js';
 
 /**
  * WCAG 2.1 luminance coefficients.

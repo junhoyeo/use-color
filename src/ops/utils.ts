@@ -1,10 +1,10 @@
-import type { RGBA, OKLCH, HSLA, P3 } from '../types/color.js';
-import type { AnyColor, RgbColor, OklchColor, HslColor, P3Color } from '../types/ColorObject.js';
-import { rgbToOklch, oklchToRgb } from '../convert/rgb-oklch.js';
-import { rgbToHsl, hslToRgb } from '../convert/hsl.js';
-import { rgbToP3, p3ToRgb } from '../convert/p3.js';
 import { clampToGamut } from '../convert/gamut.js';
-import { ColorParseError, ColorErrorCode } from '../errors.js';
+import { hslToRgb, rgbToHsl } from '../convert/hsl.js';
+import { p3ToRgb, rgbToP3 } from '../convert/p3.js';
+import { oklchToRgb, rgbToOklch } from '../convert/rgb-oklch.js';
+import { ColorErrorCode, ColorParseError } from '../errors.js';
+import type { AnyColor, HslColor, OklchColor, P3Color, RgbColor } from '../types/ColorObject.js';
+import type { HSLA, OKLCH, P3, RGBA } from '../types/color.js';
 
 export type ColorInput = RGBA | OKLCH | HSLA | P3 | AnyColor;
 
@@ -88,35 +88,27 @@ export function toRgba(color: ColorInput): RGBA {
 export function fromOklch(
   oklch: OKLCH,
   originalType: 'rgb' | 'oklch' | 'hsl' | 'p3',
-  hadSpace: boolean
+  hadSpace: boolean,
 ): ColorInput {
   switch (originalType) {
     case 'oklch':
-      return hadSpace
-        ? ({ space: 'oklch', ...oklch } as OklchColor)
-        : oklch;
+      return hadSpace ? ({ space: 'oklch', ...oklch } as OklchColor) : oklch;
     case 'rgb': {
       const clamped = clampToGamut(oklch);
       const rgb = oklchToRgb(clamped);
-      return hadSpace
-        ? ({ space: 'rgb', ...rgb } as RgbColor)
-        : rgb;
+      return hadSpace ? ({ space: 'rgb', ...rgb } as RgbColor) : rgb;
     }
     case 'hsl': {
       const clamped = clampToGamut(oklch);
       const rgb = oklchToRgb(clamped);
       const hsl = rgbToHsl(rgb);
-      return hadSpace
-        ? ({ space: 'hsl', ...hsl } as HslColor)
-        : hsl;
+      return hadSpace ? ({ space: 'hsl', ...hsl } as HslColor) : hsl;
     }
     case 'p3': {
       const clamped = clampToGamut(oklch);
       const rgb = oklchToRgb(clamped);
       const p3 = rgbToP3(rgb);
-      return hadSpace
-        ? ({ space: 'p3', ...p3 } as P3Color)
-        : p3;
+      return hadSpace ? ({ space: 'p3', ...p3 } as P3Color) : p3;
     }
   }
 }
@@ -124,30 +116,22 @@ export function fromOklch(
 export function fromRgba(
   rgba: RGBA,
   originalType: 'rgb' | 'oklch' | 'hsl' | 'p3',
-  hadSpace: boolean
+  hadSpace: boolean,
 ): ColorInput {
   switch (originalType) {
     case 'rgb':
-      return hadSpace
-        ? ({ space: 'rgb', ...rgba } as RgbColor)
-        : rgba;
+      return hadSpace ? ({ space: 'rgb', ...rgba } as RgbColor) : rgba;
     case 'oklch': {
       const oklch = rgbToOklch(rgba);
-      return hadSpace
-        ? ({ space: 'oklch', ...oklch } as OklchColor)
-        : oklch;
+      return hadSpace ? ({ space: 'oklch', ...oklch } as OklchColor) : oklch;
     }
     case 'hsl': {
       const hsl = rgbToHsl(rgba);
-      return hadSpace
-        ? ({ space: 'hsl', ...hsl } as HslColor)
-        : hsl;
+      return hadSpace ? ({ space: 'hsl', ...hsl } as HslColor) : hsl;
     }
     case 'p3': {
       const p3 = rgbToP3(rgba);
-      return hadSpace
-        ? ({ space: 'p3', ...p3 } as P3Color)
-        : p3;
+      return hadSpace ? ({ space: 'p3', ...p3 } as P3Color) : p3;
     }
   }
 }

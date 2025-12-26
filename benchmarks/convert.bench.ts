@@ -1,8 +1,8 @@
 import { bench, describe } from 'vitest';
-import { rgbToOklch, oklchToRgb } from '../src/convert/rgb-oklch.js';
-import { rgbToHsl, hslToRgb } from '../src/convert/hsl.js';
+import { hslToRgb, rgbToHsl } from '../src/convert/hsl.js';
 import { convert } from '../src/convert/index.js';
-import type { RGBA, OKLCH } from '../src/types/color.js';
+import { oklchToRgb, rgbToOklch } from '../src/convert/rgb-oklch.js';
+import type { OKLCH, RGBA } from '../src/types/color.js';
 
 const red: RGBA = { r: 255, g: 0, b: 0, a: 1 };
 const green: RGBA = { r: 0, g: 255, b: 0, a: 1 };
@@ -51,7 +51,7 @@ describe('Color conversion performance', () => {
 
   describe('Bulk conversion', () => {
     const colors = [red, green, blue];
-    
+
     bench('batch rgbToOklch (3 colors)', () => {
       colors.forEach(rgbToOklch);
     });

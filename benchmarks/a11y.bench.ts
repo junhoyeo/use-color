@@ -1,8 +1,8 @@
 import { bench, describe } from 'vitest';
-import { luminance } from '../src/a11y/luminance.js';
-import { contrast } from '../src/a11y/contrast.js';
-import { isReadable, getReadabilityLevel } from '../src/a11y/readable.js';
 import { ensureContrast } from '../src/a11y/adjust.js';
+import { contrast } from '../src/a11y/contrast.js';
+import { luminance } from '../src/a11y/luminance.js';
+import { getReadabilityLevel, isReadable } from '../src/a11y/readable.js';
 import type { RGBA } from '../src/types/color.js';
 
 const white: RGBA = { r: 255, g: 255, b: 255, a: 1 };

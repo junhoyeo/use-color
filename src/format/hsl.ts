@@ -1,6 +1,6 @@
-import type { HSLA } from '../types/color.js';
-import type { AnyColor, HslColor } from '../types/ColorObject.js';
 import { convert } from '../convert/index.js';
+import type { AnyColor, HslColor } from '../types/ColorObject.js';
+import type { HSLA } from '../types/color.js';
 
 function isHslaLike(color: HSLA | HslColor | AnyColor): color is HSLA | HslColor {
   return 'h' in color && 's' in color && 'l' in color && 'a' in color;

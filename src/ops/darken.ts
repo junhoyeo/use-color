@@ -1,5 +1,5 @@
-import type { ColorInput } from './utils.js';
 import { lighten } from './lighten.js';
+import type { ColorInput } from './utils.js';
 
 export type { ColorInput };
 

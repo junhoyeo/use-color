@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { toHslString, toHslaString, toHslModern } from '../hsl.js';
+import { describe, expect, it } from 'vitest';
+import type { HslColor, OklchColor, RgbColor } from '../../types/ColorObject.js';
 import type { HSLA } from '../../types/color.js';
-import type { HslColor, RgbColor, OklchColor } from '../../types/ColorObject.js';
+import { toHslaString, toHslModern, toHslString } from '../hsl.js';
 
 describe('toHslString', () => {
   describe('basic colors', () => {

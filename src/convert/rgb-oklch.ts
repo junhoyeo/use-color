@@ -26,10 +26,10 @@
  * @see https://www.w3.org/TR/css-color-4/#ok-lab
  */
 
-import type { RGBA, OKLCH } from '../types/color.js';
-import { rgbToLinearRgb, linearRgbToRgb } from './linear.js';
+import type { OKLCH, RGBA } from '../types/color.js';
+import { linearRgbToRgb, rgbToLinearRgb } from './linear.js';
+import { oklabToOklch, oklabToXyz, oklchToOklab, xyzToOklab } from './oklab.js';
 import { linearRgbToXyz, xyzToLinearRgb } from './xyz.js';
-import { xyzToOklab, oklabToXyz, oklabToOklch, oklchToOklab } from './oklab.js';
 
 /**
  * Converts an RGBA color to OKLCH color space.

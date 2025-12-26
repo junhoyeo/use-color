@@ -1,13 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import {
-  parseHex,
-  parseHex3,
-  parseHex4,
-  parseHex6,
-  parseHex8,
-  tryParseHex,
-} from '../hex.js';
-import { ColorParseError, ColorErrorCode } from '../../errors.js';
+import { describe, expect, it } from 'vitest';
+import { ColorErrorCode, ColorParseError } from '../../errors.js';
+import { parseHex, parseHex3, parseHex4, parseHex6, parseHex8, tryParseHex } from '../hex.js';
 
 describe('parseHex3', () => {
   it('parses lowercase 3-digit hex with #', () => {

@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { rgbToHsl, hslToRgb } from '../hsl.js';
-import type { RGBA, HSLA } from '../../types/color.js';
+import { describe, expect, it } from 'vitest';
+import type { HSLA, RGBA } from '../../types/color.js';
+import { hslToRgb, rgbToHsl } from '../hsl.js';
 
 describe('rgbToHsl', () => {
   describe('primary colors', () => {
@@ -243,17 +243,14 @@ describe('round-trip conversion', () => {
     { name: 'with alpha', rgba: { r: 128, g: 64, b: 192, a: 0.5 } },
   ];
 
-  it.each(testCases)(
-    'RGB → HSL → RGB preserves $name',
-    ({ rgba }) => {
-      const hsla = rgbToHsl(rgba);
-      const result = hslToRgb(hsla);
-      expect(result.r).toBe(rgba.r);
-      expect(result.g).toBe(rgba.g);
-      expect(result.b).toBe(rgba.b);
-      expect(result.a).toBe(rgba.a);
-    }
-  );
+  it.each(testCases)('RGB → HSL → RGB preserves $name', ({ rgba }) => {
+    const hsla = rgbToHsl(rgba);
+    const result = hslToRgb(hsla);
+    expect(result.r).toBe(rgba.r);
+    expect(result.g).toBe(rgba.g);
+    expect(result.b).toBe(rgba.b);
+    expect(result.a).toBe(rgba.a);
+  });
 
   const hslCases: Array<{ name: string; hsla: HSLA }> = [
     { name: 'pure red', hsla: { h: 0, s: 1, l: 0.5, a: 1 } },
@@ -265,23 +262,20 @@ describe('round-trip conversion', () => {
     { name: 'with alpha', hsla: { h: 270, s: 0.6, l: 0.5, a: 0.75 } },
   ];
 
-  it.each(hslCases)(
-    'HSL → RGB → HSL preserves $name',
-    ({ hsla }) => {
-      const rgba = hslToRgb(hsla);
-      const result = rgbToHsl(rgba);
-      
-      if (hsla.s === 0) {
-        expect(result.h).toBe(0);
-        expect(result.s).toBe(0);
-      } else {
-        expect(result.h).toBeCloseTo(hsla.h, 0);
-        expect(result.s).toBeCloseTo(hsla.s, 1);
-      }
-      expect(result.l).toBeCloseTo(hsla.l, 1);
-      expect(result.a).toBe(hsla.a);
+  it.each(hslCases)('HSL → RGB → HSL preserves $name', ({ hsla }) => {
+    const rgba = hslToRgb(hsla);
+    const result = rgbToHsl(rgba);
+
+    if (hsla.s === 0) {
+      expect(result.h).toBe(0);
+      expect(result.s).toBe(0);
+    } else {
+      expect(result.h).toBeCloseTo(hsla.h, 0);
+      expect(result.s).toBeCloseTo(hsla.s, 1);
     }
-  );
+    expect(result.l).toBeCloseTo(hsla.l, 1);
+    expect(result.a).toBe(hsla.a);
+  });
 });
 
 describe('edge cases', () => {

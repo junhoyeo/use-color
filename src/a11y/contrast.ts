@@ -29,7 +29,7 @@
  * ```
  */
 
-import { luminance, type LuminanceInput } from './luminance.js';
+import { type LuminanceInput, luminance } from './luminance.js';
 
 /**
  * Calculates the WCAG 2.1 contrast ratio between two colors.

@@ -1,12 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import {
-  isHex,
-  isRgb,
-  isHsl,
-  isOklch,
-  isColor,
-  isColorString,
-} from '../guards.js';
+import { describe, expect, it } from 'vitest';
+import { isColor, isColorString, isHex, isHsl, isOklch, isRgb } from '../guards.js';
 
 describe('isHex', () => {
   describe('valid hex colors', () => {

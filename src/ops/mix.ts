@@ -1,9 +1,9 @@
-import type { RGBA, OKLCH } from '../types/color.js';
-import type { AnyColor, OklchColor, RgbColor } from '../types/ColorObject.js';
-import type { ColorInput } from './utils.js';
-import { hasSpace, detectColorType, toOklch, toRgba, fromOklch, fromRgba } from './utils.js';
 import { clampToGamut } from '../convert/gamut.js';
-import { ColorParseError, ColorErrorCode } from '../errors.js';
+import { ColorErrorCode, ColorParseError } from '../errors.js';
+import type { AnyColor, OklchColor, RgbColor } from '../types/ColorObject.js';
+import type { OKLCH, RGBA } from '../types/color.js';
+import type { ColorInput } from './utils.js';
+import { detectColorType, fromOklch, fromRgba, hasSpace, toOklch, toRgba } from './utils.js';
 
 export type { ColorInput };
 
@@ -45,7 +45,7 @@ export function mix<T extends ColorInput>(
   colorA: T,
   colorB: ColorInput,
   ratio: number = 0.5,
-  space: MixSpace = 'oklch'
+  space: MixSpace = 'oklch',
 ): T {
   const originalType = detectColorType(colorA);
   const hadSpace = hasSpace(colorA);
@@ -68,10 +68,13 @@ export function mix<T extends ColorInput>(
 export function mixColors(
   colors: ColorInput[],
   weights?: number[],
-  space: MixSpace = 'oklch'
+  space: MixSpace = 'oklch',
 ): AnyColor {
   if (colors.length === 0) {
-    throw new ColorParseError(ColorErrorCode.INVALID_FORMAT, 'mixColors requires at least one color');
+    throw new ColorParseError(
+      ColorErrorCode.INVALID_FORMAT,
+      'mixColors requires at least one color',
+    );
   }
   if (colors.length === 1) {
     const color = colors[0]!;
@@ -90,8 +93,11 @@ export function mixColors(
   const totalWeight = normalizedWeights.reduce((sum, w) => sum + w, 0);
 
   if (space === 'oklch') {
-    let l = 0, c = 0, a = 0;
-    let sinH = 0, cosH = 0;
+    let l = 0,
+      c = 0,
+      a = 0;
+    let sinH = 0,
+      cosH = 0;
 
     for (let i = 0; i < colors.length; i++) {
       const oklch = toOklch(colors[i]!);
@@ -109,7 +115,10 @@ export function mixColors(
     return { space: 'oklch' as const, ...result };
   }
 
-  let r = 0, g = 0, b = 0, a = 0;
+  let r = 0,
+    g = 0,
+    b = 0,
+    a = 0;
   for (let i = 0; i < colors.length; i++) {
     const rgba = toRgba(colors[i]!);
     const w = normalizedWeights[i]! / totalWeight;

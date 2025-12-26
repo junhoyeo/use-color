@@ -1,22 +1,22 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import type { OklchColor, RgbColor } from '../../types/ColorObject.js';
+import type { OKLCH } from '../../types/color.js';
 import {
-  lighten,
+  alpha,
+  complement,
   darken,
-  saturate,
   desaturate,
   grayscale,
-  rotate,
-  complement,
-  alpha,
-  opacify,
-  transparentize,
   invert,
   invertLightness,
+  lighten,
   mix,
   mixColors,
+  opacify,
+  rotate,
+  saturate,
+  transparentize,
 } from '../index.js';
-import type { OKLCH } from '../../types/color.js';
-import type { OklchColor, RgbColor } from '../../types/ColorObject.js';
 
 describe('ops/index exports', () => {
   it('should export lighten', () => {
@@ -97,17 +97,8 @@ describe('ops integration', () => {
 
   it('should preserve type through operations', () => {
     const oklch: OKLCH = { l: 0.5, c: 0.1, h: 60, a: 0.8 };
-    
-    const result = transparentize(
-      desaturate(
-        rotate(
-          lighten(oklch, 0.1),
-          45
-        ),
-        0.02
-      ),
-      0.1
-    ) as OKLCH;
+
+    const result = transparentize(desaturate(rotate(lighten(oklch, 0.1), 45), 0.02), 0.1) as OKLCH;
 
     expect(result.l).toBeCloseTo(0.6, 5);
     expect(result.h).toBeCloseTo(105, 5);
@@ -118,7 +109,7 @@ describe('ops integration', () => {
   it('should mix colors from different types', () => {
     const rgb: RgbColor = { space: 'rgb', r: 255, g: 0, b: 0, a: 1 };
     const oklch: OklchColor = { space: 'oklch', l: 0.8, c: 0.1, h: 200, a: 1 };
-    
+
     const result = mix(rgb, oklch, 0.5);
     expect(result.space).toBe('rgb');
   });
@@ -127,7 +118,7 @@ describe('ops integration', () => {
     const color: OklchColor = { space: 'oklch', l: 0.5, c: 0.2, h: 30, a: 1 };
     const gray = grayscale(color);
     const resaturated = saturate(gray, 0.1);
-    
+
     expect(gray.c).toBe(0);
     expect(resaturated.c).toBeCloseTo(0.1, 5);
   });

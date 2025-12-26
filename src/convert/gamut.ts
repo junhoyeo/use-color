@@ -9,8 +9,8 @@
  */
 
 import type { OKLCH } from '../types/color.js';
+import { LMS_TO_LRGB, OKLAB_M2_INV, XYZ_TO_P3 } from './constants.js';
 import { oklchToOklab } from './oklab.js';
-import { OKLAB_M2_INV, LMS_TO_LRGB, XYZ_TO_P3 } from './constants.js';
 import { linearRgbToXyz } from './xyz.js';
 
 /**
@@ -23,17 +23,11 @@ function oklchToLinearRgb(oklch: OKLCH): { r: number; g: number; b: number } {
   const lab = oklchToOklab(oklch);
 
   const lPrime =
-    OKLAB_M2_INV[0][0] * lab.L +
-    OKLAB_M2_INV[0][1] * lab.a +
-    OKLAB_M2_INV[0][2] * lab.b;
+    OKLAB_M2_INV[0][0] * lab.L + OKLAB_M2_INV[0][1] * lab.a + OKLAB_M2_INV[0][2] * lab.b;
   const mPrime =
-    OKLAB_M2_INV[1][0] * lab.L +
-    OKLAB_M2_INV[1][1] * lab.a +
-    OKLAB_M2_INV[1][2] * lab.b;
+    OKLAB_M2_INV[1][0] * lab.L + OKLAB_M2_INV[1][1] * lab.a + OKLAB_M2_INV[1][2] * lab.b;
   const sPrime =
-    OKLAB_M2_INV[2][0] * lab.L +
-    OKLAB_M2_INV[2][1] * lab.a +
-    OKLAB_M2_INV[2][2] * lab.b;
+    OKLAB_M2_INV[2][0] * lab.L + OKLAB_M2_INV[2][1] * lab.a + OKLAB_M2_INV[2][2] * lab.b;
 
   const l = lPrime * lPrime * lPrime;
   const m = mPrime * mPrime * mPrime;
@@ -117,10 +111,7 @@ export interface GamutMapOptions {
  * @param options - Gamut mapping options
  * @returns OKLCH color guaranteed to be in sRGB gamut
  */
-export function mapToGamut(
-  oklch: OKLCH,
-  options: GamutMapOptions = {}
-): OKLCH {
+export function mapToGamut(oklch: OKLCH, options: GamutMapOptions = {}): OKLCH {
   const { jnd = DEFAULT_JND } = options;
   return clampToGamut(oklch, jnd);
 }

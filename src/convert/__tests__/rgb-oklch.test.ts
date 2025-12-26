@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { rgbToOklch, oklchToRgb } from '../rgb-oklch.js';
-import type { RGBA, OKLCH } from '../../types/color.js';
+import { describe, expect, it } from 'vitest';
+import type { OKLCH, RGBA } from '../../types/color.js';
+import { oklchToRgb, rgbToOklch } from '../rgb-oklch.js';
 
 describe('rgbToOklch', () => {
   describe('primary colors', () => {
@@ -225,18 +225,15 @@ describe('round-trip conversion: RGB → OKLCH → RGB', () => {
     { name: 'with zero alpha', rgba: { r: 255, g: 0, b: 0, a: 0 } },
   ];
 
-  it.each(rgbCases)(
-    'RGB → OKLCH → RGB preserves $name',
-    ({ rgba }) => {
-      const oklch = rgbToOklch(rgba);
-      const result = oklchToRgb(oklch);
+  it.each(rgbCases)('RGB → OKLCH → RGB preserves $name', ({ rgba }) => {
+    const oklch = rgbToOklch(rgba);
+    const result = oklchToRgb(oklch);
 
-      expect(result.r).toBeCloseTo(rgba.r, 0);
-      expect(result.g).toBeCloseTo(rgba.g, 0);
-      expect(result.b).toBeCloseTo(rgba.b, 0);
-      expect(result.a).toBe(rgba.a);
-    }
-  );
+    expect(result.r).toBeCloseTo(rgba.r, 0);
+    expect(result.g).toBeCloseTo(rgba.g, 0);
+    expect(result.b).toBeCloseTo(rgba.b, 0);
+    expect(result.a).toBe(rgba.a);
+  });
 
   it('preserves exact alpha through round-trip', () => {
     const alphaValues = [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1];
@@ -261,24 +258,21 @@ describe('round-trip conversion: OKLCH → RGB → OKLCH', () => {
     { name: 'with alpha', oklch: { l: 0.6, c: 0.15, h: 180, a: 0.5 } },
   ];
 
-  it.each(oklchCases)(
-    'OKLCH → RGB → OKLCH preserves $name',
-    ({ oklch, hueTolerance = 1 }) => {
-      const rgb = oklchToRgb(oklch);
-      const result = rgbToOklch(rgb);
+  it.each(oklchCases)('OKLCH → RGB → OKLCH preserves $name', ({ oklch, hueTolerance = 1 }) => {
+    const rgb = oklchToRgb(oklch);
+    const result = rgbToOklch(rgb);
 
-      expect(result.l).toBeCloseTo(oklch.l, 2);
+    expect(result.l).toBeCloseTo(oklch.l, 2);
 
-      if (oklch.c === 0) {
-        expect(result.c).toBeCloseTo(0, 2);
-      } else {
-        expect(result.c).toBeCloseTo(oklch.c, 2);
-        expect(Math.abs(result.h - oklch.h)).toBeLessThanOrEqual(hueTolerance);
-      }
-
-      expect(result.a).toBe(oklch.a);
+    if (oklch.c === 0) {
+      expect(result.c).toBeCloseTo(0, 2);
+    } else {
+      expect(result.c).toBeCloseTo(oklch.c, 2);
+      expect(Math.abs(result.h - oklch.h)).toBeLessThanOrEqual(hueTolerance);
     }
-  );
+
+    expect(result.a).toBe(oklch.a);
+  });
 });
 
 describe('edge cases', () => {

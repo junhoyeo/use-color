@@ -1,10 +1,10 @@
-import { describe, it } from 'vitest';
 import { expectTypeOf } from 'expect-type';
+import { describe, it } from 'vitest';
 import type {
   Digit,
   NumberString,
-  RgbFunctionString,
   RgbaFunctionString,
+  RgbFunctionString,
   RgbModernString,
   RgbString,
 } from './Rgb.js';
@@ -32,9 +32,13 @@ describe('Rgb types', () => {
   });
 
   it('RgbaFunctionString validates rgba syntax', () => {
-    expectTypeOf<RgbaFunctionString<'rgba(255, 0, 0, 0.5)'>>().toEqualTypeOf<'rgba(255, 0, 0, 0.5)'>();
+    expectTypeOf<
+      RgbaFunctionString<'rgba(255, 0, 0, 0.5)'>
+    >().toEqualTypeOf<'rgba(255, 0, 0, 0.5)'>();
     expectTypeOf<RgbaFunctionString<'rgba(255,0,0,1)'>>().toEqualTypeOf<'rgba(255,0,0,1)'>();
-    expectTypeOf<RgbaFunctionString<'rgba(100%, 0%, 50%, 50%)'>>().toEqualTypeOf<'rgba(100%, 0%, 50%, 50%)'>();
+    expectTypeOf<
+      RgbaFunctionString<'rgba(100%, 0%, 50%, 50%)'>
+    >().toEqualTypeOf<'rgba(100%, 0%, 50%, 50%)'>();
     expectTypeOf<RgbaFunctionString<'rgba(255, 0, 0)'>>().toEqualTypeOf<never>();
   });
 
@@ -42,7 +46,9 @@ describe('Rgb types', () => {
     expectTypeOf<RgbModernString<'rgb(255 0 0)'>>().toEqualTypeOf<'rgb(255 0 0)'>();
     expectTypeOf<RgbModernString<'rgb(255 0 0 / 0.5)'>>().toEqualTypeOf<'rgb(255 0 0 / 0.5)'>();
     expectTypeOf<RgbModernString<'rgb(100% 0% 50%)'>>().toEqualTypeOf<'rgb(100% 0% 50%)'>();
-    expectTypeOf<RgbModernString<'rgb(100% 0% 50% / 50%)'>>().toEqualTypeOf<'rgb(100% 0% 50% / 50%)'>();
+    expectTypeOf<
+      RgbModernString<'rgb(100% 0% 50% / 50%)'>
+    >().toEqualTypeOf<'rgb(100% 0% 50% / 50%)'>();
     expectTypeOf<RgbModernString<'rgb(255, 0, 0)'>>().toEqualTypeOf<never>();
   });
 
@@ -124,15 +130,25 @@ describe('Rgb types', () => {
   it('RgbaFunctionString validates boundary values', () => {
     expectTypeOf<RgbaFunctionString<'rgba(0, 0, 0, 0)'>>().toEqualTypeOf<'rgba(0, 0, 0, 0)'>();
     expectTypeOf<RgbaFunctionString<'rgba(0,0,0,0)'>>().toEqualTypeOf<'rgba(0,0,0,0)'>();
-    expectTypeOf<RgbaFunctionString<'rgba(255, 255, 255, 1)'>>().toEqualTypeOf<'rgba(255, 255, 255, 1)'>();
-    expectTypeOf<RgbaFunctionString<'rgba(128, 64, 32, 0.5)'>>().toEqualTypeOf<'rgba(128, 64, 32, 0.5)'>();
+    expectTypeOf<
+      RgbaFunctionString<'rgba(255, 255, 255, 1)'>
+    >().toEqualTypeOf<'rgba(255, 255, 255, 1)'>();
+    expectTypeOf<
+      RgbaFunctionString<'rgba(128, 64, 32, 0.5)'>
+    >().toEqualTypeOf<'rgba(128, 64, 32, 0.5)'>();
   });
 
   it('RgbaFunctionString validates alpha variations', () => {
     expectTypeOf<RgbaFunctionString<'rgba(255, 0, 0, 0)'>>().toEqualTypeOf<'rgba(255, 0, 0, 0)'>();
-    expectTypeOf<RgbaFunctionString<'rgba(255, 0, 0, 0.25)'>>().toEqualTypeOf<'rgba(255, 0, 0, 0.25)'>();
-    expectTypeOf<RgbaFunctionString<'rgba(255, 0, 0, 0.5)'>>().toEqualTypeOf<'rgba(255, 0, 0, 0.5)'>();
-    expectTypeOf<RgbaFunctionString<'rgba(255, 0, 0, 0.75)'>>().toEqualTypeOf<'rgba(255, 0, 0, 0.75)'>();
+    expectTypeOf<
+      RgbaFunctionString<'rgba(255, 0, 0, 0.25)'>
+    >().toEqualTypeOf<'rgba(255, 0, 0, 0.25)'>();
+    expectTypeOf<
+      RgbaFunctionString<'rgba(255, 0, 0, 0.5)'>
+    >().toEqualTypeOf<'rgba(255, 0, 0, 0.5)'>();
+    expectTypeOf<
+      RgbaFunctionString<'rgba(255, 0, 0, 0.75)'>
+    >().toEqualTypeOf<'rgba(255, 0, 0, 0.75)'>();
     expectTypeOf<RgbaFunctionString<'rgba(255, 0, 0, 1)'>>().toEqualTypeOf<'rgba(255, 0, 0, 1)'>();
   });
 
@@ -151,8 +167,12 @@ describe('Rgb types', () => {
 
   it('RgbModernString validates percentage with alpha', () => {
     expectTypeOf<RgbModernString<'rgb(100% 50% 0%)'>>().toEqualTypeOf<'rgb(100% 50% 0%)'>();
-    expectTypeOf<RgbModernString<'rgb(100% 50% 0% / 0.5)'>>().toEqualTypeOf<'rgb(100% 50% 0% / 0.5)'>();
-    expectTypeOf<RgbModernString<'rgb(100% 50% 0% / 100%)'>>().toEqualTypeOf<'rgb(100% 50% 0% / 100%)'>();
+    expectTypeOf<
+      RgbModernString<'rgb(100% 50% 0% / 0.5)'>
+    >().toEqualTypeOf<'rgb(100% 50% 0% / 0.5)'>();
+    expectTypeOf<
+      RgbModernString<'rgb(100% 50% 0% / 100%)'>
+    >().toEqualTypeOf<'rgb(100% 50% 0% / 100%)'>();
   });
 
   it('RgbString rejects completely invalid formats', () => {

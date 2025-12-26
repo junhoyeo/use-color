@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import type { AnyColor, HslColor, OklchColor, RgbColor } from '../../types/ColorObject.js';
 import { convert } from '../index.js';
-import type { RgbColor, OklchColor, HslColor, AnyColor } from '../../types/ColorObject.js';
 
 describe('convert', () => {
   describe('RGB to OKLCH', () => {

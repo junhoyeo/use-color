@@ -15,7 +15,7 @@
   <a href="https://bundlephobia.com/result?p=use-color">
     <img src="https://img.shields.io/bundlephobia/minzip/use-color?style=flat-square&color=FE69B5&labelColor=000&label=minzipped" alt="Bundle size" />
   </a>
-  <img src="https://img.shields.io/badge/typescript-5.0+-blue?style=flat-square&color=FE69B5&labelColor=000" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/typescript-5.7+-blue?style=flat-square&color=FE69B5&labelColor=000" alt="TypeScript" />
   <a href="https://codecov.io/gh/junhoyeo/use-color">
     <img src="https://img.shields.io/codecov/c/github/junhoyeo/use-color?style=flat-square&color=FE69B5&labelColor=000" alt="Coverage" />
   </a>

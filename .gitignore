@@ -10,3 +10,9 @@ dist/
 !.yarn/versions
 
 .DS_Store
+
+# AI Todo List (hidden from git)
+.ai-todo.md
+ai-todo.md
+TODO.local.md
+notepad.md

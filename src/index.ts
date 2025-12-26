@@ -5,7 +5,21 @@ export { parseColor } from './parser/index.js';
 // Types
 export type { ColorInput } from './types/ColorInput.js';
 export type { HexString, HexStringWithOpacity } from './types/Hex.js';
-export type { RgbObject, RgbaObject, RgbString, RgbaString, RgbColorInput } from './types/Rgb.js';
+export type {
+  RgbObject,
+  RgbaObject,
+  RgbColorInput,
+  Digit,
+  NumberString,
+  RgbFunctionString,
+  RgbaFunctionString,
+  RgbModernString,
+  RgbString,
+  LegacyRgbString,
+  LegacyRgbaString,
+  RgbaString,
+} from './types/Rgb.js';
+export type { ColorSpace, RGBA, OKLCH, HSLA } from './types/color.js';
 
 // Config
 export { defaultConfig } from './Config.js';

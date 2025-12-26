@@ -1,10 +1,10 @@
 import { Color } from '../Color.js';
 import type { Config } from '../Config.js';
-import type { RgbString } from '../types/Rgb.js';
+import type { LegacyRgbString } from '../types/Rgb.js';
 import { toRgbRange } from '../utils/filters.js';
 
 export const parseColorFromRgbString = (
-  rgbaString: RgbString,
+  rgbaString: LegacyRgbString,
   config?: Config,
 ) => {
   const [red, green, blue] = rgbaString

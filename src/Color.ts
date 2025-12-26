@@ -1,11 +1,16 @@
 import type { Config } from './Config.js';
-import type { RgbaObject, RgbaString, RgbObject, RgbString } from './types/Rgb.js';
+import type {
+  RgbaObject,
+  RgbObject,
+  LegacyRgbString,
+  LegacyRgbaString,
+} from './types/Rgb.js';
 import { rgbaToHex } from './utils/rgbaToHex.js';
 
 type Strings = {
   _color: Color
-  rgb: RgbString
-  rgba: RgbaString
+  rgb: LegacyRgbString
+  rgba: LegacyRgbaString
   hex: string
 }
 

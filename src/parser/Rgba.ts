@@ -1,10 +1,10 @@
 import { Color } from '../Color.js';
 import type { Config } from '../Config.js';
-import type { RgbaString } from '../types/Rgb.js';
+import type { LegacyRgbaString } from '../types/Rgb.js';
 import { toAlphaRange, toRgbRange } from '../utils/filters.js';
 
 export const parseColorFromRgbaString = (
-  rgbaString: RgbaString,
+  rgbaString: LegacyRgbaString,
   config?: Config,
 ) => {
   const [red, green, blue, alpha] = rgbaString

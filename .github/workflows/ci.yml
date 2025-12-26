@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, v2-rewrite]
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -34,6 +34,15 @@ jobs:
         
       - name: Size Limit
         run: pnpm size-limit
+
+      - name: Generate Coverage Badges
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: jpb06/coverage-badges-action@latest
+        with:
+          branches: main
+          badges-icon: vitest
+          coverage-summary-path: ./coverage/coverage-summary.json
+          commit-message: 'ci: update coverage badges'
 
   lint:
     runs-on: ubuntu-latest

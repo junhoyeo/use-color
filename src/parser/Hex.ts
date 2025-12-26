@@ -1,8 +1,8 @@
-import { Color } from '../Color.js';
+import { color, type Color } from '../Color.js';
 import type { Config } from '../Config.js';
 import { toTwoDigitHex } from '../utils/filters.js';
 
-export const parseColorFromHexString = (hexString: string, config?: Config) => {
+export const parseColorFromHexString = (hexString: string, _config?: Config): Color => {
   hexString = hexString.replace('#', '')
   let red = '', green = '', blue = '', alpha: string | undefined
 
@@ -30,15 +30,12 @@ export const parseColorFromHexString = (hexString: string, config?: Config) => {
       break
   }
 
-  return new Color(
-    {
-      r: parseInt(red, 16),
-      g: parseInt(green, 16),
-      b: parseInt(blue, 16),
-      a: alpha //
-        ? parseFloat((parseInt(alpha, 16) / 255).toFixed(2))
-        : 1,
-    },
-    config,
-  )
+  return color({
+    r: parseInt(red, 16),
+    g: parseInt(green, 16),
+    b: parseInt(blue, 16),
+    a: alpha
+      ? parseFloat((parseInt(alpha, 16) / 255).toFixed(2))
+      : 1,
+  });
 }

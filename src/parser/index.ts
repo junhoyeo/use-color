@@ -1,4 +1,4 @@
-import { Color } from '../Color.js';
+import { color, type Color } from '../Color.js';
 import type { Config } from '../Config.js';
 import type { ColorInput } from '../types/ColorInput.js';
 import type { LegacyRgbaString, LegacyRgbString } from '../types/Rgb.js';
@@ -9,22 +9,24 @@ import { parseColorFromRgbaString } from './Rgba.js';
 export const parseColor = <Str extends string>(
   colorInput: ColorInput<Str>,
   config?: Config,
-) => {
+): Color => {
   if (typeof colorInput === 'string') {
     if (colorInput.startsWith('rgba')) {
-      // RgbaString
       return parseColorFromRgbaString(colorInput as LegacyRgbaString, config)
     }
 
     if (colorInput.startsWith('rgb')) {
-      // RgbString
       return parseColorFromRgbString(colorInput as LegacyRgbString, config)
     }
 
-    // HexString
     return parseColorFromHexString(colorInput, config)
   }
 
-  // RgbaObject
-  return new Color(colorInput, config)
+  const alpha = 'a' in colorInput ? colorInput.a : 1;
+  return color({
+    r: colorInput.r,
+    g: colorInput.g,
+    b: colorInput.b,
+    a: alpha ?? 1,
+  });
 }

@@ -27,6 +27,7 @@
 
 import type { ColorSpace, RGBA, OKLCH, HSLA, P3 } from '../types/color.js';
 import type { AnyColor, RgbColor, OklchColor, HslColor, P3Color } from '../types/ColorObject.js';
+import { ColorParseError, ColorErrorCode } from '../errors.js';
 
 import { rgbToOklch, oklchToRgb } from './rgb-oklch.js';
 import { rgbToHsl, hslToRgb } from './hsl.js';
@@ -150,7 +151,7 @@ export function convert<T extends ColorSpace>(
     default: {
       // Internal invariant - should never reach here
       const _exhaustive: never = toSpace;
-      throw new Error(`Unknown color space: ${_exhaustive}`);
+      throw new ColorParseError(ColorErrorCode.INVALID_FORMAT, `Unknown color space: ${_exhaustive}`);
     }
   }
 }

@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="roller skate emoji" src="https://raw.githubusercontent.com/junhoyeo/use-color/v2-rewrite/.github/assets/hero.png" />
+  <img alt="roller skate emoji" src="https://raw.githubusercontent.com/junhoyeo/use-color/main/.github/assets/hero.png" />
   <h1 align="center">use-color</h1>
 </p>
 

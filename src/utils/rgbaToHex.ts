@@ -1,4 +1,4 @@
-import { RgbaObject } from '../types/Rgb';
+import type { RgbaObject } from '../types/Rgb.js';
 
 export const numberToHex = (value: number) =>
   (value | (1 << 8)).toString(16).slice(1)
@@ -6,7 +6,7 @@ export const getCompressable = (...digits: string[]) =>
   digits.every((value) => value[0] === value[1])
 
 type RgbaToHexOptions = {
-  compress?: boolean
+  compress?: boolean | undefined
 }
 export const rgbaToHex = (
   { r: red, g: green, b: blue, a: alpha }: RgbaObject,

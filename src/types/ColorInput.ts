@@ -1,5 +1,5 @@
-import { HexString, HexStringWithOpacity } from './Hex';
-import { RgbColorInput } from './Rgb';
+import type { HexString, HexStringWithOpacity } from './Hex.js';
+import type { RgbColorInput } from './Rgb.js';
 
 export type ColorInput<Str extends string> =
   | RgbColorInput

@@ -1,10 +1,10 @@
-import { Color } from '../Color';
-import { Config } from '../Config';
-import { ColorInput } from '../types/ColorInput';
-import { RgbaString, RgbString } from '../types/Rgb';
-import { parseColorFromHexString } from './Hex';
-import { parseColorFromRgbString } from './Rgb';
-import { parseColorFromRgbaString } from './Rgba';
+import { Color } from '../Color.js';
+import type { Config } from '../Config.js';
+import type { ColorInput } from '../types/ColorInput.js';
+import type { RgbaString, RgbString } from '../types/Rgb.js';
+import { parseColorFromHexString } from './Hex.js';
+import { parseColorFromRgbString } from './Rgb.js';
+import { parseColorFromRgbaString } from './Rgba.js';
 
 export const parseColor = <Str extends string>(
   colorInput: ColorInput<Str>,

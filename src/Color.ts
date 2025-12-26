@@ -1,6 +1,6 @@
-import { Config } from './Config';
-import { RgbaObject, RgbaString, RgbObject, RgbString } from './types/Rgb';
-import { rgbaToHex } from './utils/rgbaToHex';
+import type { Config } from './Config.js';
+import type { RgbaObject, RgbaString, RgbObject, RgbString } from './types/Rgb.js';
+import { rgbaToHex } from './utils/rgbaToHex.js';
 
 type Strings = {
   _color: Color
@@ -13,7 +13,7 @@ export class Color {
   public rgb: RgbObject
   public rgba: RgbaObject
   public strings: Strings
-  public config?: Config
+  public config?: Config | undefined
 
   constructor(rgbaObject: RgbaObject, config?: Config) {
     this.config = config

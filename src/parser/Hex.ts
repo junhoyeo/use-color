@@ -1,24 +1,24 @@
-import { Color } from '../Color';
-import { Config } from '../Config';
-import { toTwoDigitHex } from '../utils/filters';
+import { Color } from '../Color.js';
+import type { Config } from '../Config.js';
+import { toTwoDigitHex } from '../utils/filters.js';
 
 export const parseColorFromHexString = (hexString: string, config?: Config) => {
   hexString = hexString.replace('#', '')
-  let red: string, green: string, blue: string, alpha: string | undefined
+  let red = '', green = '', blue = '', alpha: string | undefined
 
   switch (hexString.length) {
     default:
-      ;[red, green, blue] = hexString.split('').map(toTwoDigitHex)
+      ;[red, green, blue] = hexString.split('').map(toTwoDigitHex) as [string, string, string]
       break
     case 4:
-      ;[red, green, blue, alpha] = hexString.split('').map(toTwoDigitHex)
+      ;[red, green, blue, alpha] = hexString.split('').map(toTwoDigitHex) as [string, string, string, string]
       break
     case 6:
       ;[red, green, blue] = [
         hexString.substring(0, 2),
         hexString.substring(2, 4),
         hexString.substring(4, 6),
-      ].map(toTwoDigitHex)
+      ].map(toTwoDigitHex) as [string, string, string]
       break
     case 8:
       ;[red, green, blue, alpha] = [
@@ -26,7 +26,7 @@ export const parseColorFromHexString = (hexString: string, config?: Config) => {
         hexString.substring(2, 4),
         hexString.substring(4, 6),
         hexString.substring(6, 8),
-      ].map(toTwoDigitHex)
+      ].map(toTwoDigitHex) as [string, string, string, string]
       break
   }
 

@@ -1,16 +1,16 @@
-import { Color } from '../Color';
-import { Config } from '../Config';
-import { RgbString } from '../types/Rgb';
-import { toRgbRange } from '../utils/filters';
+import { Color } from '../Color.js';
+import type { Config } from '../Config.js';
+import type { RgbString } from '../types/Rgb.js';
+import { toRgbRange } from '../utils/filters.js';
 
 export const parseColorFromRgbString = (
   rgbaString: RgbString,
   config?: Config,
 ) => {
-  let [red, green, blue] = rgbaString
+  const [red, green, blue] = rgbaString
     .replace(/^rgb?\(|\s+|\)$/g, '')
     .split(',')
-    .map((v) => parseFloat(v))
+    .map((v) => parseFloat(v)) as [number, number, number]
 
   return new Color(
     {

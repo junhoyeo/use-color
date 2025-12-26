@@ -37,10 +37,4 @@ export type {
   OklchString,
   PercentString,
 } from './Oklch.js';
-export type {
-  RgbaObject,
-  RgbaString,
-  RgbColorInput,
-  RgbObject,
-  RgbString,
-} from './Rgb.js';
+export type { RgbaObject, RgbColorInput, RgbObject, RgbString } from './Rgb.js';

@@ -33,9 +33,7 @@ export {
 } from './assert/index.js';
 export type { ColorInputValue, MixOptions } from './Color.js';
 export { Color, color, tryColor } from './Color.js';
-export type { Config, HexConfig } from './Config.js';
-// Config (legacy)
-export { defaultConfig } from './Config.js';
+
 export type { GamutMapOptions, LinearP3, LinearRGB, XYZ } from './convert/index.js';
 // Conversion
 export {
@@ -179,7 +177,6 @@ export type {
   PercentString,
   RGBA,
   RgbaObject,
-  RgbaString,
   RgbColor,
   RgbColorInput,
   RgbObject,

@@ -41,7 +41,4 @@ type NumberArgument = `${number}${Comma}`;
 export type LegacyRgbString = `rgb(${NumberArgument}${NumberArgument}${number})`;
 export type LegacyRgbaString = `rgba(${NumberArgument}${NumberArgument}${NumberArgument}${number})`;
 
-/** @deprecated Use LegacyRgbaString or RgbString<T> instead */
-export type RgbaString = LegacyRgbaString;
-
 export type RgbColorInput = RgbObject | RgbaObject | LegacyRgbString | LegacyRgbaString;

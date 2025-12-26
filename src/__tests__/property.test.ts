@@ -488,7 +488,7 @@ describe('Property: Error Handling', () => {
   it('tryParseHex returns error for invalid strings', () => {
     fc.assert(
       fc.property(
-        fc.string().filter((s) => !s.match(/^#[0-9a-fA-F]{3,8}$/)),
+        fc.string().filter((s) => !s.match(/^#?[0-9a-fA-F]{3,8}$/)),
         (invalidStr) => {
           const result = tryParseHex(invalidStr);
           expect(result.ok).toBe(false);

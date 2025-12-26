@@ -30,7 +30,7 @@
 - **✨ Perceptually Accurate**: Built on **OKLCH** color space for consistent lightness and saturation adjustments.
 - **📱 Wide Gamut Ready**: Native support for Display P3 (via OKLCH) for vibrant, modern displays.
 - **♿ Accessibility First**: Comprehensive WCAG 2.1 and experimental APCA contrast support.
-- **🪶 Ultra Lightweight**: ~8.6KB gzipped with **zero dependencies**.
+- **🪶 Ultra Lightweight**: ~9.5KB brotli / ~10KB gzip with **zero dependencies**.
 - **🌳 Fully Tree-shakeable**: Only pay for the functions you actually use.
 - **🔗 Chainable API**: A familiar, fluent interface for effortless color transformations.
 
@@ -154,9 +154,10 @@ console.log(accessibleFg.toHex()); // "#767676"
 
 ### Output Methods
 - `.toHex()` / `.toHex8()` / `.toHexShort()`
-- `.toRgb()` / `.toRgbString()` / `.toRgbModern()`
-- `.toHsl()` / `.toHslString()` / `.toHslModern()`
+- `.toRgb()` / `.toRgbString()` / `.toRgbaString()` / `.toRgbModern()`
+- `.toHsl()` / `.toHslString()` / `.toHslaString()` / `.toHslModern()`
 - `.toOklch()` / `.toOklchString()`
+- `.toP3String()` - outputs CSS `color(display-p3 r g b)`
 - `.toCss(options?)`
 
 ### Static Utilities (Tree-shakeable)
@@ -171,7 +172,7 @@ console.log(accessibleFg.toHex()); // "#767676"
 | :--- | :---: | :---: | :---: | :---: |
 | **Compile-time Validation** | **✅ Yes** | ❌ No | ❌ No | ❌ No |
 | **OKLCH Support** | **✅ Native** | 🔌 Plugin | ❌ No | ❌ No |
-| **Bundle Size (min+gz)** | **~8.6KB** | ~1.7KB | ~13.5KB | ~5KB |
+| **Bundle Size (min+gz)** | **~10KB** | ~1.7KB | ~13.5KB | ~5KB |
 | **Perceptual Mix** | **✅ Yes** | 🔌 Plugin | ✅ Yes | ❌ No |
 | **Accessibility** | **✅ Built-in** | 🔌 Plugin | ❌ No | ✅ Yes |
 | **P3 Gamut Support** | **✅ Native** | ❌ No | ❌ No | ❌ No |

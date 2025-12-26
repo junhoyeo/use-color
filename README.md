@@ -21,8 +21,6 @@
   </a>
 </p>
 
----
-
 ## Compile-time Type Checking
 
 The **only** color library that catches invalid colors **at compile time**.
@@ -47,8 +45,6 @@ The **only** color library that catches invalid colors **at compile time**.
 
 **This is the moat.** No other library—not colord, chroma-js, or tinycolor2—can do this.
 
----
-
 ## Installation
 
 ```bash
@@ -62,8 +58,6 @@ npm install use-color
 ```bash
 yarn add use-color
 ```
-
----
 
 ## Usage
 
@@ -189,8 +183,6 @@ c.isDark();        // false
 c.isLight();       // true
 ```
 
----
-
 ## Accessibility
 
 Built-in WCAG 2.1 contrast checking and auto-adjustment.
@@ -232,8 +224,6 @@ apcaContrast('#767676', '#ffffff');  // 63 (good for body text)
 
 > **Note:** APCA is still in development and not yet a W3C standard. Use for experimental projects.
 
----
-
 ## Why OKLCH?
 
 `use-color` uses **OKLCH** internally for all color manipulations. This ensures **perceptually uniform** results:
@@ -245,8 +235,6 @@ apcaContrast('#767676', '#ffffff');  // 63 (good for body text)
 | Mix colors | Muddy intermediates | Vibrant, natural gradients |
 
 OKLCH is the color space used by [Tailwind CSS v4](https://tailwindcss.com/blog/tailwindcss-v4-alpha), [shadcn/ui](https://ui.shadcn.com/), and modern design systems.
-
----
 
 ## Display P3 Wide Gamut
 
@@ -267,8 +255,6 @@ vibrant.toP3String();  // "color(display-p3 0.12 0.87 0.45)"
 vibrant.toHex();       // "#00d96f" (clamped to sRGB)
 ```
 
----
-
 ## Tree-Shakeable
 
 Import only what you need. Every function is individually exportable.
@@ -281,8 +267,6 @@ const rgba = parseHex('#ff0000');
 const lighter = lighten(rgba, 0.2);
 const hex = toHex(lighter);
 ```
-
----
 
 ## Type Guards & Assertions
 
@@ -299,8 +283,6 @@ isColor(something);   // type narrowing
 assertHex(userInput);  // throws ColorParseError if invalid
 // After this line, TypeScript knows userInput is valid
 ```
-
----
 
 ## Comparison
 
@@ -371,8 +353,6 @@ Key differences:
 
 </details>
 
----
-
 ## API Reference
 
 ### Factory Functions
@@ -431,8 +411,6 @@ All Color methods are also available as standalone, tree-shakeable functions:
 ```typescript
 import { lighten, darken, mix, contrast, toHex } from 'use-color';
 ```
-
----
 
 ## License
 

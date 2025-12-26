@@ -17,6 +17,13 @@
  * ```
  */
 
+// V8-specific extension for better stack traces
+declare global {
+  interface ErrorConstructor {
+    captureStackTrace?(targetObject: object, constructorOpt?: Function): void;
+  }
+}
+
 /**
  * Error codes for color parsing and manipulation failures.
  *

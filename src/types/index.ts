@@ -1,4 +1,4 @@
-export type { ColorSpace, RGBA, OKLCH, HSLA } from './color.js';
+export type { ColorSpace, RGBA, OKLCH, HSLA, Oklab } from './color.js';
 export type {
   Color,
   RgbColor,

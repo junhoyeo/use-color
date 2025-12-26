@@ -69,3 +69,22 @@ export interface HSLA {
   /** Alpha channel (0-1) */
   a: number;
 }
+
+/**
+ * Oklab color representation with lightness and a/b opponent channels.
+ * Oklab is a perceptually uniform color space with cartesian coordinates.
+ *
+ * @example
+ * ```ts
+ * const gray: Oklab = { L: 0.5, a: 0, b: 0 };
+ * const red: Oklab = { L: 0.628, a: 0.225, b: 0.126 };
+ * ```
+ */
+export interface Oklab {
+  /** Lightness (0-1) */
+  L: number;
+  /** Green-red opponent channel (approximately -0.4 to 0.4) */
+  a: number;
+  /** Blue-yellow opponent channel (approximately -0.4 to 0.4) */
+  b: number;
+}

@@ -97,7 +97,7 @@ export class ColorParseError extends Error {
     this.code = code;
 
     // Maintains proper stack trace in V8 environments (Node.js, Chrome)
-    if (Error.captureStackTrace) {
+    if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, ColorParseError);
     }
   }
@@ -158,7 +158,7 @@ export class ColorOutOfGamutError extends ColorParseError {
     this.targetGamut = targetGamut;
 
     // Maintains proper stack trace in V8 environments (Node.js, Chrome)
-    if (Error.captureStackTrace) {
+    if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, ColorOutOfGamutError);
     }
   }

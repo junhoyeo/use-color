@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="roller skate emoji" src="https://github.com/junhoyeo/use-color/raw/main/docs/images/roller-skate-emoji.png" width="96" />
+  <img alt="roller skate emoji" src="./.github/assets/hero.png" />
   <h1 align="center">use-color</h1>
 </p>
 
@@ -10,14 +10,14 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/use-color">
-    <img src="https://img.shields.io/npm/v/use-color?style=flat-square" alt="NPM version" />
+    <img src="https://img.shields.io/npm/v/use-color?style=flat-square&color=FE69B5&labelColor=000" alt="NPM version" />
   </a>
   <a href="https://bundlephobia.com/result?p=use-color">
-    <img src="https://img.shields.io/bundlephobia/minzip/use-color?style=flat-square&label=minzipped" alt="Bundle size" />
+    <img src="https://img.shields.io/bundlephobia/minzip/use-color?style=flat-square&color=FE69B5&labelColor=000&label=minzipped" alt="Bundle size" />
   </a>
-  <img src="https://img.shields.io/badge/typescript-5.0+-blue?style=flat-square" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/typescript-5.0+-blue?style=flat-square&color=FE69B5&labelColor=000" alt="TypeScript" />
   <a href="https://codecov.io/gh/junhoyeo/use-color">
-    <img src="https://img.shields.io/codecov/c/github/junhoyeo/use-color?style=flat-square" alt="Coverage" />
+    <img src="https://img.shields.io/codecov/c/github/junhoyeo/use-color?style=flat-square&color=FE69B5&labelColor=000" alt="Coverage" />
   </a>
 </p>
 

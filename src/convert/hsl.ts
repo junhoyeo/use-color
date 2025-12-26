@@ -82,14 +82,17 @@ export function rgbToHsl(rgba: RGBA): HSLA {
     case b:
       h = ((r - g) / delta + 4) * 60;
       break;
+    /* v8 ignore start - exhaustive switch, max is always r, g, or b */
     default:
       h = 0;
+    /* v8 ignore stop */
   }
 
-  // Normalize hue to 0-360 range
+  /* v8 ignore start - h is always non-negative due to the +6/+2/+4 adjustments */
   if (h < 0) {
     h += 360;
   }
+  /* v8 ignore stop */
 
   return {
     h,

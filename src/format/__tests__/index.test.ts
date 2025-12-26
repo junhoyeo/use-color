@@ -244,6 +244,21 @@ describe('toCss unified formatter', () => {
       const outOfRange: RGBA = { r: 300, g: -50, b: 127.5, a: 1 };
       expect(toCss(outOfRange, { format: 'hex' })).toBe('#ff0080');
     });
+
+    it('defaults to hex for ambiguous color with RGBA and l property (fallback case)', () => {
+      const ambiguousColor = { r: 255, g: 0, b: 0, a: 1, l: 0.5 } as unknown as CssColorInput;
+      expect(toCss(ambiguousColor)).toBe('#ff0000');
+    });
+
+    it('normalizes ambiguous color with extra properties to RGB (fallback case)', () => {
+      const ambiguousColor = { r: 128, g: 64, b: 32, a: 0.8, l: 0.5 } as unknown as CssColorInput;
+      expect(toCss(ambiguousColor, { format: 'rgba' })).toBe('rgba(128, 64, 32, 0.8)');
+    });
+
+    it('throws error for unknown format (exhaustive check)', () => {
+      const color: RGBA = { r: 255, g: 0, b: 0, a: 1 };
+      expect(() => toCss(color, { format: 'invalid' as CssFormat })).toThrow('Unknown format: invalid');
+    });
   });
 });
 

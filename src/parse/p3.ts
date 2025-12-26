@@ -25,9 +25,11 @@ function isInRange(value: number, min: number, max: number): boolean {
 }
 
 function isValidP3(p3: P3): { valid: boolean; reason?: string } {
+  /* v8 ignore start - regex ensures numeric patterns */
   if (!isValidNumber(p3.r) || !isValidNumber(p3.g) || !isValidNumber(p3.b) || !isValidNumber(p3.a)) {
     return { valid: false, reason: 'Values must be valid numbers' };
   }
+  /* v8 ignore stop */
 
   if (!isInRange(p3.r, 0, 1)) {
     return { valid: false, reason: `Red value ${p3.r} is out of range [0, 1]` };

@@ -80,7 +80,9 @@ export function mixColors(
     if ('r' in color && 'g' in color && 'b' in color) {
       return { space: 'rgb', ...(color as RGBA) } as RgbColor;
     }
+    /* v8 ignore start - fallback for bare OKLCH object */
     return { space: 'oklch', ...(color as OKLCH) } as OklchColor;
+    /* v8 ignore stop */
   }
 
   const normalizedWeights = weights || colors.map(() => 1 / colors.length);

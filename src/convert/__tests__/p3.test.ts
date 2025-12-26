@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { rgbToP3, p3ToRgb, linearP3ToXyz, xyzToLinearP3 } from '../p3.js';
+import {
+  rgbToP3,
+  p3ToRgb,
+  linearP3ToXyz,
+  xyzToLinearP3,
+  p3ToLinearP3,
+  linearP3ToP3,
+} from '../p3.js';
 
 describe('P3 conversion functions', () => {
   describe('rgbToP3', () => {
@@ -167,6 +174,81 @@ describe('P3 conversion functions', () => {
       expect(result.r).toBeCloseTo(0, 5);
       expect(result.g).toBeCloseTo(0, 5);
       expect(result.b).toBeCloseTo(0, 5);
+    });
+  });
+
+  describe('p3ToLinearP3', () => {
+    it('should convert P3 white to linear P3 white', () => {
+      const result = p3ToLinearP3({ r: 1, g: 1, b: 1, a: 1 });
+      expect(result.r).toBeCloseTo(1, 5);
+      expect(result.g).toBeCloseTo(1, 5);
+      expect(result.b).toBeCloseTo(1, 5);
+    });
+
+    it('should convert P3 black to linear P3 black', () => {
+      const result = p3ToLinearP3({ r: 0, g: 0, b: 0, a: 1 });
+      expect(result.r).toBeCloseTo(0, 5);
+      expect(result.g).toBeCloseTo(0, 5);
+      expect(result.b).toBeCloseTo(0, 5);
+    });
+
+    it('should linearize P3 values correctly (above threshold)', () => {
+      // Value > 0.04045 triggers the pow branch
+      const result = p3ToLinearP3({ r: 0.5, g: 0.5, b: 0.5, a: 1 });
+      // srgbToLinear(0.5) = Math.pow((0.5 + 0.055) / 1.055, 2.4) ≈ 0.214
+      expect(result.r).toBeCloseTo(0.214, 2);
+      expect(result.g).toBeCloseTo(0.214, 2);
+      expect(result.b).toBeCloseTo(0.214, 2);
+    });
+
+    it('should linearize P3 values correctly (below threshold)', () => {
+      // Value <= 0.04045 triggers the linear branch
+      const result = p3ToLinearP3({ r: 0.02, g: 0.02, b: 0.02, a: 1 });
+      // srgbToLinear(0.02) = 0.02 / 12.92 ≈ 0.00155
+      expect(result.r).toBeCloseTo(0.00155, 4);
+      expect(result.g).toBeCloseTo(0.00155, 4);
+      expect(result.b).toBeCloseTo(0.00155, 4);
+    });
+  });
+
+  describe('linearP3ToP3', () => {
+    it('should convert linear P3 white to P3 white', () => {
+      const result = linearP3ToP3({ r: 1, g: 1, b: 1 }, 1);
+      expect(result.r).toBeCloseTo(1, 5);
+      expect(result.g).toBeCloseTo(1, 5);
+      expect(result.b).toBeCloseTo(1, 5);
+      expect(result.a).toBe(1);
+    });
+
+    it('should convert linear P3 black to P3 black', () => {
+      const result = linearP3ToP3({ r: 0, g: 0, b: 0 }, 1);
+      expect(result.r).toBeCloseTo(0, 5);
+      expect(result.g).toBeCloseTo(0, 5);
+      expect(result.b).toBeCloseTo(0, 5);
+      expect(result.a).toBe(1);
+    });
+
+    it('should apply gamma correctly (above threshold)', () => {
+      // Value > 0.0031308 triggers the pow branch
+      const result = linearP3ToP3({ r: 0.214, g: 0.214, b: 0.214 }, 1);
+      // linearToSrgb(0.214) = 1.055 * Math.pow(0.214, 1/2.4) - 0.055 ≈ 0.5
+      expect(result.r).toBeCloseTo(0.5, 2);
+      expect(result.g).toBeCloseTo(0.5, 2);
+      expect(result.b).toBeCloseTo(0.5, 2);
+    });
+
+    it('should apply gamma correctly (below threshold)', () => {
+      // Value <= 0.0031308 triggers the linear branch
+      const result = linearP3ToP3({ r: 0.001, g: 0.001, b: 0.001 }, 1);
+      // linearToSrgb(0.001) = 0.001 * 12.92 = 0.01292
+      expect(result.r).toBeCloseTo(0.01292, 4);
+      expect(result.g).toBeCloseTo(0.01292, 4);
+      expect(result.b).toBeCloseTo(0.01292, 4);
+    });
+
+    it('should preserve alpha value', () => {
+      const result = linearP3ToP3({ r: 0.5, g: 0.5, b: 0.5 }, 0.75);
+      expect(result.a).toBe(0.75);
     });
   });
 });

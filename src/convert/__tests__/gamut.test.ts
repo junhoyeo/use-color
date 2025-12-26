@@ -3,6 +3,8 @@ import {
   isInGamut,
   clampToGamut,
   mapToGamut,
+  isInP3Gamut,
+  clampToP3Gamut,
   DEFAULT_JND,
 } from '../gamut.js';
 import type { OKLCH } from '../../types/color.js';
@@ -250,4 +252,114 @@ describe('integration: clamped colors produce valid RGB', () => {
       expect(clamped.c).toBeLessThanOrEqual(oklch.c);
     }
   );
+});
+
+describe('isInP3Gamut', () => {
+  describe('achromatic colors (grayscale)', () => {
+    it('returns true for black', () => {
+      expect(isInP3Gamut({ l: 0, c: 0, h: 0, a: 1 })).toBe(true);
+    });
+
+    it('returns true for white', () => {
+      expect(isInP3Gamut({ l: 1, c: 0, h: 0, a: 1 })).toBe(true);
+    });
+
+    it('returns true for mid-gray', () => {
+      expect(isInP3Gamut({ l: 0.5, c: 0, h: 0, a: 1 })).toBe(true);
+    });
+
+    it('returns false for lightness below 0', () => {
+      expect(isInP3Gamut({ l: -0.1, c: 0, h: 0, a: 1 })).toBe(false);
+    });
+
+    it('returns false for lightness above 1', () => {
+      expect(isInP3Gamut({ l: 1.1, c: 0, h: 0, a: 1 })).toBe(false);
+    });
+  });
+
+  describe('in-gamut chromatic colors', () => {
+    it('returns true for colors in sRGB (which are in P3)', () => {
+      expect(isInP3Gamut({ l: 0.5, c: 0.05, h: 30, a: 1 })).toBe(true);
+    });
+
+    it('returns true for moderate chroma colors', () => {
+      expect(isInP3Gamut({ l: 0.7, c: 0.15, h: 50, a: 1 })).toBe(true);
+    });
+
+    it('P3 gamut is larger than sRGB - some out-of-sRGB colors are in P3', () => {
+      const color: OKLCH = { l: 0.7, c: 0.2, h: 150, a: 1 };
+      expect(isInP3Gamut(color)).toBe(true);
+    });
+  });
+
+  describe('out-of-gamut colors (extreme chroma)', () => {
+    it('returns false for extremely high chroma', () => {
+      expect(isInP3Gamut({ l: 0.5, c: 0.5, h: 180, a: 1 })).toBe(false);
+    });
+  });
+});
+
+describe('clampToP3Gamut', () => {
+  describe('in-gamut colors', () => {
+    it('returns in-gamut color unchanged', () => {
+      const color: OKLCH = { l: 0.6, c: 0.1, h: 50, a: 1 };
+      const result = clampToP3Gamut(color);
+      expect(result).toEqual(color);
+    });
+
+    it('returns black unchanged', () => {
+      const black: OKLCH = { l: 0, c: 0, h: 0, a: 1 };
+      expect(clampToP3Gamut(black)).toEqual(black);
+    });
+
+    it('returns white unchanged', () => {
+      const white: OKLCH = { l: 1, c: 0, h: 0, a: 1 };
+      expect(clampToP3Gamut(white)).toEqual(white);
+    });
+  });
+
+  describe('out-of-gamut colors', () => {
+    it('reduces chroma for extreme colors', () => {
+      const outOfGamut: OKLCH = { l: 0.5, c: 0.5, h: 180, a: 1 };
+      const clamped = clampToP3Gamut(outOfGamut);
+
+      expect(clamped.l).toBe(outOfGamut.l);
+      expect(clamped.h).toBe(outOfGamut.h);
+      expect(clamped.a).toBe(outOfGamut.a);
+      expect(clamped.c).toBeLessThan(outOfGamut.c);
+      expect(isInP3Gamut(clamped)).toBe(true);
+    });
+  });
+
+  describe('edge cases for lightness', () => {
+    it('clamps negative lightness to black', () => {
+      const result = clampToP3Gamut({ l: -0.5, c: 0.3, h: 180, a: 1 });
+      expect(result).toEqual({ l: 0, c: 0, h: 180, a: 1 });
+    });
+
+    it('clamps lightness > 1 to white', () => {
+      const result = clampToP3Gamut({ l: 1.5, c: 0.3, h: 180, a: 1 });
+      expect(result).toEqual({ l: 1, c: 0, h: 180, a: 1 });
+    });
+  });
+
+  describe('JND threshold', () => {
+    it('respects custom JND value', () => {
+      const color: OKLCH = { l: 0.5, c: 0.5, h: 180, a: 1 };
+      const clamped = clampToP3Gamut(color, 0.001);
+      expect(isInP3Gamut(clamped)).toBe(true);
+    });
+  });
+
+  describe('various hue angles', () => {
+    const hueAngles = [0, 90, 180, 270];
+
+    it.each(hueAngles)('clamps out-of-gamut color at hue %i', (hue) => {
+      const outOfGamut: OKLCH = { l: 0.5, c: 0.5, h: hue, a: 1 };
+      const clamped = clampToP3Gamut(outOfGamut);
+
+      expect(isInP3Gamut(clamped)).toBe(true);
+      expect(clamped.h).toBe(hue);
+    });
+  });
 });

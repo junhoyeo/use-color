@@ -356,6 +356,25 @@ describe('Color output methods', () => {
       const anyColor = red.toAnyColor('oklch');
       expect(anyColor.space).toBe('oklch');
     });
+
+    it('toAnyColor with hsl space', () => {
+      const anyColor = red.toAnyColor('hsl');
+      expect(anyColor.space).toBe('hsl');
+      if (anyColor.space === 'hsl') {
+        expect(anyColor.h).toBe(0);
+        expect(anyColor.s).toBe(1);
+        expect(anyColor.l).toBe(0.5);
+      }
+    });
+
+    it('toAnyColor with p3 space', () => {
+      const anyColor = red.toAnyColor('p3');
+      expect(anyColor.space).toBe('p3');
+      if (anyColor.space === 'p3') {
+        expect(anyColor.r).toBeDefined();
+        expect(anyColor.a).toBe(1);
+      }
+    });
   });
 
   describe('string output', () => {
@@ -511,6 +530,59 @@ describe('Color.from and Color.tryFrom static methods', () => {
     const r1 = tryColor('#ff0000');
     const r2 = Color.tryFrom('#ff0000');
     expect(r1.ok).toBe(r2.ok);
+  });
+});
+
+describe('Mix with hue interpolation edge cases', () => {
+  it('interpolateHue handles backward hue wrapping when h1=350 h2=10 (diff < -180)', () => {
+    const oklch1 = { l: 0.7, c: 0.15, h: 350, a: 1 };
+    const oklch2 = { l: 0.7, c: 0.15, h: 10, a: 1 };
+    const color1 = color(oklch1);
+
+    const mixed = color1.mix(oklch2, { ratio: 0.5, space: 'oklch' });
+
+    const mixedHue = mixed.getHue();
+    expect(mixedHue >= 350 || mixedHue <= 20).toBe(true);
+  });
+
+  it('mix in rgb space interpolates RGB values', () => {
+    const red = color('#ff0000');
+    const mixed = red.mix('#0000ff', { ratio: 0.5, space: 'rgb' });
+    expect(mixed.toHex()).toBeDefined();
+  });
+});
+
+describe('P3 color space input', () => {
+  it('accepts P3Color with space discriminant', () => {
+    const p3Color = { space: 'p3' as const, r: 1, g: 0.5, b: 0.2, a: 1 };
+    const c = color(p3Color);
+    expect(c.toHex()).toBeDefined();
+    expect(c.getAlpha()).toBe(1);
+  });
+
+  it('converts P3 color to valid clamped RGB', () => {
+    const p3Color = { space: 'p3' as const, r: 0.8, g: 0.2, b: 0.1, a: 0.9 };
+    const c = color(p3Color);
+    const rgb = c.toRgb();
+    expect(rgb.r).toBeGreaterThanOrEqual(0);
+    expect(rgb.r).toBeLessThanOrEqual(255);
+    expect(rgb.a).toBeCloseTo(0.9, 2);
+  });
+});
+
+describe('Invalid color input handling', () => {
+  it('returns error for unrecognized object format via tryColor', () => {
+    const invalidObject = { foo: 'bar', baz: 123 } as unknown;
+    const result = tryColor(invalidObject as any);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.message).toBe('Invalid color input');
+    }
+  });
+
+  it('throws for unrecognized object format via color()', () => {
+    const invalidObject = { x: 1, y: 2 } as unknown;
+    expect(() => color(invalidObject as any)).toThrow('Invalid color input');
   });
 });
 

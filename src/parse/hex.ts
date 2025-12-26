@@ -120,12 +120,14 @@ export function parseHex8(str: string): RGBA {
 }
 
 export function parseHex(str: string): RGBA {
+  /* v8 ignore start - defensive for JavaScript callers */
   if (typeof str !== 'string') {
     throw new ColorParseError(
       ColorErrorCode.INVALID_HEX,
       `Invalid hex color: expected string, got ${typeof str}`,
     );
   }
+  /* v8 ignore stop */
 
   const trimmed = str.trim();
 
@@ -169,11 +171,13 @@ export function tryParseHex(str: string): Result<RGBA, ColorParseError> {
     if (error instanceof ColorParseError) {
       return err(error);
     }
+    /* v8 ignore start - parseHex only throws ColorParseError */
     return err(
       new ColorParseError(
         ColorErrorCode.INVALID_HEX,
         `Unexpected error parsing hex color: '${str}'`,
       ),
     );
+    /* v8 ignore stop */
   }
 }

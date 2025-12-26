@@ -93,6 +93,11 @@ describe('parseRgbLegacy', () => {
     expect(() => parseRgbLegacy('rgb(, 0, 0)')).toThrow(ColorParseError);
   });
 
+  it('throws on invalid percentage values like abc%', () => {
+    expect(() => parseRgbLegacy('rgb(abc%, 0, 0)')).toThrow(ColorParseError);
+    expect(() => parseRgbLegacy('rgb(0, xyz%, 0)')).toThrow(ColorParseError);
+  });
+
   it('provides correct error code', () => {
     try {
       parseRgbLegacy('invalid');
@@ -184,6 +189,13 @@ describe('parseRgbaLegacy', () => {
   it('throws on missing alpha', () => {
     expect(() => parseRgbaLegacy('rgba(255, 0, 0)')).toThrow(ColorParseError);
   });
+
+  it('throws on invalid percentage values in rgba like abc%', () => {
+    expect(() => parseRgbaLegacy('rgba(abc%, 0, 0, 1)')).toThrow(ColorParseError);
+    expect(() => parseRgbaLegacy('rgba(0, xyz%, 0, 0.5)')).toThrow(ColorParseError);
+    expect(() => parseRgbaLegacy('rgba(0, 0, bad%, 0.5)')).toThrow(ColorParseError);
+    expect(() => parseRgbaLegacy('rgba(0, 0, 0, invalid%)')).toThrow(ColorParseError);
+  });
 });
 
 describe('parseRgbModern', () => {
@@ -256,6 +268,13 @@ describe('parseRgbModern', () => {
 
   it('throws on rgba() function name', () => {
     expect(() => parseRgbModern('rgba(255 0 0 / 0.5)')).toThrow(ColorParseError);
+  });
+
+  it('throws on values that match regex but parse to NaN', () => {
+    expect(() => parseRgbModern('rgb(. 0 0)')).toThrow(ColorParseError);
+    expect(() => parseRgbModern('rgb(0 .. 0)')).toThrow(ColorParseError);
+    expect(() => parseRgbModern('rgb(0 0 .)')).toThrow(ColorParseError);
+    expect(() => parseRgbModern('rgb(0 0 0 / .)')).toThrow(ColorParseError);
   });
 });
 
@@ -433,6 +452,8 @@ describe('tryParseRgb', () => {
       expect(() => tryParseRgb('completely invalid')).not.toThrow();
     });
   });
+
+
 });
 
 describe('isRgbString', () => {

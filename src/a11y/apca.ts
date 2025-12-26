@@ -124,9 +124,11 @@ function calcAPCALuminance(rgba: RGBA): number {
  * Handles very dark colors (near black).
  */
 function softClamp(Y: number): number {
+  /* v8 ignore start - Y from RGB luminance is always >= 0 */
   if (Y < 0) {
     return 0;
   }
+  /* v8 ignore stop */
   if (Y < APCA_CONSTANTS.blkThrs) {
     return Y + Math.pow(APCA_CONSTANTS.blkThrs - Y, APCA_CONSTANTS.blkClmp);
   }

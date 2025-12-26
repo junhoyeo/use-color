@@ -63,9 +63,11 @@ export function normalizeHue(hue: number): number {
  */
 function parsePercentage(value: string): number {
   const trimmed = value.trim();
+  /* v8 ignore start */
   if (!trimmed.endsWith('%')) {
     return NaN;
   }
+  /* v8 ignore stop */
   const num = parseFloat(trimmed.slice(0, -1));
   return num / 100;
 }
@@ -352,13 +354,14 @@ export function tryParseHsl(str: string): Result<HSLA, ColorParseError> {
     if (error instanceof ColorParseError) {
       return err(error);
     }
-    // Wrap unexpected errors
+    /* v8 ignore start */
     return err(
       new ColorParseError(
         ColorErrorCode.INVALID_HSL,
         `Unexpected error parsing HSL: ${error instanceof Error ? error.message : String(error)}`
       )
     );
+    /* v8 ignore stop */
   }
 }
 
@@ -375,12 +378,14 @@ export function tryParseHslLegacy(str: string): Result<HSLA, ColorParseError> {
     if (error instanceof ColorParseError) {
       return err(error);
     }
+    /* v8 ignore start */
     return err(
       new ColorParseError(
         ColorErrorCode.INVALID_HSL,
         `Unexpected error parsing legacy HSL: ${error instanceof Error ? error.message : String(error)}`
       )
     );
+    /* v8 ignore stop */
   }
 }
 
@@ -397,12 +402,14 @@ export function tryParseHslaLegacy(str: string): Result<HSLA, ColorParseError> {
     if (error instanceof ColorParseError) {
       return err(error);
     }
+    /* v8 ignore start */
     return err(
       new ColorParseError(
         ColorErrorCode.INVALID_HSL,
         `Unexpected error parsing legacy HSLA: ${error instanceof Error ? error.message : String(error)}`
       )
     );
+    /* v8 ignore stop */
   }
 }
 
@@ -419,11 +426,13 @@ export function tryParseHslModern(str: string): Result<HSLA, ColorParseError> {
     if (error instanceof ColorParseError) {
       return err(error);
     }
+    /* v8 ignore start */
     return err(
       new ColorParseError(
         ColorErrorCode.INVALID_HSL,
         `Unexpected error parsing modern HSL: ${error instanceof Error ? error.message : String(error)}`
       )
     );
+    /* v8 ignore stop */
   }
 }

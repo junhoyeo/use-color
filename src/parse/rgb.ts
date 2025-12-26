@@ -300,13 +300,14 @@ export function tryParseRgb(str: string): Result<RGBA, ColorParseError> {
     if (error instanceof ColorParseError) {
       return err(error);
     }
-    // Unexpected error - wrap it
+    /* c8 ignore start */
     return err(
       new ColorParseError(
         ColorErrorCode.INVALID_RGB,
         `Unexpected error parsing RGB: ${error instanceof Error ? error.message : String(error)}`,
       ),
     );
+    /* c8 ignore stop */
   }
 }
 

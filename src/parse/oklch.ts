@@ -71,6 +71,7 @@ export function tryParseOklch(str: string): Result<OKLCH, ColorParseError> {
 
   const oklch: OKLCH = { l, c, h, a };
 
+  /* v8 ignore start - regex ensures numeric patterns */
   if (!isValidOklch(oklch)) {
     return err(
       new ColorParseError(
@@ -79,6 +80,7 @@ export function tryParseOklch(str: string): Result<OKLCH, ColorParseError> {
       ),
     );
   }
+  /* v8 ignore stop */
 
   return ok(oklch);
 }

@@ -462,3 +462,77 @@ describe('tryParseHslModern', () => {
     expect(result.ok).toBe(false);
   });
 });
+
+// Edge case tests for NaN values that match regex but fail parsing
+describe('NaN value edge cases', () => {
+  describe('parseHslLegacy NaN handling', () => {
+    it('throws on NaN hue value (dot only)', () => {
+      // "." matches [+-]?[\d.]+ regex but parseFloat returns NaN
+      expect(() => parseHslLegacy('hsl(., 50%, 50%)')).toThrow();
+    });
+
+    it('throws on NaN saturation value', () => {
+      expect(() => parseHslLegacy('hsl(0, .%, 50%)')).toThrow();
+    });
+
+    it('throws on NaN lightness value', () => {
+      expect(() => parseHslLegacy('hsl(0, 50%, .%)')).toThrow();
+    });
+  });
+
+  describe('parseHslaLegacy NaN handling', () => {
+    it('throws on NaN hue value', () => {
+      expect(() => parseHslaLegacy('hsla(., 50%, 50%, 0.5)')).toThrow();
+    });
+
+    it('throws on NaN alpha value', () => {
+      expect(() => parseHslaLegacy('hsla(0, 50%, 50%, .)')).toThrow();
+    });
+  });
+
+  describe('parseHslModern NaN handling', () => {
+    it('throws on NaN hue value', () => {
+      expect(() => parseHslModern('hsl(. 50% 50%)')).toThrow();
+    });
+
+    it('throws on NaN alpha value', () => {
+      expect(() => parseHslModern('hsl(0 50% 50% / .)')).toThrow();
+    });
+  });
+});
+
+describe('unexpected error handling', () => {
+  it('tryParseHsl wraps non-ColorParseError', () => {
+    const result = tryParseHsl('hsl(., 50%, 50%)');
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe(ColorErrorCode.INVALID_HSL);
+    }
+  });
+
+  it('tryParseHslLegacy wraps non-ColorParseError', () => {
+    const result = tryParseHslLegacy('hsl(., 50%, 50%)');
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe(ColorErrorCode.INVALID_HSL);
+    }
+  });
+
+  it('tryParseHslaLegacy wraps non-ColorParseError', () => {
+    const result = tryParseHslaLegacy('hsla(., 50%, 50%, 0.5)');
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe(ColorErrorCode.INVALID_HSL);
+    }
+  });
+
+  it('tryParseHslModern wraps non-ColorParseError', () => {
+    const result = tryParseHslModern('hsl(. 50% 50%)');
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe(ColorErrorCode.INVALID_HSL);
+    }
+  });
+});
+
+

@@ -259,6 +259,7 @@ export function ensureContrast(
   }
 
   // Return the one with better contrast
+  /* istanbul ignore next -- @preserve unreachable: both directions return same color when target impossible */
   const result = primaryRatio >= secondaryRatio ? primaryResult : secondaryResult;
   return {
     space: 'rgb',

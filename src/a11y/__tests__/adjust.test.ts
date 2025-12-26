@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { ensureContrast } from '../adjust.js';
 import { contrast } from '../contrast.js';
 import { WCAG_THRESHOLDS } from '../readable.js';
+import { luminance } from '../luminance.js';
 
 describe('ensureContrast', () => {
   const white = { r: 255, g: 255, b: 255, a: 1 };
@@ -118,6 +119,94 @@ describe('ensureContrast', () => {
       const result = ensureContrast(gray, midGray, 3);
       const ratio = contrast(result, midGray);
       expect(ratio).toBeGreaterThanOrEqual(3);
+    });
+
+    it('handles exact 0.5 luminance background (line 213)', () => {
+      // Calculate RGB value that gives exactly 0.5 luminance
+      // srgbToLinear(v) = ((v/255 + 0.055) / 1.055)^2.4 = 0.5
+      // Solving: v = (0.5^(1/2.4) * 1.055 - 0.055) * 255
+      const x = Math.pow(0.5, 1 / 2.4);
+      const v = (x * 1.055 - 0.055) * 255;
+      const exactMidBg = { r: v, g: v, b: v, a: 1 };
+
+      // Verify we have exactly 0.5 luminance
+      expect(luminance(exactMidBg)).toBe(0.5);
+
+      // Use foreground with luminance close to 0.5 but lower
+      // This ensures: 1) contrast < target (no early return)
+      //               2) fgLum <= bgLum triggers line 213
+      const closeFg = { r: v - 20, g: v - 20, b: v - 20, a: 1 };
+      expect(contrast(closeFg, exactMidBg)).toBeLessThan(4.5);
+      expect(luminance(closeFg)).toBeLessThan(0.5);
+
+      const result = ensureContrast(closeFg, exactMidBg, 4.5);
+      const ratio = contrast(result, exactMidBg);
+      expect(ratio).toBeGreaterThanOrEqual(4.5);
+    });
+
+    it('returns secondary result when it has better contrast (line 262 false branch)', () => {
+      // Force preferLighten on a light background where darkening is better
+      // Primary (lighten) gives worse contrast, secondary (darken) is better
+      const darkFg = { r: 100, g: 100, b: 100, a: 1 };
+      const lightBg = { r: 220, g: 220, b: 220, a: 1 };
+
+      const result = ensureContrast(darkFg, lightBg, 21, { preferLighten: true });
+
+      expect(result.space).toBe('rgb');
+      const finalRatio = contrast(result, lightBg);
+      expect(finalRatio).toBeGreaterThan(1);
+    });
+
+    it('returns primary result when it has better contrast (line 262 true branch)', () => {
+      // Use preferLighten=false on light bg - primary (darken) is correct
+      // but target is impossible, so both directions fail
+      const midFg = { r: 150, g: 150, b: 150, a: 1 };
+      const lightBg = { r: 200, g: 200, b: 200, a: 1 };
+
+      const result = ensureContrast(midFg, lightBg, 21, { preferLighten: false });
+
+      expect(result.space).toBe('rgb');
+      const finalRatio = contrast(result, lightBg);
+      expect(finalRatio).toBeGreaterThan(1);
+    });
+  });
+
+  describe('with non-RGB AnyColor inputs (lines 73-74)', () => {
+    const white = { r: 255, g: 255, b: 255, a: 1 };
+
+    it('accepts HslColor objects', () => {
+      // Gray in HSL format
+      const hslGray = { space: 'hsl' as const, h: 0, s: 0, l: 0.5, a: 1 };
+      const hslWhite = { space: 'hsl' as const, h: 0, s: 0, l: 1, a: 1 };
+      const result = ensureContrast(hslGray, hslWhite, WCAG_THRESHOLDS.AA);
+      expect(result.space).toBe('rgb');
+      expect(contrast(result, white)).toBeGreaterThanOrEqual(WCAG_THRESHOLDS.AA);
+    });
+
+    it('accepts OklchColor objects', () => {
+      // Gray in OKLCH format
+      const oklchGray = { space: 'oklch' as const, l: 0.6, c: 0, h: 0, a: 1 };
+      const oklchWhite = { space: 'oklch' as const, l: 1, c: 0, h: 0, a: 1 };
+      const result = ensureContrast(oklchGray, oklchWhite, WCAG_THRESHOLDS.AA);
+      expect(result.space).toBe('rgb');
+      expect(contrast(result, white)).toBeGreaterThanOrEqual(WCAG_THRESHOLDS.AA);
+    });
+
+    it('accepts P3Color objects', () => {
+      // Gray in P3 format (values are 0-1)
+      const p3Gray = { space: 'p3' as const, r: 0.5, g: 0.5, b: 0.5, a: 1 };
+      const p3White = { space: 'p3' as const, r: 1, g: 1, b: 1, a: 1 };
+      const result = ensureContrast(p3Gray, p3White, WCAG_THRESHOLDS.AA);
+      expect(result.space).toBe('rgb');
+      expect(contrast(result, white)).toBeGreaterThanOrEqual(WCAG_THRESHOLDS.AA);
+    });
+
+    it('accepts mixed color space inputs', () => {
+      const hslFg = { space: 'hsl' as const, h: 0, s: 0, l: 0.5, a: 1 };
+      const rgbBg = { space: 'rgb' as const, r: 255, g: 255, b: 255, a: 1 };
+      const result = ensureContrast(hslFg, rgbBg, WCAG_THRESHOLDS.AA);
+      expect(result.space).toBe('rgb');
+      expect(contrast(result, white)).toBeGreaterThanOrEqual(WCAG_THRESHOLDS.AA);
     });
   });
 });

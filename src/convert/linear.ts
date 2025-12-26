@@ -24,7 +24,7 @@
  * @see https://www.w3.org/TR/css-color-4/#color-conversion-code
  */
 
-import type { RGBA } from '../types/color.js'
+import type { RGBA } from '../types/color.js';
 
 /**
  * Linear RGB color representation with red, green, blue, and alpha channels.
@@ -48,13 +48,13 @@ import type { RGBA } from '../types/color.js'
  */
 export interface LinearRGB {
   /** Red channel (0-1 linear) */
-  r: number
+  r: number;
   /** Green channel (0-1 linear) */
-  g: number
+  g: number;
   /** Blue channel (0-1 linear) */
-  b: number
+  b: number;
   /** Alpha channel (0-1) */
-  a: number
+  a: number;
 }
 
 /**
@@ -86,13 +86,13 @@ export interface LinearRGB {
  * @see https://www.w3.org/TR/css-color-4/#color-conversion-code
  */
 export function srgbToLinear(value: number): number {
-  const v = value / 255
+  const v = value / 255;
 
   // Linear segment (v ≤ 0.04045) vs power curve (gamma 2.4)
   if (v <= 0.04045) {
-    return v / 12.92
+    return v / 12.92;
   }
-  return ((v + 0.055) / 1.055) ** 2.4
+  return ((v + 0.055) / 1.055) ** 2.4;
 }
 
 /**
@@ -125,9 +125,9 @@ export function srgbToLinear(value: number): number {
  */
 export function linearToSrgb(value: number): number {
   // Linear segment (≤ 0.0031308) vs power curve (gamma 1/2.4)
-  const v = value <= 0.0031308 ? value * 12.92 : 1.055 * value ** (1 / 2.4) - 0.055
+  const v = value <= 0.0031308 ? value * 12.92 : 1.055 * value ** (1 / 2.4) - 0.055;
 
-  return Math.round(v * 255)
+  return Math.round(v * 255);
 }
 
 /**
@@ -161,7 +161,7 @@ export function rgbToLinearRgb(rgba: RGBA): LinearRGB {
     g: srgbToLinear(rgba.g),
     b: srgbToLinear(rgba.b),
     a: rgba.a,
-  }
+  };
 }
 
 /**
@@ -195,5 +195,5 @@ export function linearRgbToRgb(lrgb: LinearRGB): RGBA {
     g: linearToSrgb(lrgb.g),
     b: linearToSrgb(lrgb.b),
     a: lrgb.a,
-  }
+  };
 }

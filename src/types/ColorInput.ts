@@ -1,9 +1,9 @@
-import type { HSLA, OKLCH, RGBA } from './color.js'
-import type { HexString, HexStringWithOpacity } from './Hex.js'
-import type { HslInputString } from './Hsl.js'
-import type { NamedColorString } from './Named.js'
-import type { OklchInputString } from './Oklch.js'
-import type { RgbColorInput, RgbString } from './Rgb.js'
+import type { HSLA, OKLCH, RGBA } from './color.js';
+import type { HexString, HexStringWithOpacity } from './Hex.js';
+import type { HslInputString } from './Hsl.js';
+import type { NamedColorString } from './Named.js';
+import type { OklchInputString } from './Oklch.js';
+import type { RgbColorInput, RgbString } from './Rgb.js';
 
 /**
  * Validated color string input types.
@@ -32,7 +32,7 @@ export type ColorStringInput<T extends string> =
   | RgbString<T>
   | HslInputString<T>
   | OklchInputString<T>
-  | NamedColorString<T>
+  | NamedColorString<T>;
 
 /**
  * Color object input types.
@@ -45,7 +45,7 @@ export type ColorStringInput<T extends string> =
  * const hsla: ColorObjectInput = { h: 0, s: 1, l: 0.5, a: 1 };
  * ```
  */
-export type ColorObjectInput = RGBA | OKLCH | HSLA
+export type ColorObjectInput = RGBA | OKLCH | HSLA;
 
 /**
  * Unified color input type that accepts all valid color string formats
@@ -70,7 +70,7 @@ export type ColorObjectInput = RGBA | OKLCH | HSLA
  * const rgba: ColorInput = { r: 255, g: 0, b: 0, a: 1 };
  * ```
  */
-export type ColorInput<T extends string = string> = ColorStringInput<T> | RgbColorInput
+export type ColorInput<T extends string = string> = ColorStringInput<T> | RgbColorInput;
 
 /**
  * Comprehensive color input type that accepts ALL color formats including
@@ -94,7 +94,7 @@ export type ColorInput<T extends string = string> = ColorStringInput<T> | RgbCol
 export type AnyColorInput<T extends string = string> =
   | ColorStringInput<T>
   | ColorObjectInput
-  | RgbColorInput
+  | RgbColorInput;
 
 /**
  * Constraint helper that validates a string is a valid color input.
@@ -117,4 +117,4 @@ export type AnyColorInput<T extends string = string> =
  * type C = AsValidColor<'invalid'>;        // never
  * ```
  */
-export type AsValidColor<T extends string> = [ColorStringInput<T>] extends [never] ? never : T
+export type AsValidColor<T extends string> = [ColorStringInput<T>] extends [never] ? never : T;

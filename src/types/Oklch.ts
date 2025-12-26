@@ -8,40 +8,40 @@
  * const alpha: PercentString = '80%';
  * ```
  */
-export type PercentString = `${number}%`
+export type PercentString = `${number}%`;
 
 /**
  * A numeric string value.
  * @internal
  */
-type NumberString = `${number}`
+type NumberString = `${number}`;
 
 /**
  * A value that can be either a number or a percentage.
  * Used for OKLCH lightness and alpha values.
  * @internal
  */
-type NumberOrPercent = NumberString | PercentString
+type NumberOrPercent = NumberString | PercentString;
 
 /**
  * Optional space character for flexible whitespace handling.
  * @internal
  */
-type OptSpace = '' | ' '
+type OptSpace = '' | ' ';
 
 /**
  * Slash separator with optional whitespace on either side.
  * Supports: "/", " /", "/ ", " / "
  * @internal
  */
-type SlashSep = `${OptSpace}/${OptSpace}`
+type SlashSep = `${OptSpace}/${OptSpace}`;
 
 /**
  * Pattern for OKLCH color without alpha channel.
  * Format: oklch(L C H) where L can be number or percentage.
  * @internal
  */
-type OklchNoAlphaPattern = `oklch(${NumberOrPercent} ${NumberString} ${NumberString})`
+type OklchNoAlphaPattern = `oklch(${NumberOrPercent} ${NumberString} ${NumberString})`;
 
 /**
  * Pattern for OKLCH color with alpha channel.
@@ -49,7 +49,7 @@ type OklchNoAlphaPattern = `oklch(${NumberOrPercent} ${NumberString} ${NumberStr
  * @internal
  */
 type OklchAlphaPattern =
-  `oklch(${NumberOrPercent} ${NumberString} ${NumberString}${SlashSep}${NumberOrPercent})`
+  `oklch(${NumberOrPercent} ${NumberString} ${NumberString}${SlashSep}${NumberOrPercent})`;
 
 /**
  * Validates an OKLCH color string without alpha channel.
@@ -67,7 +67,7 @@ type OklchAlphaPattern =
  * type C = OklchString<'oklch(0.5, 0.2, 180)'>; // never (commas not allowed)
  * ```
  */
-export type OklchString<T extends string> = [T] extends [OklchNoAlphaPattern] ? T : never
+export type OklchString<T extends string> = [T] extends [OklchNoAlphaPattern] ? T : never;
 
 /**
  * Validates an OKLCH color string with alpha channel.
@@ -87,7 +87,7 @@ export type OklchString<T extends string> = [T] extends [OklchNoAlphaPattern] ? 
  * type D = OklchAlphaString<'oklch(0.5 0.2 180)'>;        // never (no alpha)
  * ```
  */
-export type OklchAlphaString<T extends string> = [T] extends [OklchAlphaPattern] ? T : never
+export type OklchAlphaString<T extends string> = [T] extends [OklchAlphaPattern] ? T : never;
 
 /**
  * Unified OKLCH color string validator.
@@ -111,4 +111,4 @@ export type OklchAlphaString<T extends string> = [T] extends [OklchAlphaPattern]
  * type F = OklchInputString<'rgb(255, 0, 0)'>;           // never
  * ```
  */
-export type OklchInputString<T extends string> = OklchString<T> | OklchAlphaString<T>
+export type OklchInputString<T extends string> = OklchString<T> | OklchAlphaString<T>;

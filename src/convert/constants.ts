@@ -28,7 +28,7 @@ export type Matrix3x3 = readonly [
   readonly [number, number, number],
   readonly [number, number, number],
   readonly [number, number, number],
-]
+];
 
 /**
  * D65 Standard Illuminant white point.
@@ -49,7 +49,7 @@ export const D65 = {
   y: 1.0,
   /** Z chromaticity coordinate */
   z: 1.08883,
-} as const
+} as const;
 
 /**
  * sRGB to XYZ (D65) transformation matrix.
@@ -67,7 +67,7 @@ export const SRGB_TO_XYZ: Matrix3x3 = [
   [0.4123907992659595, 0.357584339383878, 0.1804807884018343],
   [0.21263900587151027, 0.715168678767756, 0.07219231536073371],
   [0.01933081871559182, 0.11919477979462598, 0.9505321522496607],
-] as const
+] as const;
 
 /**
  * XYZ (D65) to sRGB transformation matrix.
@@ -86,7 +86,7 @@ export const XYZ_TO_SRGB: Matrix3x3 = [
   [3.2404541621141054, -1.5371385940306089, -0.49853140955601579],
   [-0.96926603050518312, 1.8760108454466942, 0.041556017530349834],
   [0.055643430959114726, -0.20397695888897652, 1.0572251882231791],
-] as const
+] as const;
 
 /**
  * Oklab M1 matrix: XYZ to LMS (cone response).
@@ -107,7 +107,7 @@ export const OKLAB_M1: Matrix3x3 = [
   [0.8189330101, 0.3618667424, -0.1288597137],
   [0.0329845436, 0.9293118715, 0.0361456387],
   [0.0482003018, 0.2643662691, 0.633851707],
-] as const
+] as const;
 
 /**
  * Oklab M2 matrix: LMS' to Lab (perceptual coordinates).
@@ -127,7 +127,7 @@ export const OKLAB_M2: Matrix3x3 = [
   [0.2104542553, 0.793617785, -0.0040720468],
   [1.9779984951, -2.428592205, 0.4505937099],
   [0.0259040371, 0.7827717662, -0.808675766],
-] as const
+] as const;
 
 /**
  * Inverse of Oklab M1 matrix: LMS to XYZ.
@@ -143,7 +143,7 @@ export const OKLAB_M1_INV: Matrix3x3 = [
   [1.2270138511035211, -0.5577999806518222, 0.2812561489664678],
   [-0.0405801784232806, 1.1122568696168302, -0.0716766786656012],
   [-0.0763812845057069, -0.4214819784180127, 1.5861632204407947],
-] as const
+] as const;
 
 /**
  * Inverse of Oklab M2 matrix: Lab to LMS'.
@@ -159,7 +159,7 @@ export const OKLAB_M2_INV: Matrix3x3 = [
   [1.0, 0.3963377774, 0.2158037573],
   [1.0, -0.1055613458, -0.0638541728],
   [1.0, -0.0894841775, -1.291485548],
-] as const
+] as const;
 
 /**
  * Linear sRGB to LMS matrix for direct Oklab conversion.
@@ -176,7 +176,7 @@ export const LRGB_TO_LMS: Matrix3x3 = [
   [0.4122214708, 0.5363325363, 0.0514459929],
   [0.2119034982, 0.6806995451, 0.1073969566],
   [0.0883024619, 0.2817188376, 0.6299787005],
-] as const
+] as const;
 
 /**
  * LMS to linear sRGB matrix for direct Oklab conversion.
@@ -193,7 +193,7 @@ export const LMS_TO_LRGB: Matrix3x3 = [
   [4.0767416621, -3.3077115913, 0.2309699292],
   [-1.2684380046, 2.6097574011, -0.3413193965],
   [-0.0041960863, -0.7034186147, 1.707614701],
-] as const
+] as const;
 
 /**
  * Display P3 to XYZ (D65) transformation matrix.
@@ -212,7 +212,7 @@ export const P3_TO_XYZ: Matrix3x3 = [
   [0.4865709486482162, 0.26566769316909306, 0.1982172852343625],
   [0.2289745640697488, 0.6917385218365064, 0.079286914093745],
   [0.0, 0.04511338185890264, 1.043944368900976],
-] as const
+] as const;
 
 /**
  * XYZ (D65) to Display P3 transformation matrix.
@@ -231,4 +231,4 @@ export const XYZ_TO_P3: Matrix3x3 = [
   [2.493496911941425, -0.9313836179191239, -0.40271078445071684],
   [-0.8294889695615747, 1.7626640603183463, 0.023624685841943577],
   [0.03584583024378447, -0.07617238926804182, 0.9568845240076872],
-] as const
+] as const;

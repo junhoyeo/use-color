@@ -30,13 +30,13 @@
  * ```
  */
 
-import { contrast } from './contrast.js'
-import type { LuminanceInput } from './luminance.js'
+import { contrast } from './contrast.js';
+import type { LuminanceInput } from './luminance.js';
 
 /**
  * WCAG 2.1 conformance levels for readability.
  */
-export type ReadabilityLevel = 'AAA' | 'AA' | 'fail'
+export type ReadabilityLevel = 'AAA' | 'AA' | 'fail';
 
 /**
  * WCAG 2.1 contrast ratio thresholds.
@@ -50,7 +50,7 @@ export const WCAG_THRESHOLDS = {
   AA: 4.5,
   /** AA conformance for large text (3:1) */
   AA_LARGE: 3,
-} as const
+} as const;
 
 /**
  * Options for readability checks.
@@ -60,27 +60,27 @@ export interface ReadabilityOptions {
    * The WCAG conformance level to check against.
    * @default 'AA'
    */
-  level?: 'AA' | 'AAA'
+  level?: 'AA' | 'AAA';
 
   /**
    * Whether the text is large (18pt+ or 14pt+ bold).
    * Large text has lower contrast requirements.
    * @default false
    */
-  isLargeText?: boolean
+  isLargeText?: boolean;
 }
 
 /**
  * Gets the minimum contrast ratio required for the given options.
  */
 function getRequiredContrast(options: ReadabilityOptions = {}): number {
-  const { level = 'AA', isLargeText = false } = options
+  const { level = 'AA', isLargeText = false } = options;
 
   if (level === 'AAA') {
-    return isLargeText ? WCAG_THRESHOLDS.AAA_LARGE : WCAG_THRESHOLDS.AAA
+    return isLargeText ? WCAG_THRESHOLDS.AAA_LARGE : WCAG_THRESHOLDS.AAA;
   }
 
-  return isLargeText ? WCAG_THRESHOLDS.AA_LARGE : WCAG_THRESHOLDS.AA
+  return isLargeText ? WCAG_THRESHOLDS.AA_LARGE : WCAG_THRESHOLDS.AA;
 }
 
 /**
@@ -116,9 +116,9 @@ export function isReadable(
   background: LuminanceInput,
   options: ReadabilityOptions = {},
 ): boolean {
-  const ratio = contrast(foreground, background)
-  const required = getRequiredContrast(options)
-  return ratio >= required
+  const ratio = contrast(foreground, background);
+  const required = getRequiredContrast(options);
+  return ratio >= required;
 }
 
 /**
@@ -162,19 +162,19 @@ export function getReadabilityLevel(
   background: LuminanceInput,
   options: Pick<ReadabilityOptions, 'isLargeText'> = {},
 ): ReadabilityLevel {
-  const ratio = contrast(foreground, background)
-  const { isLargeText = false } = options
+  const ratio = contrast(foreground, background);
+  const { isLargeText = false } = options;
 
-  const aaaThreshold = isLargeText ? WCAG_THRESHOLDS.AAA_LARGE : WCAG_THRESHOLDS.AAA
-  const aaThreshold = isLargeText ? WCAG_THRESHOLDS.AA_LARGE : WCAG_THRESHOLDS.AA
+  const aaaThreshold = isLargeText ? WCAG_THRESHOLDS.AAA_LARGE : WCAG_THRESHOLDS.AAA;
+  const aaThreshold = isLargeText ? WCAG_THRESHOLDS.AA_LARGE : WCAG_THRESHOLDS.AA;
 
   if (ratio >= aaaThreshold) {
-    return 'AAA'
+    return 'AAA';
   }
 
   if (ratio >= aaThreshold) {
-    return 'AA'
+    return 'AA';
   }
 
-  return 'fail'
+  return 'fail';
 }

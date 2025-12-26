@@ -16,136 +16,136 @@
  * ```
  */
 
-import { ColorErrorCode, ColorParseError } from '../errors.js'
-import type { AnyColor } from '../types/ColorObject.js'
-import type { HSLA, OKLCH, RGBA } from '../types/color.js'
+import { ColorErrorCode, ColorParseError } from '../errors.js';
+import type { AnyColor } from '../types/ColorObject.js';
+import type { HSLA, OKLCH, RGBA } from '../types/color.js';
 
-import { toHex, toHex8 } from './hex.js'
-import { toHslaString, toHslModern, toHslString } from './hsl.js'
-import { toOklchString } from './oklch.js'
-import { toRgbaString, toRgbModern, toRgbString } from './rgb.js'
+import { toHex, toHex8 } from './hex.js';
+import { toHslaString, toHslModern, toHslString } from './hsl.js';
+import { toOklchString } from './oklch.js';
+import { toRgbaString, toRgbModern, toRgbString } from './rgb.js';
 
-export type CssFormat = 'hex' | 'hex8' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'oklch'
+export type CssFormat = 'hex' | 'hex8' | 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'oklch';
 
 export interface CssOptions {
-  format?: CssFormat
-  modern?: boolean
-  precision?: number
-  uppercase?: boolean
-  forceAlpha?: boolean
+  format?: CssFormat;
+  modern?: boolean;
+  precision?: number;
+  uppercase?: boolean;
+  forceAlpha?: boolean;
 }
 
-export type CssColorInput = RGBA | OKLCH | HSLA | AnyColor
+export type CssColorInput = RGBA | OKLCH | HSLA | AnyColor;
 
 function hasSpace(color: CssColorInput): color is AnyColor {
-  return 'space' in color
+  return 'space' in color;
 }
 
 function isRgbaLike(color: CssColorInput): color is RGBA {
-  return 'r' in color && 'g' in color && 'b' in color && 'a' in color
+  return 'r' in color && 'g' in color && 'b' in color && 'a' in color;
 }
 
 function isHslaLike(color: CssColorInput): color is HSLA {
-  return 'h' in color && 's' in color && 'l' in color && 'a' in color
+  return 'h' in color && 's' in color && 'l' in color && 'a' in color;
 }
 
 function isOklchLike(color: CssColorInput): color is OKLCH {
-  return 'l' in color && 'c' in color && 'h' in color && 'a' in color
+  return 'l' in color && 'c' in color && 'h' in color && 'a' in color;
 }
 
 function getDefaultFormat(color: CssColorInput): CssFormat {
   if (hasSpace(color)) {
     switch (color.space) {
       case 'rgb':
-        return 'hex'
+        return 'hex';
       case 'hsl':
-        return 'hsl'
+        return 'hsl';
       case 'oklch':
-        return 'oklch'
+        return 'oklch';
     }
   }
 
   if (isRgbaLike(color) && !('l' in color)) {
-    return 'hex'
+    return 'hex';
   }
   if (isOklchLike(color) && 'c' in color) {
-    return 'oklch'
+    return 'oklch';
   }
   if (isHslaLike(color) && 's' in color && !('c' in color)) {
-    return 'hsl'
+    return 'hsl';
   }
 
-  return 'hex'
+  return 'hex';
 }
 
 function normalizeToAnyColor(color: CssColorInput): AnyColor {
   if (hasSpace(color)) {
-    return color
+    return color;
   }
 
   if (isRgbaLike(color) && !('l' in color) && !('s' in color)) {
-    return { space: 'rgb', r: color.r, g: color.g, b: color.b, a: color.a }
+    return { space: 'rgb', r: color.r, g: color.g, b: color.b, a: color.a };
   }
   if (isOklchLike(color) && 'c' in color) {
-    return { space: 'oklch', l: color.l, c: color.c, h: color.h, a: color.a }
+    return { space: 'oklch', l: color.l, c: color.c, h: color.h, a: color.a };
   }
   if (isHslaLike(color) && 's' in color && !('c' in color)) {
-    return { space: 'hsl', h: color.h, s: color.s, l: color.l, a: color.a }
+    return { space: 'hsl', h: color.h, s: color.s, l: color.l, a: color.a };
   }
 
-  const rgba = color as RGBA
-  return { space: 'rgb', r: rgba.r, g: rgba.g, b: rgba.b, a: rgba.a }
+  const rgba = color as RGBA;
+  return { space: 'rgb', r: rgba.r, g: rgba.g, b: rgba.b, a: rgba.a };
 }
 
 export function toCss(color: CssColorInput, options: CssOptions = {}): string {
-  const format = options.format ?? getDefaultFormat(color)
-  const anyColor = normalizeToAnyColor(color)
+  const format = options.format ?? getDefaultFormat(color);
+  const anyColor = normalizeToAnyColor(color);
 
   switch (format) {
     case 'hex':
-      return toHex(anyColor, options.uppercase ? { uppercase: true } : undefined)
+      return toHex(anyColor, options.uppercase ? { uppercase: true } : undefined);
 
     case 'hex8':
-      return toHex8(anyColor, options.uppercase ? { uppercase: true } : undefined)
+      return toHex8(anyColor, options.uppercase ? { uppercase: true } : undefined);
 
     case 'rgb':
       if (options.modern) {
-        return toRgbModern(anyColor)
+        return toRgbModern(anyColor);
       }
-      return toRgbString(anyColor)
+      return toRgbString(anyColor);
 
     case 'rgba':
       if (options.modern) {
-        return toRgbModern(anyColor)
+        return toRgbModern(anyColor);
       }
-      return toRgbaString(anyColor)
+      return toRgbaString(anyColor);
 
     case 'hsl':
       if (options.modern) {
-        return toHslModern(anyColor)
+        return toHslModern(anyColor);
       }
-      return toHslString(anyColor)
+      return toHslString(anyColor);
 
     case 'hsla':
       if (options.modern) {
-        return toHslModern(anyColor)
+        return toHslModern(anyColor);
       }
-      return toHslaString(anyColor)
+      return toHslaString(anyColor);
 
     case 'oklch': {
-      const oklchOptions: { precision?: number; forceAlpha?: boolean } = {}
+      const oklchOptions: { precision?: number; forceAlpha?: boolean } = {};
       if (options.precision !== undefined) {
-        oklchOptions.precision = options.precision
+        oklchOptions.precision = options.precision;
       }
       if (options.forceAlpha !== undefined) {
-        oklchOptions.forceAlpha = options.forceAlpha
+        oklchOptions.forceAlpha = options.forceAlpha;
       }
-      return toOklchString(anyColor, oklchOptions)
+      return toOklchString(anyColor, oklchOptions);
     }
 
     default: {
-      const _exhaustive: never = format
-      throw new ColorParseError(ColorErrorCode.INVALID_FORMAT, `Unknown format: ${_exhaustive}`)
+      const _exhaustive: never = format;
+      throw new ColorParseError(ColorErrorCode.INVALID_FORMAT, `Unknown format: ${_exhaustive}`);
     }
   }
 }

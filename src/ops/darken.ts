@@ -1,7 +1,7 @@
-import { lighten } from './lighten.js'
-import type { ColorInput } from './utils.js'
+import { lighten } from './lighten.js';
+import type { ColorInput } from './utils.js';
 
-export type { ColorInput }
+export type { ColorInput };
 
 /**
  * Decreases the lightness of a color using OKLCH space for perceptual accuracy.
@@ -11,5 +11,5 @@ export type { ColorInput }
  * @returns Color in the same format as input
  */
 export function darken<T extends ColorInput>(color: T, amount: number): T {
-  return lighten(color, -amount)
+  return lighten(color, -amount);
 }

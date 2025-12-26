@@ -3,19 +3,19 @@
  * Type guards for color string and object validation.
  */
 
-import { tryParseHex } from '../parse/hex.js'
-import { tryParseHsl } from '../parse/hsl.js'
-import { tryParseColor } from '../parse/index.js'
-import { tryParseOklch } from '../parse/oklch.js'
-import { tryParseRgb } from '../parse/rgb.js'
-import type { AnyColor } from '../types/ColorObject.js'
+import { tryParseHex } from '../parse/hex.js';
+import { tryParseHsl } from '../parse/hsl.js';
+import { tryParseColor } from '../parse/index.js';
+import { tryParseOklch } from '../parse/oklch.js';
+import { tryParseRgb } from '../parse/rgb.js';
+import type { AnyColor } from '../types/ColorObject.js';
 
 /**
  * Checks if a string is a valid hex color (#RGB, #RGBA, #RRGGBB, or #RRGGBBAA).
  * @param str - String to validate
  */
 export function isHex(str: string): boolean {
-  return tryParseHex(str).ok
+  return tryParseHex(str).ok;
 }
 
 /**
@@ -23,7 +23,7 @@ export function isHex(str: string): boolean {
  * @param str - String to validate
  */
 export function isRgb(str: string): boolean {
-  return tryParseRgb(str).ok
+  return tryParseRgb(str).ok;
 }
 
 /**
@@ -31,7 +31,7 @@ export function isRgb(str: string): boolean {
  * @param str - String to validate
  */
 export function isHsl(str: string): boolean {
-  return tryParseHsl(str).ok
+  return tryParseHsl(str).ok;
 }
 
 /**
@@ -39,7 +39,7 @@ export function isHsl(str: string): boolean {
  * @param str - String to validate
  */
 export function isOklch(str: string): boolean {
-  return tryParseOklch(str).ok
+  return tryParseOklch(str).ok;
 }
 
 /**
@@ -48,13 +48,13 @@ export function isOklch(str: string): boolean {
  */
 export function isColor(value: unknown): value is AnyColor {
   if (typeof value !== 'object' || value === null) {
-    return false
+    return false;
   }
 
-  const obj = value as Record<string, unknown>
+  const obj = value as Record<string, unknown>;
 
   if (typeof obj.space !== 'string') {
-    return false
+    return false;
   }
 
   switch (obj.space) {
@@ -64,7 +64,7 @@ export function isColor(value: unknown): value is AnyColor {
         typeof obj.g === 'number' &&
         typeof obj.b === 'number' &&
         typeof obj.a === 'number'
-      )
+      );
 
     case 'hsl':
       return (
@@ -72,7 +72,7 @@ export function isColor(value: unknown): value is AnyColor {
         typeof obj.s === 'number' &&
         typeof obj.l === 'number' &&
         typeof obj.a === 'number'
-      )
+      );
 
     case 'oklch':
       return (
@@ -80,10 +80,10 @@ export function isColor(value: unknown): value is AnyColor {
         typeof obj.c === 'number' &&
         typeof obj.h === 'number' &&
         typeof obj.a === 'number'
-      )
+      );
 
     default:
-      return false
+      return false;
   }
 }
 
@@ -92,5 +92,5 @@ export function isColor(value: unknown): value is AnyColor {
  * @param str - String to validate
  */
 export function isColorString(str: string): boolean {
-  return tryParseColor(str).ok
+  return tryParseColor(str).ok;
 }

@@ -14,15 +14,15 @@ type UppercaseHexDigit =
   | 'C'
   | 'D'
   | 'E'
-  | 'F'
+  | 'F';
 
-type LowercaseHexDigit = Lowercase<UppercaseHexDigit>
+type LowercaseHexDigit = Lowercase<UppercaseHexDigit>;
 
 /** Valid hex digits: 0-9, A-F, a-f (22 possible characters) */
-export type HexDigit = UppercaseHexDigit | LowercaseHexDigit
+export type HexDigit = UppercaseHexDigit | LowercaseHexDigit;
 
 /** Validates a single hex digit character. Returns `T` if valid, `never` otherwise. */
-export type HexChar<T extends string> = T extends HexDigit ? T : never
+export type HexChar<T extends string> = T extends HexDigit ? T : never;
 
 /** Validates #RGB format (3 hex digits). Returns `T` if valid, `never` otherwise. */
 export type ValidHex3<T extends string> =
@@ -32,7 +32,7 @@ export type ValidHex3<T extends string> =
         ? T
         : never
       : never
-    : never
+    : never;
 
 /** Validates #RGBA format (4 hex digits). Returns `T` if valid, `never` otherwise. */
 export type ValidHex4<T extends string> =
@@ -42,7 +42,7 @@ export type ValidHex4<T extends string> =
         ? T
         : never
       : never
-    : never
+    : never;
 
 /** Validates #RRGGBB format (6 hex digits). Returns `T` if valid, `never` otherwise. */
 export type ValidHex6<T extends string> =
@@ -59,7 +59,7 @@ export type ValidHex6<T extends string> =
         ? T
         : never
       : never
-    : never
+    : never;
 
 /** Validates #RRGGBBAA format (8 hex digits). Returns `T` if valid, `never` otherwise. */
 export type ValidHex8<T extends string> =
@@ -78,17 +78,17 @@ export type ValidHex8<T extends string> =
         ? T
         : never
       : never
-    : never
+    : never;
 
 /** Error hint for invalid hex color (shown in IDE hover) */
 export type InvalidHexError = never & {
-  readonly _hint: 'Expected #RGB or #RRGGBB format'
-}
+  readonly _hint: 'Expected #RGB or #RRGGBB format';
+};
 
 /** Error hint for invalid hex color with opacity */
 export type InvalidHexWithOpacityError = never & {
-  readonly _hint: 'Expected #RGBA or #RRGGBBAA format'
-}
+  readonly _hint: 'Expected #RGBA or #RRGGBBAA format';
+};
 
 /**
  * Validates hex color WITHOUT alpha (#RGB or #RRGGBB).
@@ -104,7 +104,7 @@ export type HexString<T extends string> = [ValidHex3<T>] extends [never]
   ? [ValidHex6<T>] extends [never]
     ? never
     : ValidHex6<T>
-  : ValidHex3<T>
+  : ValidHex3<T>;
 
 /**
  * Validates hex color WITH alpha (#RGBA or #RRGGBBAA).
@@ -118,9 +118,9 @@ export type HexStringWithOpacity<T extends string> = [ValidHex4<T>] extends [nev
   ? [ValidHex8<T>] extends [never]
     ? never
     : ValidHex8<T>
-  : ValidHex4<T>
+  : ValidHex4<T>;
 
 /** Validates any hex format (#RGB, #RGBA, #RRGGBB, or #RRGGBBAA). */
 export type AnyHexString<T extends string> = [HexString<T>] extends [never]
   ? HexStringWithOpacity<T>
-  : HexString<T>
+  : HexString<T>;

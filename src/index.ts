@@ -4,7 +4,7 @@ export type {
   LuminanceInput,
   ReadabilityLevel,
   ReadabilityOptions,
-} from './a11y/index.js'
+} from './a11y/index.js';
 // Accessibility
 export {
   APCA_THRESHOLDS,
@@ -15,7 +15,7 @@ export {
   isReadable,
   luminance,
   WCAG_THRESHOLDS,
-} from './a11y/index.js'
+} from './a11y/index.js';
 // Type Guards & Assertions
 export {
   assertColor,
@@ -30,13 +30,13 @@ export {
   isHsl,
   isOklch,
   isRgb,
-} from './assert/index.js'
-export type { ColorInputValue, MixOptions } from './Color.js'
-export { Color, color, tryColor } from './Color.js'
-export type { Config, HexConfig } from './Config.js'
+} from './assert/index.js';
+export type { ColorInputValue, MixOptions } from './Color.js';
+export { Color, color, tryColor } from './Color.js';
+export type { Config, HexConfig } from './Config.js';
 // Config (legacy)
-export { defaultConfig } from './Config.js'
-export type { GamutMapOptions, LinearP3, LinearRGB, XYZ } from './convert/index.js'
+export { defaultConfig } from './Config.js';
+export type { GamutMapOptions, LinearP3, LinearRGB, XYZ } from './convert/index.js';
 // Conversion
 export {
   clampToGamut,
@@ -62,9 +62,9 @@ export {
   xyzToLinearP3,
   xyzToLinearRgb,
   xyzToOklab,
-} from './convert/index.js'
+} from './convert/index.js';
 // Errors
-export { ColorErrorCode, ColorOutOfGamutError, ColorParseError } from './errors.js'
+export { ColorErrorCode, ColorOutOfGamutError, ColorParseError } from './errors.js';
 export type {
   CssColorInput,
   CssFormat,
@@ -74,7 +74,7 @@ export type {
   OklchFormatOptions,
   P3FormatOptions,
   RgbFormattableColor,
-} from './format/index.js'
+} from './format/index.js';
 // Formatting
 export {
   toCss,
@@ -89,8 +89,8 @@ export {
   toRgbaString,
   toRgbModern,
   toRgbString,
-} from './format/index.js'
-export type { ColorInput as OpsColorInput, MixSpace } from './ops/index.js'
+} from './format/index.js';
+export type { ColorInput as OpsColorInput, MixSpace } from './ops/index.js';
 // Operations
 export {
   alpha,
@@ -107,8 +107,8 @@ export {
   rotate,
   saturate,
   transparentize,
-} from './ops/index.js'
-export type { ColorFormat } from './parse/index.js'
+} from './ops/index.js';
+export type { ColorFormat } from './parse/index.js';
 // Parsing
 export {
   detectFormat,
@@ -142,7 +142,7 @@ export {
   tryParseOklch,
   tryParseP3,
   tryParseRgb,
-} from './parse/index.js'
+} from './parse/index.js';
 // Types
 export type {
   AnyColor,
@@ -184,7 +184,7 @@ export type {
   RgbColorInput,
   RgbObject,
   RgbString,
-} from './types/index.js'
-export type { Err, Ok, Result } from './types/Result.js'
+} from './types/index.js';
+export type { Err, Ok, Result } from './types/Result.js';
 // Result type
-export { err, isErr, isOk, ok } from './types/Result.js'
+export { err, isErr, isOk, ok } from './types/Result.js';

@@ -12,13 +12,13 @@ import type { ColorSpace, RGBA, OKLCH, HSLA, P3 } from './color.js';
  * @example
  * ```ts
  * // RGB color with discriminant
- * const rgbColor: Color<'rgb'> = { space: 'rgb', r: 255, g: 128, b: 0, a: 1 };
+ * const rgbColor: ColorOf<'rgb'> = { space: 'rgb', r: 255, g: 128, b: 0, a: 1 };
  *
  * // OKLCH color with discriminant
- * const oklchColor: Color<'oklch'> = { space: 'oklch', l: 0.7, c: 0.15, h: 45, a: 1 };
+ * const oklchColor: ColorOf<'oklch'> = { space: 'oklch', l: 0.7, c: 0.15, h: 45, a: 1 };
  *
  * // HSL color with discriminant
- * const hslColor: Color<'hsl'> = { space: 'hsl', h: 180, s: 0.5, l: 0.6, a: 1 };
+ * const hslColor: ColorOf<'hsl'> = { space: 'hsl', h: 180, s: 0.5, l: 0.6, a: 1 };
  *
  * // Type narrowing with discriminant
  * function processColor(color: AnyColor) {
@@ -36,7 +36,7 @@ import type { ColorSpace, RGBA, OKLCH, HSLA, P3 } from './color.js';
  * }
  * ```
  */
-export type Color<S extends ColorSpace> = S extends 'rgb'
+export type ColorOf<S extends ColorSpace> = S extends 'rgb'
   ? { space: 'rgb' } & RGBA
   : S extends 'oklch'
     ? { space: 'oklch' } & OKLCH
@@ -58,7 +58,7 @@ export type Color<S extends ColorSpace> = S extends 'rgb'
  * const semiTransparentBlue: RgbColor = { space: 'rgb', r: 0, g: 0, b: 255, a: 0.5 };
  * ```
  */
-export type RgbColor = Color<'rgb'>;
+export type RgbColor = ColorOf<'rgb'>;
 
 /**
  * OKLCH color object with space discriminant.
@@ -73,7 +73,7 @@ export type RgbColor = Color<'rgb'>;
  * const mutedGreen: OklchColor = { space: 'oklch', l: 0.7, c: 0.1, h: 140, a: 0.8 };
  * ```
  */
-export type OklchColor = Color<'oklch'>;
+export type OklchColor = ColorOf<'oklch'>;
 
 /**
  * HSL color object with space discriminant.
@@ -87,7 +87,7 @@ export type OklchColor = Color<'oklch'>;
  * const paleBlue: HslColor = { space: 'hsl', h: 210, s: 0.5, l: 0.8, a: 1 };
  * ```
  */
-export type HslColor = Color<'hsl'>;
+export type HslColor = ColorOf<'hsl'>;
 
 /**
  * Display P3 color object with space discriminant.
@@ -100,7 +100,7 @@ export type HslColor = Color<'hsl'>;
  * const vibrantRed: P3Color = { space: 'p3', r: 1, g: 0.2, b: 0.1, a: 1 };
  * ```
  */
-export type P3Color = Color<'p3'>;
+export type P3Color = ColorOf<'p3'>;
 
 /**
  * Union of all color types across all supported color spaces.

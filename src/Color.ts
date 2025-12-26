@@ -403,5 +403,5 @@ function toOklchFromInput(input: RGBA | OKLCH | HSLA | AnyColor): OKLCH {
     return rgbToOklch({ r: rgb.r, g: rgb.g, b: rgb.b, a: rgb.a });
   }
 
-  throw new Error('Invalid color input');
+  throw new ColorParseError(ColorErrorCode.INVALID_FORMAT, 'Invalid color input');
 }

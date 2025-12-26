@@ -1,7 +1,7 @@
 import { describe, it } from 'vitest';
 import { expectTypeOf } from 'expect-type';
 import type {
-  Color,
+  ColorOf,
   RgbColor,
   OklchColor,
   HslColor,
@@ -17,37 +17,37 @@ import type {
 } from '../ColorInput.js';
 import type { RGBA, OKLCH, HSLA, P3 } from '../color.js';
 
-describe('Color discriminated union types', () => {
-  it('Color<rgb> produces correct type with space: rgb', () => {
-    expectTypeOf<Color<'rgb'>>().toMatchTypeOf<{ space: 'rgb' }>();
-    expectTypeOf<Color<'rgb'>>().toMatchTypeOf<RGBA>();
-    expectTypeOf<Color<'rgb'>>().toEqualTypeOf<{ space: 'rgb' } & RGBA>();
+describe('ColorOf discriminated union types', () => {
+  it('ColorOf<rgb> produces correct type with space: rgb', () => {
+    expectTypeOf<ColorOf<'rgb'>>().toMatchTypeOf<{ space: 'rgb' }>();
+    expectTypeOf<ColorOf<'rgb'>>().toMatchTypeOf<RGBA>();
+    expectTypeOf<ColorOf<'rgb'>>().toEqualTypeOf<{ space: 'rgb' } & RGBA>();
   });
 
-  it('Color<oklch> produces correct type with space: oklch', () => {
-    expectTypeOf<Color<'oklch'>>().toMatchTypeOf<{ space: 'oklch' }>();
-    expectTypeOf<Color<'oklch'>>().toMatchTypeOf<OKLCH>();
-    expectTypeOf<Color<'oklch'>>().toEqualTypeOf<{ space: 'oklch' } & OKLCH>();
+  it('ColorOf<oklch> produces correct type with space: oklch', () => {
+    expectTypeOf<ColorOf<'oklch'>>().toMatchTypeOf<{ space: 'oklch' }>();
+    expectTypeOf<ColorOf<'oklch'>>().toMatchTypeOf<OKLCH>();
+    expectTypeOf<ColorOf<'oklch'>>().toEqualTypeOf<{ space: 'oklch' } & OKLCH>();
   });
 
-  it('Color<hsl> produces correct type with space: hsl', () => {
-    expectTypeOf<Color<'hsl'>>().toMatchTypeOf<{ space: 'hsl' }>();
-    expectTypeOf<Color<'hsl'>>().toMatchTypeOf<HSLA>();
-    expectTypeOf<Color<'hsl'>>().toEqualTypeOf<{ space: 'hsl' } & HSLA>();
+  it('ColorOf<hsl> produces correct type with space: hsl', () => {
+    expectTypeOf<ColorOf<'hsl'>>().toMatchTypeOf<{ space: 'hsl' }>();
+    expectTypeOf<ColorOf<'hsl'>>().toMatchTypeOf<HSLA>();
+    expectTypeOf<ColorOf<'hsl'>>().toEqualTypeOf<{ space: 'hsl' } & HSLA>();
   });
 
-  it('RgbColor alias equals Color<rgb>', () => {
-    expectTypeOf<RgbColor>().toEqualTypeOf<Color<'rgb'>>();
+  it('RgbColor alias equals ColorOf<rgb>', () => {
+    expectTypeOf<RgbColor>().toEqualTypeOf<ColorOf<'rgb'>>();
     expectTypeOf<RgbColor>().toMatchTypeOf<{ space: 'rgb'; r: number; g: number; b: number; a: number }>();
   });
 
-  it('OklchColor alias equals Color<oklch>', () => {
-    expectTypeOf<OklchColor>().toEqualTypeOf<Color<'oklch'>>();
+  it('OklchColor alias equals ColorOf<oklch>', () => {
+    expectTypeOf<OklchColor>().toEqualTypeOf<ColorOf<'oklch'>>();
     expectTypeOf<OklchColor>().toMatchTypeOf<{ space: 'oklch'; l: number; c: number; h: number; a: number }>();
   });
 
-  it('HslColor alias equals Color<hsl>', () => {
-    expectTypeOf<HslColor>().toEqualTypeOf<Color<'hsl'>>();
+  it('HslColor alias equals ColorOf<hsl>', () => {
+    expectTypeOf<HslColor>().toEqualTypeOf<ColorOf<'hsl'>>();
     expectTypeOf<HslColor>().toMatchTypeOf<{ space: 'hsl'; h: number; s: number; l: number; a: number }>();
   });
 
@@ -64,9 +64,9 @@ describe('Color discriminated union types', () => {
     expectTypeOf<AnyColor>().toMatchTypeOf<AlphaOnly>();
   });
 
-  it('Color with invalid space returns never', () => {
+  it('ColorOf with invalid space returns never', () => {
     // @ts-expect-error - 'invalid' is not a valid ColorSpace
-    type InvalidColor = Color<'invalid'>;
+    type InvalidColor = ColorOf<'invalid'>;
     expectTypeOf<InvalidColor>().toEqualTypeOf<never>();
   });
 

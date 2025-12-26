@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="roller skate emoji" src="./.github/assets/hero.png" />
+  <img alt="roller skate emoji" src="https://raw.githubusercontent.com/junhoyeo/use-color/v2-rewrite/.github/assets/hero.png" />
   <h1 align="center">use-color</h1>
 </p>
 
@@ -379,7 +379,7 @@ Key differences:
 | Function | Description |
 |----------|-------------|
 | `color(input)` | Create Color instance (throws on invalid) |
-| `tryColor(input)` | Safe parsing, returns `Result<Color, Error>` |
+| `tryColor(input)` | Safe parsing, returns `Result<Color, ColorParseError>` |
 
 ### Color Methods
 

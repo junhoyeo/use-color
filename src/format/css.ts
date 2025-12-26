@@ -18,6 +18,7 @@
 
 import type { RGBA, OKLCH, HSLA } from '../types/color.js';
 import type { AnyColor } from '../types/ColorObject.js';
+import { ColorParseError, ColorErrorCode } from '../errors.js';
 
 import { toHex, toHex8 } from './hex.js';
 import { toRgbString, toRgbaString, toRgbModern } from './rgb.js';
@@ -144,7 +145,7 @@ export function toCss(color: CssColorInput, options: CssOptions = {}): string {
 
     default: {
       const _exhaustive: never = format;
-      throw new Error(`Unknown format: ${_exhaustive}`);
+      throw new ColorParseError(ColorErrorCode.INVALID_FORMAT, `Unknown format: ${_exhaustive}`);
     }
   }
 }

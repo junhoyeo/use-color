@@ -4,6 +4,7 @@ import { rgbToOklch, oklchToRgb } from '../convert/rgb-oklch.js';
 import { rgbToHsl, hslToRgb } from '../convert/hsl.js';
 import { rgbToP3, p3ToRgb } from '../convert/p3.js';
 import { clampToGamut } from '../convert/gamut.js';
+import { ColorParseError, ColorErrorCode } from '../errors.js';
 
 export type ColorInput = RGBA | OKLCH | HSLA | P3 | AnyColor;
 
@@ -55,7 +56,7 @@ export function toOklch(color: ColorInput): OKLCH {
     const rgb = hslToRgb(color as HSLA);
     return rgbToOklch(rgb);
   }
-  throw new Error('Invalid color input');
+  throw new ColorParseError(ColorErrorCode.INVALID_FORMAT, 'Invalid color input');
 }
 
 export function toRgba(color: ColorInput): RGBA {
@@ -81,7 +82,7 @@ export function toRgba(color: ColorInput): RGBA {
   if ('h' in color && 's' in color && 'l' in color) {
     return hslToRgb(color as HSLA);
   }
-  throw new Error('Invalid color input');
+  throw new ColorParseError(ColorErrorCode.INVALID_FORMAT, 'Invalid color input');
 }
 
 export function fromOklch(

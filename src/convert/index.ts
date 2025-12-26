@@ -147,6 +147,7 @@ export function convert<T extends ColorSpace>(
       return { space: 'p3', ...p3 } as ConvertResult<T>;
     }
     default: {
+      // Internal invariant - should never reach here
       const _exhaustive: never = toSpace;
       throw new Error(`Unknown color space: ${_exhaustive}`);
     }

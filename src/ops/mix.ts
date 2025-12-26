@@ -3,6 +3,7 @@ import type { AnyColor, OklchColor, RgbColor } from '../types/ColorObject.js';
 import type { ColorInput } from './utils.js';
 import { hasSpace, detectColorType, toOklch, toRgba, fromOklch, fromRgba } from './utils.js';
 import { clampToGamut } from '../convert/gamut.js';
+import { ColorParseError, ColorErrorCode } from '../errors.js';
 
 export type { ColorInput };
 
@@ -70,7 +71,7 @@ export function mixColors(
   space: MixSpace = 'oklch'
 ): AnyColor {
   if (colors.length === 0) {
-    throw new Error('mixColors requires at least one color');
+    throw new ColorParseError(ColorErrorCode.INVALID_FORMAT, 'mixColors requires at least one color');
   }
   if (colors.length === 1) {
     const color = colors[0]!;

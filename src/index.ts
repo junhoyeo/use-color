@@ -157,7 +157,7 @@ export type {
   HSLA,
   P3,
   Oklab,
-  Color as ColorType,
+  ColorOf,
   RgbColor,
   OklchColor,
   HslColor,

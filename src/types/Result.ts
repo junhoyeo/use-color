@@ -28,10 +28,10 @@
  */
 export type Ok<T> = {
   /** Discriminant indicating success */
-  readonly ok: true;
+  readonly ok: true
   /** The success value */
-  readonly value: T;
-};
+  readonly value: T
+}
 
 /**
  * Represents a failed result containing an error.
@@ -46,10 +46,10 @@ export type Ok<T> = {
  */
 export type Err<E> = {
   /** Discriminant indicating failure */
-  readonly ok: false;
+  readonly ok: false
   /** The error value */
-  readonly error: E;
-};
+  readonly error: E
+}
 
 /**
  * A discriminated union representing either success or failure.
@@ -77,7 +77,7 @@ export type Err<E> = {
  * }
  * ```
  */
-export type Result<T, E = Error> = Ok<T> | Err<E>;
+export type Result<T, E = Error> = Ok<T> | Err<E>
 
 /**
  * Creates a successful Result containing the given value.
@@ -97,7 +97,7 @@ export type Result<T, E = Error> = Ok<T> | Err<E>;
  * ```
  */
 export function ok<T>(value: T): Ok<T> {
-  return { ok: true, value };
+  return { ok: true, value }
 }
 
 /**
@@ -118,7 +118,7 @@ export function ok<T>(value: T): Ok<T> {
  * ```
  */
 export function err<E>(error: E): Err<E> {
-  return { ok: false, error };
+  return { ok: false, error }
 }
 
 /**
@@ -142,7 +142,7 @@ export function err<E>(error: E): Err<E> {
  * ```
  */
 export function isOk<T, E>(result: Result<T, E>): result is Ok<T> {
-  return result.ok;
+  return result.ok
 }
 
 /**
@@ -166,5 +166,5 @@ export function isOk<T, E>(result: Result<T, E>): result is Ok<T> {
  * ```
  */
 export function isErr<T, E>(result: Result<T, E>): result is Err<E> {
-  return !result.ok;
+  return !result.ok
 }

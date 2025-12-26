@@ -18,9 +18,9 @@
  * ```
  */
 
-import { ColorErrorCode, ColorParseError } from '../errors.js';
-import type { RGBA } from '../types/color.js';
-import { err, ok, type Result } from '../types/Result.js';
+import { ColorErrorCode, ColorParseError } from '../errors.js'
+import type { RGBA } from '../types/color.js'
+import { err, ok, type Result } from '../types/Result.js'
 
 /**
  * CSS4 named colors map.
@@ -184,7 +184,7 @@ export const NAMED_COLORS: Readonly<Record<string, readonly [number, number, num
   wheat: [245, 222, 179, 1],
   whitesmoke: [245, 245, 245, 1],
   yellowgreen: [154, 205, 50, 1],
-} as const;
+} as const
 
 /**
  * Parses a CSS named color string to RGBA values.
@@ -206,11 +206,11 @@ export const NAMED_COLORS: Readonly<Record<string, readonly [number, number, num
  * ```
  */
 export function parseNamed(str: string): RGBA {
-  const result = tryParseNamed(str);
+  const result = tryParseNamed(str)
   if (!result.ok) {
-    throw result.error;
+    throw result.error
   }
-  return result.value;
+  return result.value
 }
 
 /**
@@ -237,14 +237,14 @@ export function tryParseNamed(str: string): Result<RGBA, ColorParseError> {
   if (!str || str.trim() === '') {
     return err(
       new ColorParseError(ColorErrorCode.INVALID_NAMED, `Invalid named color: empty string`),
-    );
+    )
   }
 
-  const normalizedName = str.toLowerCase().trim();
-  const color = NAMED_COLORS[normalizedName];
+  const normalizedName = str.toLowerCase().trim()
+  const color = NAMED_COLORS[normalizedName]
 
   if (!color) {
-    return err(new ColorParseError(ColorErrorCode.INVALID_NAMED, `Unknown named color: '${str}'`));
+    return err(new ColorParseError(ColorErrorCode.INVALID_NAMED, `Unknown named color: '${str}'`))
   }
 
   return ok({
@@ -252,7 +252,7 @@ export function tryParseNamed(str: string): Result<RGBA, ColorParseError> {
     g: color[1],
     b: color[2],
     a: color[3],
-  });
+  })
 }
 
 /**
@@ -270,7 +270,7 @@ export function tryParseNamed(str: string): Result<RGBA, ColorParseError> {
  */
 export function isNamedColor(str: string): boolean {
   if (!str || str.trim() === '') {
-    return false;
+    return false
   }
-  return str.toLowerCase().trim() in NAMED_COLORS;
+  return str.toLowerCase().trim() in NAMED_COLORS
 }

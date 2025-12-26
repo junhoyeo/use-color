@@ -5,7 +5,7 @@ export {
   assertHsl,
   assertOklch,
   assertRgb,
-} from './assert.js';
+} from './assert.js'
 export {
   isColor,
   isColorString,
@@ -13,4 +13,4 @@ export {
   isHsl,
   isOklch,
   isRgb,
-} from './guards.js';
+} from './guards.js'

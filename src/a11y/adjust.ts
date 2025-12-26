@@ -20,13 +20,13 @@
  * ```
  */
 
-import { convert } from '../convert/index.js';
-import { oklchToRgb, rgbToOklch } from '../convert/rgb-oklch.js';
-import type { AnyColor, RgbColor } from '../types/ColorObject.js';
-import type { RGBA } from '../types/color.js';
-import { contrast } from './contrast.js';
-import type { LuminanceInput } from './luminance.js';
-import { luminance } from './luminance.js';
+import { convert } from '../convert/index.js'
+import { oklchToRgb, rgbToOklch } from '../convert/rgb-oklch.js'
+import type { AnyColor, RgbColor } from '../types/ColorObject.js'
+import type { RGBA } from '../types/color.js'
+import { contrast } from './contrast.js'
+import type { LuminanceInput } from './luminance.js'
+import { luminance } from './luminance.js'
 
 /**
  * Options for contrast adjustment.
@@ -38,28 +38,28 @@ export interface EnsureContrastOptions {
    * the target contrast with less change.
    * @default undefined (auto-detect)
    */
-  preferLighten?: boolean;
+  preferLighten?: boolean
 
   /**
    * Maximum number of binary search iterations.
    * Higher values give more precision but take longer.
    * @default 15
    */
-  maxIterations?: number;
+  maxIterations?: number
 
   /**
    * Tolerance for the contrast ratio.
    * Stops when within this tolerance of the target.
    * @default 0.01
    */
-  tolerance?: number;
+  tolerance?: number
 }
 
 /**
  * Check if a color has the 'space' property (is an AnyColor).
  */
 function hasSpaceProperty(color: LuminanceInput): color is AnyColor {
-  return 'space' in color;
+  return 'space' in color
 }
 
 /**
@@ -68,12 +68,12 @@ function hasSpaceProperty(color: LuminanceInput): color is AnyColor {
 function toRgba(color: LuminanceInput): RGBA {
   if (hasSpaceProperty(color)) {
     if (color.space === 'rgb') {
-      return { r: color.r, g: color.g, b: color.b, a: color.a };
+      return { r: color.r, g: color.g, b: color.b, a: color.a }
     }
-    const rgb = convert(color, 'rgb');
-    return { r: rgb.r, g: rgb.g, b: rgb.b, a: rgb.a };
+    const rgb = convert(color, 'rgb')
+    return { r: rgb.r, g: rgb.g, b: rgb.b, a: rgb.a }
   }
-  return color;
+  return color
 }
 
 /**
@@ -96,50 +96,50 @@ function adjustLightness(
   maxIterations: number,
   tolerance: number,
 ): RGBA {
-  let low = lighten ? fgOklch.l : 0;
-  let high = lighten ? 1 : fgOklch.l;
-  let bestRgba: RGBA = oklchToRgb(fgOklch);
-  let bestRatio = contrast(bestRgba, bgRgba);
-  let bestDiff = Math.abs(bestRatio - targetRatio);
+  let low = lighten ? fgOklch.l : 0
+  let high = lighten ? 1 : fgOklch.l
+  let bestRgba: RGBA = oklchToRgb(fgOklch)
+  let bestRatio = contrast(bestRgba, bgRgba)
+  let bestDiff = Math.abs(bestRatio - targetRatio)
 
   for (let i = 0; i < maxIterations; i++) {
-    const mid = (low + high) / 2;
-    const testOklch = { l: mid, c: fgOklch.c, h: fgOklch.h, a: fgOklch.a };
-    const testRgba = oklchToRgb(testOklch);
-    const testRatio = contrast(testRgba, bgRgba);
-    const diff = Math.abs(testRatio - targetRatio);
+    const mid = (low + high) / 2
+    const testOklch = { l: mid, c: fgOklch.c, h: fgOklch.h, a: fgOklch.a }
+    const testRgba = oklchToRgb(testOklch)
+    const testRatio = contrast(testRgba, bgRgba)
+    const diff = Math.abs(testRatio - targetRatio)
 
     // Update best if this is closer to target and meets minimum
     if (testRatio >= targetRatio && diff < bestDiff) {
-      bestRgba = testRgba;
-      bestRatio = testRatio;
-      bestDiff = diff;
+      bestRgba = testRgba
+      bestRatio = testRatio
+      bestDiff = diff
     }
 
     // Early termination if within tolerance
     if (diff < tolerance && testRatio >= targetRatio) {
-      return testRgba;
+      return testRgba
     }
 
     // Binary search: adjust bounds based on whether we need more or less contrast
     if (lighten) {
       // Lightening increases contrast with dark bg, decreases with light bg
       if (testRatio < targetRatio) {
-        low = mid; // Need more lightening
+        low = mid // Need more lightening
       } else {
-        high = mid; // Can reduce lightening
+        high = mid // Can reduce lightening
       }
     } else {
       // Darkening increases contrast with light bg, decreases with dark bg
       if (testRatio < targetRatio) {
-        high = mid; // Need more darkening
+        high = mid // Need more darkening
       } else {
-        low = mid; // Can reduce darkening
+        low = mid // Can reduce darkening
       }
     }
   }
 
-  return bestRgba;
+  return bestRgba
 }
 
 /**
@@ -180,37 +180,37 @@ export function ensureContrast(
   minRatio: number,
   options: EnsureContrastOptions = {},
 ): RgbColor {
-  const { maxIterations = 15, tolerance = 0.01 } = options;
+  const { maxIterations = 15, tolerance = 0.01 } = options
 
-  const fgRgba = toRgba(foreground);
-  const bgRgba = toRgba(background);
+  const fgRgba = toRgba(foreground)
+  const bgRgba = toRgba(background)
 
   // Check if already sufficient
-  const currentRatio = contrast(fgRgba, bgRgba);
+  const currentRatio = contrast(fgRgba, bgRgba)
   if (currentRatio >= minRatio) {
-    return { space: 'rgb', r: fgRgba.r, g: fgRgba.g, b: fgRgba.b, a: fgRgba.a };
+    return { space: 'rgb', r: fgRgba.r, g: fgRgba.g, b: fgRgba.b, a: fgRgba.a }
   }
 
   // Convert to OKLCH for perceptually uniform lightness adjustment
-  const fgOklch = rgbToOklch(fgRgba);
-  const bgLum = luminance(bgRgba);
-  const fgLum = luminance(fgRgba);
+  const fgOklch = rgbToOklch(fgRgba)
+  const bgLum = luminance(bgRgba)
+  const fgLum = luminance(fgRgba)
 
   // Determine whether to lighten or darken
-  let preferLighten = options.preferLighten;
+  let preferLighten = options.preferLighten
 
   if (preferLighten === undefined) {
     // Auto-detect: if background is dark, prefer lightening; if light, prefer darkening
     // Also consider current luminance relationship
     if (bgLum > 0.5) {
       // Light background - darken foreground
-      preferLighten = false;
+      preferLighten = false
     } else if (bgLum < 0.5) {
       // Dark background - lighten foreground
-      preferLighten = true;
+      preferLighten = true
     } else {
       // Mid-tone background - choose based on foreground
-      preferLighten = fgLum <= bgLum;
+      preferLighten = fgLum <= bgLum
     }
   }
 
@@ -222,8 +222,8 @@ export function ensureContrast(
     preferLighten,
     maxIterations,
     tolerance,
-  );
-  const primaryRatio = contrast(primaryResult, bgRgba);
+  )
+  const primaryRatio = contrast(primaryResult, bgRgba)
 
   // If primary direction achieves target, return it
   if (primaryRatio >= minRatio) {
@@ -233,7 +233,7 @@ export function ensureContrast(
       g: primaryResult.g,
       b: primaryResult.b,
       a: primaryResult.a,
-    };
+    }
   }
 
   // Try opposite direction
@@ -244,8 +244,8 @@ export function ensureContrast(
     !preferLighten,
     maxIterations,
     tolerance,
-  );
-  const secondaryRatio = contrast(secondaryResult, bgRgba);
+  )
+  const secondaryRatio = contrast(secondaryResult, bgRgba)
 
   // Return whichever achieves the target, or the better one
   if (secondaryRatio >= minRatio) {
@@ -255,17 +255,17 @@ export function ensureContrast(
       g: secondaryResult.g,
       b: secondaryResult.b,
       a: secondaryResult.a,
-    };
+    }
   }
 
   // Return the one with better contrast
   /* istanbul ignore next -- @preserve unreachable: both directions return same color when target impossible */
-  const result = primaryRatio >= secondaryRatio ? primaryResult : secondaryResult;
+  const result = primaryRatio >= secondaryRatio ? primaryResult : secondaryResult
   return {
     space: 'rgb',
     r: result.r,
     g: result.g,
     b: result.b,
     a: result.a,
-  };
+  }
 }

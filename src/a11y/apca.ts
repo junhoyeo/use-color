@@ -45,10 +45,10 @@
  * ```
  */
 
-import { convert } from '../convert/index.js';
-import { srgbToLinear } from '../convert/linear.js';
-import type { AnyColor } from '../types/ColorObject.js';
-import type { RGBA } from '../types/color.js';
+import { convert } from '../convert/index.js'
+import { srgbToLinear } from '../convert/linear.js'
+import type { AnyColor } from '../types/ColorObject.js'
+import type { RGBA } from '../types/color.js'
 
 /**
  * APCA constants from SAPC 0.0.98G-4g (W3 Working Draft)
@@ -75,18 +75,18 @@ const APCA_CONSTANTS = {
   loWoBoffset: 0.027,
   loClip: 0.1,
   deltaYmin: 0.0005,
-} as const;
+} as const
 
 /**
  * Input types for APCA calculation.
  */
-export type APCAInput = RGBA | AnyColor;
+export type APCAInput = RGBA | AnyColor
 
 /**
  * Check if a color has the 'space' property (is an AnyColor).
  */
 function hasSpaceProperty(color: APCAInput): color is AnyColor {
-  return 'space' in color;
+  return 'space' in color
 }
 
 /**
@@ -95,12 +95,12 @@ function hasSpaceProperty(color: APCAInput): color is AnyColor {
 function toRgba(color: APCAInput): RGBA {
   if (hasSpaceProperty(color)) {
     if (color.space === 'rgb') {
-      return { r: color.r, g: color.g, b: color.b, a: color.a };
+      return { r: color.r, g: color.g, b: color.b, a: color.a }
     }
-    const rgb = convert(color, 'rgb');
-    return { r: rgb.r, g: rgb.g, b: rgb.b, a: rgb.a };
+    const rgb = convert(color, 'rgb')
+    return { r: rgb.r, g: rgb.g, b: rgb.b, a: rgb.a }
   }
-  return color;
+  return color
 }
 
 /**
@@ -108,11 +108,11 @@ function toRgba(color: APCAInput): RGBA {
  * This is similar to but not identical to WCAG relative luminance.
  */
 function calcAPCALuminance(rgba: RGBA): number {
-  const r = srgbToLinear(rgba.r);
-  const g = srgbToLinear(rgba.g);
-  const b = srgbToLinear(rgba.b);
+  const r = srgbToLinear(rgba.r)
+  const g = srgbToLinear(rgba.g)
+  const b = srgbToLinear(rgba.b)
 
-  return APCA_CONSTANTS.sRco * r + APCA_CONSTANTS.sGco * g + APCA_CONSTANTS.sBco * b;
+  return APCA_CONSTANTS.sRco * r + APCA_CONSTANTS.sGco * g + APCA_CONSTANTS.sBco * b
 }
 
 /**
@@ -122,13 +122,13 @@ function calcAPCALuminance(rgba: RGBA): number {
 function softClamp(Y: number): number {
   /* v8 ignore start - Y from RGB luminance is always >= 0 */
   if (Y < 0) {
-    return 0;
+    return 0
   }
   /* v8 ignore stop */
   if (Y < APCA_CONSTANTS.blkThrs) {
-    return Y + (APCA_CONSTANTS.blkThrs - Y) ** APCA_CONSTANTS.blkClmp;
+    return Y + (APCA_CONSTANTS.blkThrs - Y) ** APCA_CONSTANTS.blkClmp
   }
-  return Y;
+  return Y
 }
 
 /**
@@ -178,44 +178,43 @@ function softClamp(Y: number): number {
  * @see https://www.w3.org/TR/wcag-3.0/ for WCAG 3.0 draft
  */
 export function apcaContrast(foreground: APCAInput, background: APCAInput): number {
-  const txtRgba = toRgba(foreground);
-  const bgRgba = toRgba(background);
+  const txtRgba = toRgba(foreground)
+  const bgRgba = toRgba(background)
 
   // Calculate Y (luminance) for both colors
-  let txtY = calcAPCALuminance(txtRgba);
-  let bgY = calcAPCALuminance(bgRgba);
+  let txtY = calcAPCALuminance(txtRgba)
+  let bgY = calcAPCALuminance(bgRgba)
 
   // Apply soft clamp to handle very dark colors
-  txtY = softClamp(txtY);
-  bgY = softClamp(bgY);
+  txtY = softClamp(txtY)
+  bgY = softClamp(bgY)
 
   // Minimum difference check
   if (Math.abs(bgY - txtY) < APCA_CONSTANTS.deltaYmin) {
-    return 0;
+    return 0
   }
 
-  let SAPC: number;
+  let SAPC: number
 
   // Calculate SAPC (Spatial Accessible Perceptual Contrast)
   if (bgY > txtY) {
     // Dark text on light background (positive contrast)
-    SAPC =
-      (bgY ** APCA_CONSTANTS.normBG - txtY ** APCA_CONSTANTS.normTXT) * APCA_CONSTANTS.scaleBoW;
+    SAPC = (bgY ** APCA_CONSTANTS.normBG - txtY ** APCA_CONSTANTS.normTXT) * APCA_CONSTANTS.scaleBoW
   } else {
     // Light text on dark background (negative contrast)
-    SAPC = (bgY ** APCA_CONSTANTS.revBG - txtY ** APCA_CONSTANTS.revTXT) * APCA_CONSTANTS.scaleWoB;
+    SAPC = (bgY ** APCA_CONSTANTS.revBG - txtY ** APCA_CONSTANTS.revTXT) * APCA_CONSTANTS.scaleWoB
   }
 
   // Apply low contrast clipping
   if (Math.abs(SAPC) < APCA_CONSTANTS.loClip) {
-    return 0;
+    return 0
   }
 
   // Apply low contrast offset
   if (SAPC > 0) {
-    return (SAPC - APCA_CONSTANTS.loBoWoffset) * 100;
+    return (SAPC - APCA_CONSTANTS.loBoWoffset) * 100
   } else {
-    return (SAPC + APCA_CONSTANTS.loWoBoffset) * 100;
+    return (SAPC + APCA_CONSTANTS.loWoBoffset) * 100
   }
 }
 
@@ -241,4 +240,4 @@ export const APCA_THRESHOLDS = {
   NON_TEXT: 30,
   /** Preferred for body text */
   PREFERRED_BODY: 90,
-} as const;
+} as const

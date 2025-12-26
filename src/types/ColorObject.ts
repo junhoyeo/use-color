@@ -1,4 +1,4 @@
-import type { ColorSpace, HSLA, OKLCH, P3, RGBA } from './color.js';
+import type { ColorSpace, HSLA, OKLCH, P3, RGBA } from './color.js'
 
 /**
  * A discriminated union type representing a color in a specific color space.
@@ -44,7 +44,7 @@ export type ColorOf<S extends ColorSpace> = S extends 'rgb'
       ? { space: 'hsl' } & HSLA
       : S extends 'p3'
         ? { space: 'p3' } & P3
-        : never;
+        : never
 
 /**
  * RGB color object with space discriminant.
@@ -58,7 +58,7 @@ export type ColorOf<S extends ColorSpace> = S extends 'rgb'
  * const semiTransparentBlue: RgbColor = { space: 'rgb', r: 0, g: 0, b: 255, a: 0.5 };
  * ```
  */
-export type RgbColor = ColorOf<'rgb'>;
+export type RgbColor = ColorOf<'rgb'>
 
 /**
  * OKLCH color object with space discriminant.
@@ -73,7 +73,7 @@ export type RgbColor = ColorOf<'rgb'>;
  * const mutedGreen: OklchColor = { space: 'oklch', l: 0.7, c: 0.1, h: 140, a: 0.8 };
  * ```
  */
-export type OklchColor = ColorOf<'oklch'>;
+export type OklchColor = ColorOf<'oklch'>
 
 /**
  * HSL color object with space discriminant.
@@ -87,7 +87,7 @@ export type OklchColor = ColorOf<'oklch'>;
  * const paleBlue: HslColor = { space: 'hsl', h: 210, s: 0.5, l: 0.8, a: 1 };
  * ```
  */
-export type HslColor = ColorOf<'hsl'>;
+export type HslColor = ColorOf<'hsl'>
 
 /**
  * Display P3 color object with space discriminant.
@@ -100,7 +100,7 @@ export type HslColor = ColorOf<'hsl'>;
  * const vibrantRed: P3Color = { space: 'p3', r: 1, g: 0.2, b: 0.1, a: 1 };
  * ```
  */
-export type P3Color = ColorOf<'p3'>;
+export type P3Color = ColorOf<'p3'>
 
 /**
  * Union of all color types across all supported color spaces.
@@ -126,4 +126,4 @@ export type P3Color = ColorOf<'p3'>;
  * }
  * ```
  */
-export type AnyColor = RgbColor | OklchColor | HslColor | P3Color;
+export type AnyColor = RgbColor | OklchColor | HslColor | P3Color

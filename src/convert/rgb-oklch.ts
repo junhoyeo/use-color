@@ -26,10 +26,10 @@
  * @see https://www.w3.org/TR/css-color-4/#ok-lab
  */
 
-import type { OKLCH, RGBA } from '../types/color.js';
-import { linearRgbToRgb, rgbToLinearRgb } from './linear.js';
-import { oklabToOklch, oklabToXyz, oklchToOklab, xyzToOklab } from './oklab.js';
-import { linearRgbToXyz, xyzToLinearRgb } from './xyz.js';
+import type { OKLCH, RGBA } from '../types/color.js'
+import { linearRgbToRgb, rgbToLinearRgb } from './linear.js'
+import { oklabToOklch, oklabToXyz, oklchToOklab, xyzToOklab } from './oklab.js'
+import { linearRgbToXyz, xyzToLinearRgb } from './xyz.js'
 
 /**
  * Converts an RGBA color to OKLCH color space.
@@ -62,12 +62,12 @@ import { linearRgbToXyz, xyzToLinearRgb } from './xyz.js';
  * ```
  */
 export function rgbToOklch(rgba: RGBA): OKLCH {
-  const linear = rgbToLinearRgb(rgba);
-  const xyz = linearRgbToXyz(linear);
-  const oklab = xyzToOklab(xyz);
-  const oklch = oklabToOklch(oklab);
+  const linear = rgbToLinearRgb(rgba)
+  const xyz = linearRgbToXyz(linear)
+  const oklab = xyzToOklab(xyz)
+  const oklch = oklabToOklch(oklab)
 
-  return { ...oklch, a: rgba.a };
+  return { ...oklch, a: rgba.a }
 }
 
 /**
@@ -104,9 +104,9 @@ export function rgbToOklch(rgba: RGBA): OKLCH {
  * ```
  */
 export function oklchToRgb(oklch: OKLCH): RGBA {
-  const oklab = oklchToOklab(oklch);
-  const xyz = oklabToXyz(oklab);
-  const linear = xyzToLinearRgb(xyz);
+  const oklab = oklchToOklab(oklch)
+  const xyz = oklabToXyz(oklab)
+  const linear = xyzToLinearRgb(xyz)
 
-  return linearRgbToRgb({ ...linear, a: oklch.a });
+  return linearRgbToRgb({ ...linear, a: oklch.a })
 }

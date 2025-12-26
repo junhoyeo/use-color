@@ -152,11 +152,9 @@ export type NamedColor =
   | 'violet'
   | 'wheat'
   | 'whitesmoke'
-  | 'yellowgreen';
+  | 'yellowgreen'
 
-type UppercaseFirst<S extends string> = S extends `${infer F}${infer R}`
-  ? `${Uppercase<F>}${R}`
-  : S;
+type UppercaseFirst<S extends string> = S extends `${infer F}${infer R}` ? `${Uppercase<F>}${R}` : S
 
 export type NamedColorString<T extends string> =
-  Lowercase<T> extends NamedColor ? T : UppercaseFirst<Lowercase<T>> extends NamedColor ? T : never;
+  Lowercase<T> extends NamedColor ? T : UppercaseFirst<Lowercase<T>> extends NamedColor ? T : never

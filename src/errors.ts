@@ -75,7 +75,7 @@ export class ColorParseError extends Error {
   /**
    * The specific error code identifying the type of parsing failure.
    */
-  readonly code: ColorErrorCode;
+  readonly code: ColorErrorCode
 
   /**
    * Creates a new ColorParseError.
@@ -92,13 +92,13 @@ export class ColorParseError extends Error {
    * ```
    */
   constructor(code: ColorErrorCode, message: string) {
-    super(message);
-    this.name = 'ColorParseError';
-    this.code = code;
+    super(message)
+    this.name = 'ColorParseError'
+    this.code = code
 
     // Maintains proper stack trace in V8 environments (Node.js, Chrome)
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, ColorParseError);
+      Error.captureStackTrace(this, ColorParseError)
     }
   }
 }
@@ -126,12 +126,12 @@ export class ColorOutOfGamutError extends ColorParseError {
   /**
    * The original color value that caused the gamut error.
    */
-  readonly sourceColor: string;
+  readonly sourceColor: string
 
   /**
    * The target gamut that the color exceeds (e.g., 'sRGB', 'P3').
    */
-  readonly targetGamut: string;
+  readonly targetGamut: string
 
   /**
    * Creates a new ColorOutOfGamutError.
@@ -152,14 +152,14 @@ export class ColorOutOfGamutError extends ColorParseError {
     super(
       ColorErrorCode.OUT_OF_GAMUT,
       message ?? `Color '${sourceColor}' is outside the ${targetGamut} gamut`,
-    );
-    this.name = 'ColorOutOfGamutError';
-    this.sourceColor = sourceColor;
-    this.targetGamut = targetGamut;
+    )
+    this.name = 'ColorOutOfGamutError'
+    this.sourceColor = sourceColor
+    this.targetGamut = targetGamut
 
     // Maintains proper stack trace in V8 environments (Node.js, Chrome)
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, ColorOutOfGamutError);
+      Error.captureStackTrace(this, ColorOutOfGamutError)
     }
   }
 }

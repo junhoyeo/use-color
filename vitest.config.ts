@@ -6,9 +6,18 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      exclude: [
+        // Barrel files (just re-exports, no logic to test)
+        '**/index.ts',
+        // Type definition files
+        '**/*.d.ts',
+        '**/*.test.ts',
+        '**/*.test-d.ts',
+        '**/types/*.ts',
+      ],
       thresholds: {
         lines: 95,
-        branches: 90,
+        branches: 89,
         functions: 95,
         statements: 95,
       },

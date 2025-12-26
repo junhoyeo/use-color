@@ -1,9 +1,10 @@
-export type { ColorSpace, RGBA, OKLCH, HSLA, Oklab } from './color.js';
+export type { ColorSpace, RGBA, OKLCH, HSLA, Oklab, P3 } from './color.js';
 export type {
   Color,
   RgbColor,
   OklchColor,
   HslColor,
+  P3Color,
   AnyColor,
 } from './ColorObject.js';
 

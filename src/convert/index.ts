@@ -24,11 +24,12 @@
  * ```
  */
 
-import type { ColorSpace, RGBA, OKLCH, HSLA } from '../types/color.js';
-import type { AnyColor, RgbColor, OklchColor, HslColor } from '../types/ColorObject.js';
+import type { ColorSpace, RGBA, OKLCH, HSLA, P3 } from '../types/color.js';
+import type { AnyColor, RgbColor, OklchColor, HslColor, P3Color } from '../types/ColorObject.js';
 
 import { rgbToOklch, oklchToRgb } from './rgb-oklch.js';
 import { rgbToHsl, hslToRgb } from './hsl.js';
+import { rgbToP3, p3ToRgb } from './p3.js';
 
 export { rgbToLinearRgb, linearRgbToRgb } from './linear.js';
 export type { LinearRGB } from './linear.js';
@@ -42,10 +43,15 @@ export { rgbToOklch, oklchToRgb } from './rgb-oklch.js';
 
 export { rgbToHsl, hslToRgb } from './hsl.js';
 
+export { rgbToP3, p3ToRgb, linearP3ToXyz, xyzToLinearP3 } from './p3.js';
+export type { LinearP3 } from './p3.js';
+
 export {
   isInGamut,
   clampToGamut,
   mapToGamut,
+  isInP3Gamut,
+  clampToP3Gamut,
   DEFAULT_JND,
 } from './gamut.js';
 export type { GamutMapOptions } from './gamut.js';
@@ -90,16 +96,22 @@ export type { GamutMapOptions } from './gamut.js';
  * // Returns a copy: { space: 'rgb', r: 255, g: 0, b: 0, a: 1 }
  * ```
  */
+type ConvertResult<T extends ColorSpace> = T extends 'rgb'
+  ? RgbColor
+  : T extends 'oklch'
+    ? OklchColor
+    : T extends 'hsl'
+      ? HslColor
+      : T extends 'p3'
+        ? P3Color
+        : never;
+
 export function convert<T extends ColorSpace>(
   color: AnyColor,
   toSpace: T
-): T extends 'rgb' ? RgbColor : T extends 'oklch' ? OklchColor : HslColor {
+): ConvertResult<T> {
   if (color.space === toSpace) {
-    return { ...color } as T extends 'rgb'
-      ? RgbColor
-      : T extends 'oklch'
-        ? OklchColor
-        : HslColor;
+    return { ...color } as ConvertResult<T>;
   }
 
   let rgba: RGBA;
@@ -114,33 +126,27 @@ export function convert<T extends ColorSpace>(
     case 'hsl':
       rgba = hslToRgb({ h: color.h, s: color.s, l: color.l, a: color.a });
       break;
+    case 'p3':
+      rgba = p3ToRgb({ r: color.r, g: color.g, b: color.b, a: color.a });
+      break;
   }
 
   switch (toSpace) {
     case 'rgb':
-      return { space: 'rgb', ...rgba } as T extends 'rgb'
-        ? RgbColor
-        : T extends 'oklch'
-          ? OklchColor
-          : HslColor;
+      return { space: 'rgb', ...rgba } as ConvertResult<T>;
     case 'oklch': {
       const oklch: OKLCH = rgbToOklch(rgba);
-      return { space: 'oklch', ...oklch } as T extends 'rgb'
-        ? RgbColor
-        : T extends 'oklch'
-          ? OklchColor
-          : HslColor;
+      return { space: 'oklch', ...oklch } as ConvertResult<T>;
     }
     case 'hsl': {
       const hsla: HSLA = rgbToHsl(rgba);
-      return { space: 'hsl', ...hsla } as T extends 'rgb'
-        ? RgbColor
-        : T extends 'oklch'
-          ? OklchColor
-          : HslColor;
+      return { space: 'hsl', ...hsla } as ConvertResult<T>;
+    }
+    case 'p3': {
+      const p3: P3 = rgbToP3(rgba);
+      return { space: 'p3', ...p3 } as ConvertResult<T>;
     }
     default: {
-      // TypeScript exhaustiveness check - ensures all ColorSpace values are handled
       const _exhaustive: never = toSpace;
       throw new Error(`Unknown color space: ${_exhaustive}`);
     }

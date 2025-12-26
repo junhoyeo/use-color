@@ -1,4 +1,4 @@
-import type { ColorSpace, RGBA, OKLCH, HSLA } from './color.js';
+import type { ColorSpace, RGBA, OKLCH, HSLA, P3 } from './color.js';
 
 /**
  * A discriminated union type representing a color in a specific color space.
@@ -42,7 +42,9 @@ export type Color<S extends ColorSpace> = S extends 'rgb'
     ? { space: 'oklch' } & OKLCH
     : S extends 'hsl'
       ? { space: 'hsl' } & HSLA
-      : never;
+      : S extends 'p3'
+        ? { space: 'p3' } & P3
+        : never;
 
 /**
  * RGB color object with space discriminant.
@@ -88,6 +90,19 @@ export type OklchColor = Color<'oklch'>;
 export type HslColor = Color<'hsl'>;
 
 /**
+ * Display P3 color object with space discriminant.
+ *
+ * Represents a color in the Display P3 color space with r, g, b (0-1 range), and alpha.
+ * The `space` property is always `'p3'`.
+ *
+ * @example
+ * ```ts
+ * const vibrantRed: P3Color = { space: 'p3', r: 1, g: 0.2, b: 0.1, a: 1 };
+ * ```
+ */
+export type P3Color = Color<'p3'>;
+
+/**
  * Union of all color types across all supported color spaces.
  *
  * This type can be used when a function accepts any color regardless of its color space.
@@ -111,4 +126,4 @@ export type HslColor = Color<'hsl'>;
  * }
  * ```
  */
-export type AnyColor = RgbColor | OklchColor | HslColor;
+export type AnyColor = RgbColor | OklchColor | HslColor | P3Color;

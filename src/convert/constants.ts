@@ -194,3 +194,41 @@ export const LMS_TO_LRGB: Matrix3x3 = [
   [-1.2684380046, 2.6097574011, -0.3413193965],
   [-0.0041960863, -0.7034186147, 1.707614701],
 ] as const;
+
+/**
+ * Display P3 to XYZ (D65) transformation matrix.
+ *
+ * Converts linear Display P3 RGB values to CIE XYZ color space.
+ * Input RGB values must be linearized (gamma-expanded) first.
+ * Display P3 uses the same transfer function as sRGB.
+ *
+ * Matrix values from CSS Color Level 4 specification.
+ *
+ * Usage: [X, Y, Z] = P3_TO_XYZ × [R, G, B]
+ *
+ * @see https://www.w3.org/TR/css-color-4/#color-conversion-code
+ */
+export const P3_TO_XYZ: Matrix3x3 = [
+  [0.4865709486482162, 0.26566769316909306, 0.1982172852343625],
+  [0.2289745640697488, 0.6917385218365064, 0.079286914093745],
+  [0.0, 0.04511338185890264, 1.043944368900976],
+] as const;
+
+/**
+ * XYZ (D65) to Display P3 transformation matrix.
+ *
+ * Converts CIE XYZ values to linear Display P3 RGB color space.
+ * Output values must be gamma-compressed to get final P3 values.
+ *
+ * This is the inverse of P3_TO_XYZ matrix.
+ * Matrix values from CSS Color Level 4 specification.
+ *
+ * Usage: [R, G, B] = XYZ_TO_P3 × [X, Y, Z]
+ *
+ * @see https://www.w3.org/TR/css-color-4/#color-conversion-code
+ */
+export const XYZ_TO_P3: Matrix3x3 = [
+  [2.493496911941425, -0.9313836179191239, -0.40271078445071684],
+  [-0.8294889695615747, 1.7626640603183463, 0.023624685841943577],
+  [0.03584583024378447, -0.07617238926804182, 0.9568845240076872],
+] as const;

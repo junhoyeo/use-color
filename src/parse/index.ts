@@ -1,6 +1,6 @@
 import { ColorErrorCode, ColorParseError } from '../errors.js';
-import type { HSLA, OKLCH, RGBA } from '../types/color.js';
-import type { AnyColor, HslColor, OklchColor, RgbColor } from '../types/ColorObject.js';
+import type { HSLA, OKLCH, RGBA, P3 } from '../types/color.js';
+import type { AnyColor, HslColor, OklchColor, RgbColor, P3Color } from '../types/ColorObject.js';
 import { type Result, err, ok } from '../types/Result.js';
 
 import { tryParseHex } from './hex.js';
@@ -8,20 +8,23 @@ import { tryParseHsl } from './hsl.js';
 import { tryParseNamed } from './named.js';
 import { tryParseOklch } from './oklch.js';
 import { tryParseRgb } from './rgb.js';
+import { tryParseP3 } from './p3.js';
 
 export { parseHex, parseHex3, parseHex4, parseHex6, parseHex8, tryParseHex } from './hex.js';
 export { parseRgb, parseRgbLegacy, parseRgbaLegacy, parseRgbModern, tryParseRgb, isRgbString } from './rgb.js';
 export { parseHsl, parseHslLegacy, parseHslaLegacy, parseHslModern, tryParseHsl, normalizeHue } from './hsl.js';
 export { parseOklch, tryParseOklch } from './oklch.js';
+export { parseP3, tryParseP3, isP3String } from './p3.js';
 export { parseNamed, tryParseNamed, isNamedColor, NAMED_COLORS } from './named.js';
 
-export type ColorFormat = 'hex' | 'rgb' | 'hsl' | 'oklch' | 'named';
+export type ColorFormat = 'hex' | 'rgb' | 'hsl' | 'oklch' | 'p3' | 'named';
 
 const FORMAT_PATTERNS = {
   hex: /^#[0-9a-fA-F]{3,8}$/,
   rgb: /^rgba?\s*\(/i,
   hsl: /^hsla?\s*\(/i,
   oklch: /^oklch\s*\(/i,
+  p3: /^color\s*\(\s*display-p3/i,
 } as const;
 
 export function detectFormat(str: string): ColorFormat {
@@ -29,6 +32,10 @@ export function detectFormat(str: string): ColorFormat {
 
   if (trimmed.startsWith('#')) {
     return 'hex';
+  }
+
+  if (FORMAT_PATTERNS.p3.test(trimmed)) {
+    return 'p3';
   }
 
   if (FORMAT_PATTERNS.rgb.test(trimmed)) {
@@ -112,6 +119,14 @@ export function tryParseColor(str: string): Result<AnyColor, ColorParseError> {
       return ok(toOklchColor(result.value));
     }
 
+    case 'p3': {
+      const result = tryParseP3(trimmed);
+      if (!result.ok) {
+        return result;
+      }
+      return ok(toP3Color(result.value));
+    }
+
     case 'named': {
       const result = tryParseNamed(trimmed);
       if (!result.ok) {
@@ -149,6 +164,16 @@ function toOklchColor(oklch: OKLCH): OklchColor {
     c: oklch.c,
     h: oklch.h,
     a: oklch.a,
+  };
+}
+
+function toP3Color(p3: P3): P3Color {
+  return {
+    space: 'p3',
+    r: p3.r,
+    g: p3.g,
+    b: p3.b,
+    a: p3.a,
   };
 }
 

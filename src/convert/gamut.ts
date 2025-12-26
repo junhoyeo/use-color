@@ -10,7 +10,8 @@
 
 import type { OKLCH } from '../types/color.js';
 import { oklchToOklab } from './oklab.js';
-import { OKLAB_M2_INV, LMS_TO_LRGB } from './constants.js';
+import { OKLAB_M2_INV, LMS_TO_LRGB, XYZ_TO_P3 } from './constants.js';
+import { linearRgbToXyz } from './xyz.js';
 
 /**
  * Default JND (Just Noticeable Difference) threshold.
@@ -122,4 +123,61 @@ export function mapToGamut(
 ): OKLCH {
   const { jnd = DEFAULT_JND } = options;
   return clampToGamut(oklch, jnd);
+}
+
+function oklchToLinearP3(oklch: OKLCH): { r: number; g: number; b: number } {
+  const lrgb = oklchToLinearRgb(oklch);
+  const xyz = linearRgbToXyz(lrgb);
+
+  return {
+    r: XYZ_TO_P3[0][0] * xyz.x + XYZ_TO_P3[0][1] * xyz.y + XYZ_TO_P3[0][2] * xyz.z,
+    g: XYZ_TO_P3[1][0] * xyz.x + XYZ_TO_P3[1][1] * xyz.y + XYZ_TO_P3[1][2] * xyz.z,
+    b: XYZ_TO_P3[2][0] * xyz.x + XYZ_TO_P3[2][1] * xyz.y + XYZ_TO_P3[2][2] * xyz.z,
+  };
+}
+
+export function isInP3Gamut(oklch: OKLCH): boolean {
+  if (oklch.c <= 0) {
+    return oklch.l >= 0 && oklch.l <= 1;
+  }
+
+  const { r, g, b } = oklchToLinearP3(oklch);
+
+  return (
+    r >= -EPSILON &&
+    r <= 1 + EPSILON &&
+    g >= -EPSILON &&
+    g <= 1 + EPSILON &&
+    b >= -EPSILON &&
+    b <= 1 + EPSILON
+  );
+}
+
+export function clampToP3Gamut(oklch: OKLCH, jnd: number = DEFAULT_JND): OKLCH {
+  if (isInP3Gamut(oklch)) {
+    return oklch;
+  }
+
+  if (oklch.l <= 0) {
+    return { l: 0, c: 0, h: oklch.h, a: oklch.a };
+  }
+  if (oklch.l >= 1) {
+    return { l: 1, c: 0, h: oklch.h, a: oklch.a };
+  }
+
+  let low = 0;
+  let high = oklch.c;
+
+  while (high - low > jnd) {
+    const mid = (low + high) / 2;
+    const testColor: OKLCH = { ...oklch, c: mid };
+
+    if (isInP3Gamut(testColor)) {
+      low = mid;
+    } else {
+      high = mid;
+    }
+  }
+
+  return { ...oklch, c: low };
 }

@@ -5,6 +5,7 @@ import type {
   RgbColor,
   OklchColor,
   HslColor,
+  P3Color,
   AnyColor,
 } from '../ColorObject.js';
 import type {
@@ -14,7 +15,7 @@ import type {
   AsValidColor,
   ColorObjectInput,
 } from '../ColorInput.js';
-import type { RGBA, OKLCH, HSLA } from '../color.js';
+import type { RGBA, OKLCH, HSLA, P3 } from '../color.js';
 
 describe('Color discriminated union types', () => {
   it('Color<rgb> produces correct type with space: rgb', () => {
@@ -50,11 +51,12 @@ describe('Color discriminated union types', () => {
     expectTypeOf<HslColor>().toMatchTypeOf<{ space: 'hsl'; h: number; s: number; l: number; a: number }>();
   });
 
-  it('AnyColor union accepts all three color types', () => {
+  it('AnyColor union accepts all four color types', () => {
     expectTypeOf<RgbColor>().toMatchTypeOf<AnyColor>();
     expectTypeOf<OklchColor>().toMatchTypeOf<AnyColor>();
     expectTypeOf<HslColor>().toMatchTypeOf<AnyColor>();
-    expectTypeOf<AnyColor>().toEqualTypeOf<RgbColor | OklchColor | HslColor>();
+    expectTypeOf<P3Color>().toMatchTypeOf<AnyColor>();
+    expectTypeOf<AnyColor>().toEqualTypeOf<RgbColor | OklchColor | HslColor | P3Color>();
   });
 
   it('AnyColor has common alpha property accessible without narrowing', () => {

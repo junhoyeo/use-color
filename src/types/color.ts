@@ -6,7 +6,31 @@
  * const space: ColorSpace = 'oklch';
  * ```
  */
-export type ColorSpace = 'rgb' | 'oklch' | 'hsl';
+export type ColorSpace = 'rgb' | 'oklch' | 'hsl' | 'p3';
+
+/**
+ * Display P3 color representation with red, green, blue channels (0-1 range) and alpha.
+ * Display P3 is a wider gamut color space used by modern Apple displays and other HDR screens.
+ *
+ * Unlike sRGB which uses 0-255, P3 colors use 0-1 range for components.
+ * P3 can represent colors that are outside the sRGB gamut.
+ *
+ * @example
+ * ```ts
+ * const vibrantRed: P3 = { r: 1, g: 0.2, b: 0.1, a: 1 };
+ * const wideGamutGreen: P3 = { r: 0.1, g: 1, b: 0.1, a: 0.8 };
+ * ```
+ */
+export interface P3 {
+  /** Red channel (0-1) */
+  r: number;
+  /** Green channel (0-1) */
+  g: number;
+  /** Blue channel (0-1) */
+  b: number;
+  /** Alpha channel (0-1) */
+  a: number;
+}
 
 /**
  * RGBA color representation with red, green, blue, and alpha channels.

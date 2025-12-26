@@ -291,7 +291,7 @@ assertHex(userInput);  // throws ColorParseError if invalid
 | **P3 wide gamut** | **✅** | ❌ | ❌ | ❌ |
 | **Accessibility** | **Built-in** | Plugin | ❌ | Basic |
 | **Tree-shakeable** | **✅** | ✅ | ❌ | ❌ |
-| **Bundle size** | ~10KB | ~2KB | ~14KB | ~5KB |
+| **Bundle size (gzip)** | **1.6KB** | 2.1KB | 16.7KB | 5.3KB |
 | **TypeScript** | Excellent | Good | Poor | Poor |
 | **Maintained** | **✅** | ❌ 3yr | ⚠️ | ⚠️ |
 

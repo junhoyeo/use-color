@@ -1,5 +1,7 @@
 import type { HSLA, OKLCH, RGBA } from './color.js';
 import type { HexString, HexStringWithOpacity } from './Hex.js';
+import type { HslInputString } from './Hsl.js';
+import type { NamedColorString } from './Named.js';
 import type { OklchInputString } from './Oklch.js';
 import type { RgbColorInput, RgbString } from './Rgb.js';
 
@@ -10,13 +12,17 @@ import type { RgbColorInput, RgbString } from './Rgb.js';
  * Supports:
  * - Hex: `#RGB`, `#RGBA`, `#RRGGBB`, `#RRGGBBAA`
  * - RGB: `rgb(r, g, b)`, `rgba(r, g, b, a)`, `rgb(r g b)`, `rgb(r g b / a)`
+ * - HSL: `hsl(h, s%, l%)`, `hsla(h, s%, l%, a)`, `hsl(h s% l%)`, `hsl(h s% l% / a)`
  * - OKLCH: `oklch(l c h)`, `oklch(l c h / a)`
+ * - Named: CSS named colors like `red`, `coral`, `transparent`
  *
  * @example
  * ```ts
  * type ValidHex = ColorStringInput<'#ff0000'>;       // '#ff0000'
  * type ValidRgb = ColorStringInput<'rgb(255, 0, 0)'>; // 'rgb(255, 0, 0)'
+ * type ValidHsl = ColorStringInput<'hsl(180, 50%, 50%)'>; // 'hsl(180, 50%, 50%)'
  * type ValidOklch = ColorStringInput<'oklch(0.5 0.2 180)'>; // 'oklch(0.5 0.2 180)'
+ * type ValidNamed = ColorStringInput<'coral'>;       // 'coral'
  * type Invalid = ColorStringInput<'not-a-color'>;    // never
  * ```
  */
@@ -24,7 +30,9 @@ export type ColorStringInput<T extends string> =
   | HexString<T>
   | HexStringWithOpacity<T>
   | RgbString<T>
-  | OklchInputString<T>;
+  | HslInputString<T>
+  | OklchInputString<T>
+  | NamedColorString<T>;
 
 /**
  * Color object input types.

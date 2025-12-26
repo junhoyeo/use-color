@@ -1,5 +1,3 @@
-// Primary API
-
 export type {
   APCAInput,
   EnsureContrastOptions,
@@ -161,6 +159,15 @@ export type {
   HexStringWithOpacity,
   HSLA,
   HslColor,
+  HslInputString,
+  HslLegacyString,
+  HslaLegacyString,
+  HslModernAlphaString,
+  HslModernString,
+  HslaString,
+  HslString,
+  NamedColor,
+  NamedColorString,
   OKLCH,
   Oklab,
   OklchAlphaString,

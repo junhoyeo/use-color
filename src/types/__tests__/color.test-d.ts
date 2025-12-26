@@ -123,6 +123,24 @@ describe('ColorInput types', () => {
     >().toEqualTypeOf<'oklch(0.5 0.2 180 / 0.5)'>();
   });
 
+  it('ColorStringInput accepts valid hsl strings', () => {
+    expectTypeOf<ColorStringInput<'hsl(180, 50%, 50%)'>>().toEqualTypeOf<'hsl(180, 50%, 50%)'>();
+    expectTypeOf<
+      ColorStringInput<'hsla(180, 50%, 50%, 0.5)'>
+    >().toEqualTypeOf<'hsla(180, 50%, 50%, 0.5)'>();
+    expectTypeOf<ColorStringInput<'hsl(180 50% 50%)'>>().toEqualTypeOf<'hsl(180 50% 50%)'>();
+    expectTypeOf<
+      ColorStringInput<'hsl(180 50% 50% / 0.5)'>
+    >().toEqualTypeOf<'hsl(180 50% 50% / 0.5)'>();
+  });
+
+  it('ColorStringInput accepts valid named colors', () => {
+    expectTypeOf<ColorStringInput<'red'>>().toEqualTypeOf<'red'>();
+    expectTypeOf<ColorStringInput<'coral'>>().toEqualTypeOf<'coral'>();
+    expectTypeOf<ColorStringInput<'transparent'>>().toEqualTypeOf<'transparent'>();
+    expectTypeOf<ColorStringInput<'aliceblue'>>().toEqualTypeOf<'aliceblue'>();
+  });
+
   it('ColorStringInput returns never for invalid strings', () => {
     expectTypeOf<ColorStringInput<'not-a-color'>>().toEqualTypeOf<never>();
     expectTypeOf<ColorStringInput<'invalid'>>().toEqualTypeOf<never>();
@@ -178,8 +196,21 @@ describe('AsValidColor constraint helper', () => {
   it('AsValidColor returns never for invalid strings', () => {
     expectTypeOf<AsValidColor<'not-a-color'>>().toEqualTypeOf<never>();
     expectTypeOf<AsValidColor<'invalid'>>().toEqualTypeOf<never>();
-    expectTypeOf<AsValidColor<'hsl(0, 100%, 50%)'>>().toEqualTypeOf<never>();
     expectTypeOf<AsValidColor<''>>().toEqualTypeOf<never>();
+  });
+
+  it('AsValidColor returns T for valid hsl strings', () => {
+    expectTypeOf<AsValidColor<'hsl(0, 100%, 50%)'>>().toEqualTypeOf<'hsl(0, 100%, 50%)'>();
+    expectTypeOf<AsValidColor<'hsl(180 50% 50%)'>>().toEqualTypeOf<'hsl(180 50% 50%)'>();
+    expectTypeOf<
+      AsValidColor<'hsla(180, 50%, 50%, 0.5)'>
+    >().toEqualTypeOf<'hsla(180, 50%, 50%, 0.5)'>();
+  });
+
+  it('AsValidColor returns T for valid named colors', () => {
+    expectTypeOf<AsValidColor<'red'>>().toEqualTypeOf<'red'>();
+    expectTypeOf<AsValidColor<'coral'>>().toEqualTypeOf<'coral'>();
+    expectTypeOf<AsValidColor<'transparent'>>().toEqualTypeOf<'transparent'>();
   });
 
   it('AsValidColor rejects malformed color strings', () => {

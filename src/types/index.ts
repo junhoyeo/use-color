@@ -22,6 +22,16 @@ export type {
   HexStringWithOpacity,
 } from './Hex.js';
 export type {
+  HslInputString,
+  HslLegacyString,
+  HslaLegacyString,
+  HslModernAlphaString,
+  HslModernString,
+  HslaString,
+  HslString,
+} from './Hsl.js';
+export type { NamedColor, NamedColorString } from './Named.js';
+export type {
   OklchAlphaString,
   OklchInputString,
   OklchString,

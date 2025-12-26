@@ -25,11 +25,12 @@ import { toP3String } from './format/p3.js';
 import { toRgbaString, toRgbModern, toRgbString } from './format/rgb.js';
 import { tryParseColor } from './parse/index.js';
 import type { AnyColor, HslColor } from './types/ColorObject.js';
+import type { AsValidColor, ColorObjectInput } from './types/ColorInput.js';
 import type { ColorSpace, HSLA, OKLCH, RGBA } from './types/color.js';
 import type { Result } from './types/Result.js';
 import { err, ok } from './types/Result.js';
 
-/** Input types accepted by color() and tryColor() */
+/** Input types accepted by color() and tryColor() - for internal use */
 export type ColorInputValue = string | RGBA | OKLCH | HSLA | AnyColor;
 
 /** Options for mixing colors */
@@ -337,17 +338,46 @@ export class Color {
 
 /**
  * Creates a Color instance from any valid color input.
- * @param input - Color string (hex, rgb, hsl, oklch, named) or color object
+ * Validates string inputs at compile-time using template literal types.
+ *
  * @throws ColorParseError if input is invalid
+ *
+ * @example
+ * ```ts
+ * color('#ff0000');           // ✓ Valid hex
+ * color('rgb(255, 0, 0)');    // ✓ Valid rgb
+ * color('hsl(0, 100%, 50%)'); // ✓ Valid hsl
+ * color('oklch(0.6 0.2 30)'); // ✓ Valid oklch
+ * color('coral');             // ✓ Valid named color
+ * color({ r: 255, g: 0, b: 0, a: 1 }); // ✓ Valid object
+ *
+ * color('#gggggg');           // ✗ Type error: invalid hex
+ * color('rgb(255, 0,)');      // ✗ Type error: invalid rgb
+ * color('notacolor');         // ✗ Type error: invalid color
+ * ```
  */
+export function color<T extends string>(input: AsValidColor<T>): Color;
+export function color(input: ColorObjectInput): Color;
 export function color(input: ColorInputValue): Color {
   return Color.from(input);
 }
 
 /**
  * Attempts to create a Color instance. Returns Result for safe error handling.
- * @param input - Color string (hex, rgb, hsl, oklch, named) or color object
+ * Validates string inputs at compile-time using template literal types.
+ *
+ * @example
+ * ```ts
+ * const result = tryColor('#ff0000');
+ * if (result.ok) {
+ *   console.log(result.value.toHex());
+ * } else {
+ *   console.error(result.error.message);
+ * }
+ * ```
  */
+export function tryColor<T extends string>(input: AsValidColor<T>): Result<Color, ColorParseError>;
+export function tryColor(input: ColorObjectInput): Result<Color, ColorParseError>;
 export function tryColor(input: ColorInputValue): Result<Color, ColorParseError> {
   return Color.tryFrom(input);
 }

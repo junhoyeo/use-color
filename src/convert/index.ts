@@ -9,6 +9,7 @@
  * - `rgb`: Standard sRGB with red, green, blue channels (0-255) and alpha (0-1)
  * - `oklch`: Perceptually uniform color space with lightness, chroma, hue
  * - `hsl`: Hue, saturation, lightness color model
+ * - `p3`: Display P3 wide gamut color space
  *
  * @example
  * ```typescript

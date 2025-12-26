@@ -1,12 +1,12 @@
 import { expectTypeOf } from 'expect-type';
 import { describe, it } from 'vitest';
 import type {
+  HslaLegacyString,
+  HslaString,
   HslInputString,
   HslLegacyString,
   HslModernAlphaString,
   HslModernString,
-  HslaLegacyString,
-  HslaString,
   HslString,
 } from '../Hsl.js';
 

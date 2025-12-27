@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  --brand: oklch(0.70 0.24 330);
+  --brand-light: oklch(0.80 0.20 330);
+  --brand-dark: oklch(0.60 0.28 330);
+  
+  --bg: oklch(0.12 0.01 260);
+  --surface: oklch(0.16 0.01 260);
+  --surface-raised: oklch(0.20 0.012 260);
+  
+  --text: oklch(0.93 0.01 260);
+  --text-secondary: oklch(0.65 0.01 260);
+  --muted: oklch(0.50 0.01 260);
+  
+  --border: oklch(0.24 0.01 260);
+  --border-strong: oklch(0.32 0.015 260);
+  
+  --success: oklch(0.70 0.18 145);
+  --error: oklch(0.65 0.22 25);
+  --warning: oklch(0.80 0.15 85);
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--brand);
+  color: white;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}

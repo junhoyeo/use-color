@@ -1,11 +1,123 @@
 "use client";
 
+import type { ReactElement } from "react";
 import { type Color } from "use-color";
 import { Card } from "./ui/card";
 import { CopyButton } from "./ui/copy-button";
 
 interface ConversionsProps {
 	color: Color | null;
+}
+
+function highlightColorValue(value: string): ReactElement {
+	if (value.startsWith("#")) {
+		return (
+			<>
+				<span style={{ color: "oklch(0.55 0 0)" }}>#</span>
+				<span style={{ color: "oklch(0.75 0.15 150)" }}>{value.slice(1)}</span>
+			</>
+		);
+	}
+
+	if (value.startsWith("rgb")) {
+		const match = value.match(/^(rgb|rgba)\((.+)\)$/);
+		if (match) {
+			const [, funcName, params] = match;
+			return (
+				<>
+					<span style={{ color: "oklch(0.75 0.12 220)" }}>{funcName}</span>
+					<span>(</span>
+					{params.split(/([,\s]+)/).map((part, i) => {
+						if (/^\d+\.?\d*%?$/.test(part.trim())) {
+							return (
+								<span key={i} style={{ color: "oklch(0.75 0.15 60)" }}>
+									{part}
+								</span>
+							);
+						}
+						return <span key={i}>{part}</span>;
+					})}
+					<span>)</span>
+				</>
+			);
+		}
+	}
+
+	if (value.startsWith("hsl")) {
+		const match = value.match(/^(hsl|hsla)\((.+)\)$/);
+		if (match) {
+			const [, funcName, params] = match;
+			return (
+				<>
+					<span style={{ color: "oklch(0.75 0.12 220)" }}>{funcName}</span>
+					<span>(</span>
+					{params.split(/([,\s]+)/).map((part, i) => {
+						if (/^\d+\.?\d*%?$/.test(part.trim())) {
+							return (
+								<span key={i} style={{ color: "oklch(0.75 0.15 60)" }}>
+									{part}
+								</span>
+							);
+						}
+						return <span key={i}>{part}</span>;
+					})}
+					<span>)</span>
+				</>
+			);
+		}
+	}
+
+	if (value.startsWith("oklch")) {
+		const match = value.match(/^(oklch)\((.+)\)$/);
+		if (match) {
+			const [, funcName, params] = match;
+			return (
+				<>
+					<span style={{ color: "oklch(0.75 0.12 220)" }}>{funcName}</span>
+					<span>(</span>
+					{params.split(/(\s+)/).map((part, i) => {
+						if (/^\d+\.?\d*$/.test(part.trim())) {
+							return (
+								<span key={i} style={{ color: "oklch(0.75 0.15 60)" }}>
+									{part}
+								</span>
+							);
+						}
+						return <span key={i}>{part}</span>;
+					})}
+					<span>)</span>
+				</>
+			);
+		}
+	}
+
+	if (value.startsWith("color(display-p3")) {
+		const match = value.match(/^color\((display-p3)\s+(.+)\)$/);
+		if (match) {
+			const [, colorSpace, params] = match;
+			return (
+				<>
+					<span style={{ color: "oklch(0.75 0.12 220)" }}>color</span>
+					<span>(</span>
+					<span style={{ color: "oklch(0.75 0.12 220)" }}>{colorSpace}</span>
+					<span> </span>
+					{params.split(/(\s+)/).map((part, i) => {
+						if (/^\d+\.?\d*$/.test(part.trim())) {
+							return (
+								<span key={i} style={{ color: "oklch(0.75 0.15 60)" }}>
+									{part}
+								</span>
+							);
+						}
+						return <span key={i}>{part}</span>;
+					})}
+					<span>)</span>
+				</>
+			);
+		}
+	}
+
+	return <>{value}</>;
 }
 
 export function Conversions({ color }: ConversionsProps) {
@@ -55,7 +167,7 @@ export function Conversions({ color }: ConversionsProps) {
 								{label}
 							</span>
 							<code className="text-xs font-mono text-[var(--text)] truncate">
-								{value}
+								{highlightColorValue(value)}
 							</code>
 						</div>
 						<CopyButton text={value} className="ml-2 flex-shrink-0" />

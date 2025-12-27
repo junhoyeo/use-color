@@ -23,18 +23,12 @@ export function CopyButton({ text, className = "" }: CopyButtonProps) {
 			whileHover={{ scale: 1.05 }}
 			whileTap={{ scale: 0.95 }}
 			onClick={handleCopy}
-			className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--surface-raised)] border border-[var(--border)] text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text)] hover:border-[var(--border-strong)] transition-all ${className}`}
+			className={`inline-flex items-center p-1.5 rounded-lg bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text)] hover:border-[var(--border-strong)] transition-all ${className}`}
 		>
 			{copied ? (
-				<>
-					<Check className="w-3.5 h-3.5 text-[var(--success)]" />
-					<span className="text-[var(--success)]">Copied!</span>
-				</>
+				<Check className="w-3.5 h-3.5 text-[var(--success)]" />
 			) : (
-				<>
-					<Copy className="w-3.5 h-3.5" />
-					<span>Copy</span>
-				</>
+				<Copy className="w-3.5 h-3.5" />
 			)}
 		</motion.button>
 	);

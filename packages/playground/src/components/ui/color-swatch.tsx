@@ -5,7 +5,30 @@ import type { Color } from "use-color";
 export const formatColorForDisplay = (c: Color): string =>
 	c.getAlpha() < 1 ? c.toRgbaString() : c.toHex();
 
-export const formatColorForCode = (c: Color): string => (c.getAlpha() < 1 ? c.toHex8() : c.toHex());
+export const formatColorForCode = (c: Color): string =>
+	c.getAlpha() < 1 ? c.toOklchString() : c.toHex();
+
+export const formatColorSmart = (
+	c: Color,
+): { format: string; value: string; highlight?: boolean }[] => {
+	const alpha = c.getAlpha();
+	return [
+		{
+			format: alpha < 1 ? "HEX8" : "HEX",
+			value: alpha < 1 ? c.toHex8() : c.toHex(),
+		},
+		{
+			format: "OKLCH",
+			value: c.toOklchString(),
+			highlight: true,
+		},
+		{
+			format: "P3",
+			value: c.toP3String(),
+			highlight: true,
+		},
+	];
+};
 
 export const CheckerboardSwatch = ({ color, className }: { color: Color; className?: string }) => (
 	<div

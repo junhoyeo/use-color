@@ -5,7 +5,8 @@ import { RotateCcw } from "lucide-react";
 import type { Color } from "use-color";
 import type { ColorManipulations } from "../hooks/use-color-state";
 import { Card } from "./ui/card";
-import { CheckerboardSwatch, formatColorForCode } from "./ui/color-swatch";
+import { CheckerboardSwatch, formatColorSmart } from "./ui/color-swatch";
+import { CopyButton } from "./ui/copy-button";
 import { Slider } from "./ui/slider";
 
 interface ManipulationsProps {
@@ -130,9 +131,30 @@ export function Manipulations({
 							<CheckerboardSwatch color={color} />
 							<span className="text-[var(--muted)] text-sm">→</span>
 							<CheckerboardSwatch color={manipulatedColor} />
-							<code className="text-xs font-mono text-[var(--text)] ml-auto">
-								{formatColorForCode(manipulatedColor)}
-							</code>
+						</div>
+						<div className="space-y-1">
+							{formatColorSmart(manipulatedColor).map(({ format, value, highlight }) => (
+								<div
+									key={format}
+									className={`flex items-center justify-between px-2 py-1 rounded-md ${
+										highlight
+											? "bg-[var(--brand)]/10 border border-[var(--brand)]/30"
+											: "bg-[var(--surface-raised)]"
+									}`}
+								>
+									<div className="flex items-center gap-2 min-w-0 flex-1">
+										<span
+											className={`text-[10px] font-bold uppercase tracking-wider w-10 flex-shrink-0 ${
+												highlight ? "text-[var(--brand)]" : "text-[var(--text-secondary)]"
+											}`}
+										>
+											{format}
+										</span>
+										<code className="text-xs font-mono text-[var(--text)] truncate">{value}</code>
+									</div>
+									<CopyButton text={value} className="ml-2 flex-shrink-0" />
+								</div>
+							))}
 						</div>
 						<button
 							type="button"

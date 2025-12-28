@@ -1,5 +1,5 @@
-import type { ColorInput } from './utils.js';
-import { detectColorType, fromOklch, hasSpace, toOklch } from './utils.js';
+import type { ColorInput } from "./utils.js";
+import { detectColorType, fromOklch, hasSpace, toOklch } from "./utils.js";
 
 export type { ColorInput };
 
@@ -10,12 +10,12 @@ export type { ColorInput };
  * @returns Color in the same format as input
  */
 export function lighten<T extends ColorInput>(color: T, amount: number): T {
-  const originalType = detectColorType(color);
-  const hadSpace = hasSpace(color);
+	const originalType = detectColorType(color);
+	const hadSpace = hasSpace(color);
 
-  const oklch = toOklch(color);
-  const newL = Math.min(1, Math.max(0, oklch.l + amount));
+	const oklch = toOklch(color);
+	const newL = Math.min(1, Math.max(0, oklch.l + amount));
 
-  const result = fromOklch({ ...oklch, l: newL }, originalType, hadSpace);
-  return result as T;
+	const result = fromOklch({ ...oklch, l: newL }, originalType, hadSpace);
+	return result as T;
 }

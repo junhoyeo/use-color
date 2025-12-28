@@ -45,36 +45,36 @@
  * ```
  */
 
-import { convert } from '../convert/index.js';
-import { srgbToLinear } from '../convert/linear.js';
-import type { AnyColor } from '../types/ColorObject.js';
-import type { RGBA } from '../types/color.js';
+import { convert } from "../convert/index.js";
+import { srgbToLinear } from "../convert/linear.js";
+import type { AnyColor } from "../types/ColorObject.js";
+import type { RGBA } from "../types/color.js";
 
 /**
  * APCA constants from SAPC 0.0.98G-4g (W3 Working Draft)
  * @see https://github.com/Myndex/SAPC-APCA/blob/master/src/JS/SAPC_0_0_98G_4g_minimal.js
  */
 const APCA_CONSTANTS = {
-  // sRGB coefficients for Y (luminance)
-  sRco: 0.2126729,
-  sGco: 0.7151522,
-  sBco: 0.072175,
+	// sRGB coefficients for Y (luminance)
+	sRco: 0.2126729,
+	sGco: 0.7151522,
+	sBco: 0.072175,
 
-  // Soft clamp for low luminance
-  normBG: 0.56,
-  normTXT: 0.57,
-  revTXT: 0.62,
-  revBG: 0.65,
+	// Soft clamp for low luminance
+	normBG: 0.56,
+	normTXT: 0.57,
+	revTXT: 0.62,
+	revBG: 0.65,
 
-  // Power curve exponents
-  blkThrs: 0.022,
-  blkClmp: Math.SQRT2,
-  scaleBoW: 1.14,
-  scaleWoB: 1.14,
-  loBoWoffset: 0.027,
-  loWoBoffset: 0.027,
-  loClip: 0.1,
-  deltaYmin: 0.0005,
+	// Power curve exponents
+	blkThrs: 0.022,
+	blkClmp: Math.SQRT2,
+	scaleBoW: 1.14,
+	scaleWoB: 1.14,
+	loBoWoffset: 0.027,
+	loWoBoffset: 0.027,
+	loClip: 0.1,
+	deltaYmin: 0.0005,
 } as const;
 
 /**
@@ -86,21 +86,21 @@ export type APCAInput = RGBA | AnyColor;
  * Check if a color has the 'space' property (is an AnyColor).
  */
 function hasSpaceProperty(color: APCAInput): color is AnyColor {
-  return 'space' in color;
+	return "space" in color;
 }
 
 /**
  * Normalizes any color input to RGBA.
  */
 function toRgba(color: APCAInput): RGBA {
-  if (hasSpaceProperty(color)) {
-    if (color.space === 'rgb') {
-      return { r: color.r, g: color.g, b: color.b, a: color.a };
-    }
-    const rgb = convert(color, 'rgb');
-    return { r: rgb.r, g: rgb.g, b: rgb.b, a: rgb.a };
-  }
-  return color;
+	if (hasSpaceProperty(color)) {
+		if (color.space === "rgb") {
+			return { r: color.r, g: color.g, b: color.b, a: color.a };
+		}
+		const rgb = convert(color, "rgb");
+		return { r: rgb.r, g: rgb.g, b: rgb.b, a: rgb.a };
+	}
+	return color;
 }
 
 /**
@@ -108,11 +108,11 @@ function toRgba(color: APCAInput): RGBA {
  * This is similar to but not identical to WCAG relative luminance.
  */
 function calcAPCALuminance(rgba: RGBA): number {
-  const r = srgbToLinear(rgba.r);
-  const g = srgbToLinear(rgba.g);
-  const b = srgbToLinear(rgba.b);
+	const r = srgbToLinear(rgba.r);
+	const g = srgbToLinear(rgba.g);
+	const b = srgbToLinear(rgba.b);
 
-  return APCA_CONSTANTS.sRco * r + APCA_CONSTANTS.sGco * g + APCA_CONSTANTS.sBco * b;
+	return APCA_CONSTANTS.sRco * r + APCA_CONSTANTS.sGco * g + APCA_CONSTANTS.sBco * b;
 }
 
 /**
@@ -120,15 +120,15 @@ function calcAPCALuminance(rgba: RGBA): number {
  * Handles very dark colors (near black).
  */
 function softClamp(Y: number): number {
-  /* v8 ignore start - Y from RGB luminance is always >= 0 */
-  if (Y < 0) {
-    return 0;
-  }
-  /* v8 ignore stop */
-  if (Y < APCA_CONSTANTS.blkThrs) {
-    return Y + (APCA_CONSTANTS.blkThrs - Y) ** APCA_CONSTANTS.blkClmp;
-  }
-  return Y;
+	/* v8 ignore start - Y from RGB luminance is always >= 0 */
+	if (Y < 0) {
+		return 0;
+	}
+	/* v8 ignore stop */
+	if (Y < APCA_CONSTANTS.blkThrs) {
+		return Y + (APCA_CONSTANTS.blkThrs - Y) ** APCA_CONSTANTS.blkClmp;
+	}
+	return Y;
 }
 
 /**
@@ -178,45 +178,45 @@ function softClamp(Y: number): number {
  * @see https://www.w3.org/TR/wcag-3.0/ for WCAG 3.0 draft
  */
 export function apcaContrast(foreground: APCAInput, background: APCAInput): number {
-  const txtRgba = toRgba(foreground);
-  const bgRgba = toRgba(background);
+	const txtRgba = toRgba(foreground);
+	const bgRgba = toRgba(background);
 
-  // Calculate Y (luminance) for both colors
-  let txtY = calcAPCALuminance(txtRgba);
-  let bgY = calcAPCALuminance(bgRgba);
+	// Calculate Y (luminance) for both colors
+	let txtY = calcAPCALuminance(txtRgba);
+	let bgY = calcAPCALuminance(bgRgba);
 
-  // Apply soft clamp to handle very dark colors
-  txtY = softClamp(txtY);
-  bgY = softClamp(bgY);
+	// Apply soft clamp to handle very dark colors
+	txtY = softClamp(txtY);
+	bgY = softClamp(bgY);
 
-  // Minimum difference check
-  if (Math.abs(bgY - txtY) < APCA_CONSTANTS.deltaYmin) {
-    return 0;
-  }
+	// Minimum difference check
+	if (Math.abs(bgY - txtY) < APCA_CONSTANTS.deltaYmin) {
+		return 0;
+	}
 
-  let SAPC: number;
+	let SAPC: number;
 
-  // Calculate SAPC (Spatial Accessible Perceptual Contrast)
-  if (bgY > txtY) {
-    // Dark text on light background (positive contrast)
-    SAPC =
-      (bgY ** APCA_CONSTANTS.normBG - txtY ** APCA_CONSTANTS.normTXT) * APCA_CONSTANTS.scaleBoW;
-  } else {
-    // Light text on dark background (negative contrast)
-    SAPC = (bgY ** APCA_CONSTANTS.revBG - txtY ** APCA_CONSTANTS.revTXT) * APCA_CONSTANTS.scaleWoB;
-  }
+	// Calculate SAPC (Spatial Accessible Perceptual Contrast)
+	if (bgY > txtY) {
+		// Dark text on light background (positive contrast)
+		SAPC =
+			(bgY ** APCA_CONSTANTS.normBG - txtY ** APCA_CONSTANTS.normTXT) * APCA_CONSTANTS.scaleBoW;
+	} else {
+		// Light text on dark background (negative contrast)
+		SAPC = (bgY ** APCA_CONSTANTS.revBG - txtY ** APCA_CONSTANTS.revTXT) * APCA_CONSTANTS.scaleWoB;
+	}
 
-  // Apply low contrast clipping
-  if (Math.abs(SAPC) < APCA_CONSTANTS.loClip) {
-    return 0;
-  }
+	// Apply low contrast clipping
+	if (Math.abs(SAPC) < APCA_CONSTANTS.loClip) {
+		return 0;
+	}
 
-  // Apply low contrast offset
-  if (SAPC > 0) {
-    return (SAPC - APCA_CONSTANTS.loBoWoffset) * 100;
-  } else {
-    return (SAPC + APCA_CONSTANTS.loWoBoffset) * 100;
-  }
+	// Apply low contrast offset
+	if (SAPC > 0) {
+		return (SAPC - APCA_CONSTANTS.loBoWoffset) * 100;
+	} else {
+		return (SAPC + APCA_CONSTANTS.loWoBoffset) * 100;
+	}
 }
 
 /**
@@ -231,14 +231,14 @@ export function apcaContrast(foreground: APCAInput, background: APCAInput): numb
  * @see https://www.myndex.com/APCA/ for detailed font-size charts
  */
 export const APCA_THRESHOLDS = {
-  /** Minimum for body text (14-16px) */
-  BODY_TEXT: 75,
-  /** Minimum for large text (24px+) */
-  LARGE_TEXT: 60,
-  /** Minimum for very large text (32px+) */
-  HEADLINE: 45,
-  /** Minimum for icons/non-text elements */
-  NON_TEXT: 30,
-  /** Preferred for body text */
-  PREFERRED_BODY: 90,
+	/** Minimum for body text (14-16px) */
+	BODY_TEXT: 75,
+	/** Minimum for large text (24px+) */
+	LARGE_TEXT: 60,
+	/** Minimum for very large text (32px+) */
+	HEADLINE: 45,
+	/** Minimum for icons/non-text elements */
+	NON_TEXT: 30,
+	/** Preferred for body text */
+	PREFERRED_BODY: 90,
 } as const;

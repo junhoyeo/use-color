@@ -37,7 +37,7 @@ type AlphaValue = NumberString | PercentString;
  * Optional space character for flexible whitespace handling.
  * @internal
  */
-type OptSpace = '' | ' ';
+type OptSpace = "" | " ";
 
 /**
  * Comma with optional space after.
@@ -61,14 +61,14 @@ type SlashSep = `${OptSpace}/${OptSpace}`;
  * @internal
  */
 type HslLegacyPattern =
-  `hsl(${NumberString}${CommaSep}${PercentString}${CommaSep}${PercentString})`;
+	`hsl(${NumberString}${CommaSep}${PercentString}${CommaSep}${PercentString})`;
 
 /**
  * Pattern for legacy HSLA format: hsla(h, s%, l%, a)
  * @internal
  */
 type HslaLegacyPattern =
-  `hsla(${NumberString}${CommaSep}${PercentString}${CommaSep}${PercentString}${CommaSep}${AlphaValue})`;
+	`hsla(${NumberString}${CommaSep}${PercentString}${CommaSep}${PercentString}${CommaSep}${AlphaValue})`;
 
 /**
  * Validates legacy HSL format: `hsl(h, s%, l%)`
@@ -109,7 +109,7 @@ type HslModernNoAlphaPattern = `hsl(${NumberString} ${PercentString} ${PercentSt
  * @internal
  */
 type HslModernAlphaPattern =
-  `hsl(${NumberString} ${PercentString} ${PercentString}${SlashSep}${AlphaValue})`;
+	`hsl(${NumberString} ${PercentString} ${PercentString}${SlashSep}${AlphaValue})`;
 
 /**
  * Pattern for modern HSLA without alpha (CSS4 allows hsla() with space syntax)
@@ -122,7 +122,7 @@ type HslaModernNoAlphaPattern = `hsla(${NumberString} ${PercentString} ${Percent
  * @internal
  */
 type HslaModernAlphaPattern =
-  `hsla(${NumberString} ${PercentString} ${PercentString}${SlashSep}${AlphaValue})`;
+	`hsla(${NumberString} ${PercentString} ${PercentString}${SlashSep}${AlphaValue})`;
 
 /**
  * Validates modern CSS4 HSL format: `hsl(h s% l%)` without alpha
@@ -135,10 +135,10 @@ type HslaModernAlphaPattern =
  * ```
  */
 export type HslModernString<T extends string> = [T] extends [HslModernNoAlphaPattern]
-  ? T
-  : [T] extends [HslaModernNoAlphaPattern]
-    ? T
-    : never;
+	? T
+	: [T] extends [HslaModernNoAlphaPattern]
+		? T
+		: never;
 
 /**
  * Validates modern CSS4 HSL format with alpha: `hsl(h s% l% / a)`
@@ -151,10 +151,10 @@ export type HslModernString<T extends string> = [T] extends [HslModernNoAlphaPat
  * ```
  */
 export type HslModernAlphaString<T extends string> = [T] extends [HslModernAlphaPattern]
-  ? T
-  : [T] extends [HslaModernAlphaPattern]
-    ? T
-    : never;
+	? T
+	: [T] extends [HslaModernAlphaPattern]
+		? T
+		: never;
 
 // ============================================================================
 // Unified HSL Input Types
@@ -207,7 +207,7 @@ export type HslaString<T extends string> = HslaLegacyString<T> | HslModernAlphaS
  * ```
  */
 export type HslInputString<T extends string> =
-  | HslLegacyString<T>
-  | HslaLegacyString<T>
-  | HslModernString<T>
-  | HslModernAlphaString<T>;
+	| HslLegacyString<T>
+	| HslaLegacyString<T>
+	| HslModernString<T>
+	| HslModernAlphaString<T>;

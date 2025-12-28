@@ -63,7 +63,7 @@ export type Brand<T, B> = T & { readonly [brand]: B };
  * // const invalid: ValidatedHex = '#ff0000'; // ❌ Type error
  * ```
  */
-export type ValidatedHex = Brand<string, 'ValidatedHex'>;
+export type ValidatedHex = Brand<string, "ValidatedHex">;
 
 /**
  * A validated RGB/RGBA color string that has been verified to be valid.
@@ -87,7 +87,7 @@ export type ValidatedHex = Brand<string, 'ValidatedHex'>;
  * // const invalid: ValidatedRgb = 'rgb(255, 0, 0)'; // ❌ Type error
  * ```
  */
-export type ValidatedRgb = Brand<string, 'ValidatedRgb'>;
+export type ValidatedRgb = Brand<string, "ValidatedRgb">;
 
 /**
  * A validated OKLCH color string that has been verified to be valid.
@@ -117,4 +117,4 @@ export type ValidatedRgb = Brand<string, 'ValidatedRgb'>;
  * // const invalid: ValidatedOklch = 'oklch(0.7 0.15 180)'; // ❌ Type error
  * ```
  */
-export type ValidatedOklch = Brand<string, 'ValidatedOklch'>;
+export type ValidatedOklch = Brand<string, "ValidatedOklch">;

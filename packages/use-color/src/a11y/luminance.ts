@@ -25,10 +25,10 @@
  * ```
  */
 
-import { convert } from '../convert/index.js';
-import { srgbToLinear } from '../convert/linear.js';
-import type { AnyColor } from '../types/ColorObject.js';
-import type { RGBA } from '../types/color.js';
+import { convert } from "../convert/index.js";
+import { srgbToLinear } from "../convert/linear.js";
+import type { AnyColor } from "../types/ColorObject.js";
+import type { RGBA } from "../types/color.js";
 
 /**
  * WCAG 2.1 luminance coefficients.
@@ -39,9 +39,9 @@ import type { RGBA } from '../types/color.js';
  * - Blue (0.0722) has the lowest weight - we're least sensitive to blue
  */
 const LUMINANCE_COEFFICIENTS = {
-  r: 0.2126,
-  g: 0.7152,
-  b: 0.0722,
+	r: 0.2126,
+	g: 0.7152,
+	b: 0.0722,
 } as const;
 
 /**
@@ -53,21 +53,21 @@ export type LuminanceInput = RGBA | AnyColor;
  * Check if a color has the 'space' property (is an AnyColor).
  */
 function hasSpaceProperty(color: LuminanceInput): color is AnyColor {
-  return 'space' in color;
+	return "space" in color;
 }
 
 /**
  * Normalizes any color input to RGBA.
  */
 function toRgba(color: LuminanceInput): RGBA {
-  if (hasSpaceProperty(color)) {
-    if (color.space === 'rgb') {
-      return { r: color.r, g: color.g, b: color.b, a: color.a };
-    }
-    const rgb = convert(color, 'rgb');
-    return { r: rgb.r, g: rgb.g, b: rgb.b, a: rgb.a };
-  }
-  return color;
+	if (hasSpaceProperty(color)) {
+		if (color.space === "rgb") {
+			return { r: color.r, g: color.g, b: color.b, a: color.a };
+		}
+		const rgb = convert(color, "rgb");
+		return { r: rgb.r, g: rgb.g, b: rgb.b, a: rgb.a };
+	}
+	return color;
 }
 
 /**
@@ -107,17 +107,17 @@ function toRgba(color: LuminanceInput): RGBA {
  * @see https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
  */
 export function luminance(color: LuminanceInput): number {
-  const rgba = toRgba(color);
+	const rgba = toRgba(color);
 
-  // Linearize RGB values (gamma expansion)
-  const rLinear = srgbToLinear(rgba.r);
-  const gLinear = srgbToLinear(rgba.g);
-  const bLinear = srgbToLinear(rgba.b);
+	// Linearize RGB values (gamma expansion)
+	const rLinear = srgbToLinear(rgba.r);
+	const gLinear = srgbToLinear(rgba.g);
+	const bLinear = srgbToLinear(rgba.b);
 
-  // Apply WCAG luminance coefficients
-  return (
-    LUMINANCE_COEFFICIENTS.r * rLinear +
-    LUMINANCE_COEFFICIENTS.g * gLinear +
-    LUMINANCE_COEFFICIENTS.b * bLinear
-  );
+	// Apply WCAG luminance coefficients
+	return (
+		LUMINANCE_COEFFICIENTS.r * rLinear +
+		LUMINANCE_COEFFICIENTS.g * gLinear +
+		LUMINANCE_COEFFICIENTS.b * bLinear
+	);
 }

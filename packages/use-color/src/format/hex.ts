@@ -18,40 +18,40 @@
  * ```
  */
 
-import { convert } from '../convert/index.js';
-import type { AnyColor, RgbColor } from '../types/ColorObject.js';
-import type { RGBA } from '../types/color.js';
+import { convert } from "../convert/index.js";
+import type { AnyColor, RgbColor } from "../types/ColorObject.js";
+import type { RGBA } from "../types/color.js";
 
 export interface HexOptions {
-  uppercase?: boolean;
+	uppercase?: boolean;
 }
 
 export type HexInput = RGBA | RgbColor | AnyColor;
 
 function numberToHex(value: number): string {
-  const clamped = Math.max(0, Math.min(255, Math.round(value)));
-  return clamped.toString(16).padStart(2, '0');
+	const clamped = Math.max(0, Math.min(255, Math.round(value)));
+	return clamped.toString(16).padStart(2, "0");
 }
 
 function alphaToHex(alpha: number): string {
-  const clamped = Math.max(0, Math.min(1, alpha));
-  const value = Math.round(clamped * 255);
-  return value.toString(16).padStart(2, '0');
+	const clamped = Math.max(0, Math.min(1, alpha));
+	const value = Math.round(clamped * 255);
+	return value.toString(16).padStart(2, "0");
 }
 
 function isCompressibleDigit(hex: string): boolean {
-  return hex[0] === hex[1];
+	return hex[0] === hex[1];
 }
 
 function extractRgba(color: HexInput): RGBA {
-  if ('space' in color) {
-    if (color.space === 'rgb') {
-      return { r: color.r, g: color.g, b: color.b, a: color.a };
-    }
-    const rgb = convert(color, 'rgb');
-    return { r: rgb.r, g: rgb.g, b: rgb.b, a: rgb.a };
-  }
-  return color;
+	if ("space" in color) {
+		if (color.space === "rgb") {
+			return { r: color.r, g: color.g, b: color.b, a: color.a };
+		}
+		const rgb = convert(color, "rgb");
+		return { r: rgb.r, g: rgb.g, b: rgb.b, a: rgb.a };
+	}
+	return color;
 }
 
 /**
@@ -65,13 +65,13 @@ function extractRgba(color: HexInput): RGBA {
  * ```
  */
 export function toHex(color: HexInput, options?: HexOptions): string {
-  const rgba = extractRgba(color);
-  const r = numberToHex(rgba.r);
-  const g = numberToHex(rgba.g);
-  const b = numberToHex(rgba.b);
+	const rgba = extractRgba(color);
+	const r = numberToHex(rgba.r);
+	const g = numberToHex(rgba.g);
+	const b = numberToHex(rgba.b);
 
-  const hex = `#${r}${g}${b}`;
-  return options?.uppercase ? hex.toUpperCase() : hex;
+	const hex = `#${r}${g}${b}`;
+	return options?.uppercase ? hex.toUpperCase() : hex;
 }
 
 /**
@@ -84,14 +84,14 @@ export function toHex(color: HexInput, options?: HexOptions): string {
  * ```
  */
 export function toHex8(color: HexInput, options?: HexOptions): string {
-  const rgba = extractRgba(color);
-  const r = numberToHex(rgba.r);
-  const g = numberToHex(rgba.g);
-  const b = numberToHex(rgba.b);
-  const a = alphaToHex(rgba.a);
+	const rgba = extractRgba(color);
+	const r = numberToHex(rgba.r);
+	const g = numberToHex(rgba.g);
+	const b = numberToHex(rgba.b);
+	const a = alphaToHex(rgba.a);
 
-  const hex = `#${r}${g}${b}${a}`;
-  return options?.uppercase ? hex.toUpperCase() : hex;
+	const hex = `#${r}${g}${b}${a}`;
+	return options?.uppercase ? hex.toUpperCase() : hex;
 }
 
 /**
@@ -108,15 +108,15 @@ export function toHex8(color: HexInput, options?: HexOptions): string {
  * ```
  */
 export function toHexShort(color: HexInput, options?: HexOptions): string | null {
-  const rgba = extractRgba(color);
-  const r = numberToHex(rgba.r);
-  const g = numberToHex(rgba.g);
-  const b = numberToHex(rgba.b);
+	const rgba = extractRgba(color);
+	const r = numberToHex(rgba.r);
+	const g = numberToHex(rgba.g);
+	const b = numberToHex(rgba.b);
 
-  if (!isCompressibleDigit(r) || !isCompressibleDigit(g) || !isCompressibleDigit(b)) {
-    return null;
-  }
+	if (!isCompressibleDigit(r) || !isCompressibleDigit(g) || !isCompressibleDigit(b)) {
+		return null;
+	}
 
-  const hex = `#${r[0]}${g[0]}${b[0]}`;
-  return options?.uppercase ? hex.toUpperCase() : hex;
+	const hex = `#${r[0]}${g[0]}${b[0]}`;
+	return options?.uppercase ? hex.toUpperCase() : hex;
 }

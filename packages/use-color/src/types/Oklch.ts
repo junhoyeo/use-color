@@ -27,7 +27,7 @@ type NumberOrPercent = NumberString | PercentString;
  * Optional space character for flexible whitespace handling.
  * @internal
  */
-type OptSpace = '' | ' ';
+type OptSpace = "" | " ";
 
 /**
  * Slash separator with optional whitespace on either side.
@@ -49,7 +49,7 @@ type OklchNoAlphaPattern = `oklch(${NumberOrPercent} ${NumberString} ${NumberStr
  * @internal
  */
 type OklchAlphaPattern =
-  `oklch(${NumberOrPercent} ${NumberString} ${NumberString}${SlashSep}${NumberOrPercent})`;
+	`oklch(${NumberOrPercent} ${NumberString} ${NumberString}${SlashSep}${NumberOrPercent})`;
 
 /**
  * Validates an OKLCH color string without alpha channel.

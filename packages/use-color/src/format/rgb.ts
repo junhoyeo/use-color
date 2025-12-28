@@ -19,9 +19,9 @@
  * ```
  */
 
-import { convert } from '../convert/index.js';
-import type { AnyColor, RgbColor } from '../types/ColorObject.js';
-import type { RGBA } from '../types/color.js';
+import { convert } from "../convert/index.js";
+import type { AnyColor, RgbColor } from "../types/ColorObject.js";
+import type { RGBA } from "../types/color.js";
 
 /**
  * Type representing a color input that can be converted to RGB string.
@@ -54,20 +54,20 @@ export type RgbFormattableColor = RGBA | RgbColor | AnyColor;
  * ```
  */
 function normalizeToRgba(color: RgbFormattableColor): RGBA {
-  if ('space' in color) {
-    const rgbColor = convert(color, 'rgb');
-    return {
-      r: rgbColor.r,
-      g: rgbColor.g,
-      b: rgbColor.b,
-      a: rgbColor.a,
-    };
-  }
-  return color;
+	if ("space" in color) {
+		const rgbColor = convert(color, "rgb");
+		return {
+			r: rgbColor.r,
+			g: rgbColor.g,
+			b: rgbColor.b,
+			a: rgbColor.a,
+		};
+	}
+	return color;
 }
 
 function roundAndClampChannel(value: number): number {
-  return Math.max(0, Math.min(255, Math.round(value)));
+	return Math.max(0, Math.min(255, Math.round(value)));
 }
 
 /**
@@ -101,12 +101,12 @@ function roundAndClampChannel(value: number): number {
  * ```
  */
 export function toRgbString(color: RgbFormattableColor): string {
-  const rgba = normalizeToRgba(color);
-  const r = roundAndClampChannel(rgba.r);
-  const g = roundAndClampChannel(rgba.g);
-  const b = roundAndClampChannel(rgba.b);
+	const rgba = normalizeToRgba(color);
+	const r = roundAndClampChannel(rgba.r);
+	const g = roundAndClampChannel(rgba.g);
+	const b = roundAndClampChannel(rgba.b);
 
-  return `rgb(${r}, ${g}, ${b})`;
+	return `rgb(${r}, ${g}, ${b})`;
 }
 
 /**
@@ -144,12 +144,12 @@ export function toRgbString(color: RgbFormattableColor): string {
  * ```
  */
 export function toRgbaString(color: RgbFormattableColor): string {
-  const rgba = normalizeToRgba(color);
-  const r = roundAndClampChannel(rgba.r);
-  const g = roundAndClampChannel(rgba.g);
-  const b = roundAndClampChannel(rgba.b);
+	const rgba = normalizeToRgba(color);
+	const r = roundAndClampChannel(rgba.r);
+	const g = roundAndClampChannel(rgba.g);
+	const b = roundAndClampChannel(rgba.b);
 
-  return `rgba(${r}, ${g}, ${b}, ${rgba.a})`;
+	return `rgba(${r}, ${g}, ${b}, ${rgba.a})`;
 }
 
 /**
@@ -190,14 +190,14 @@ export function toRgbaString(color: RgbFormattableColor): string {
  * ```
  */
 export function toRgbModern(color: RgbFormattableColor): string {
-  const rgba = normalizeToRgba(color);
-  const r = roundAndClampChannel(rgba.r);
-  const g = roundAndClampChannel(rgba.g);
-  const b = roundAndClampChannel(rgba.b);
+	const rgba = normalizeToRgba(color);
+	const r = roundAndClampChannel(rgba.r);
+	const g = roundAndClampChannel(rgba.g);
+	const b = roundAndClampChannel(rgba.b);
 
-  if (rgba.a === 1) {
-    return `rgb(${r} ${g} ${b})`;
-  }
+	if (rgba.a === 1) {
+		return `rgb(${r} ${g} ${b})`;
+	}
 
-  return `rgb(${r} ${g} ${b} / ${rgba.a})`;
+	return `rgb(${r} ${g} ${b} / ${rgba.a})`;
 }

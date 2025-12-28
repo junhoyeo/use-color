@@ -1,9 +1,9 @@
-import type { HSLA, OKLCH, RGBA } from './color.js';
-import type { HexString, HexStringWithOpacity } from './Hex.js';
-import type { HslInputString } from './Hsl.js';
-import type { NamedColorString } from './Named.js';
-import type { OklchInputString } from './Oklch.js';
-import type { RgbColorInput, RgbString } from './Rgb.js';
+import type { HSLA, OKLCH, RGBA } from "./color.js";
+import type { HexString, HexStringWithOpacity } from "./Hex.js";
+import type { HslInputString } from "./Hsl.js";
+import type { NamedColorString } from "./Named.js";
+import type { OklchInputString } from "./Oklch.js";
+import type { RgbColorInput, RgbString } from "./Rgb.js";
 
 /**
  * Validated color string input types.
@@ -27,12 +27,12 @@ import type { RgbColorInput, RgbString } from './Rgb.js';
  * ```
  */
 export type ColorStringInput<T extends string> =
-  | HexString<T>
-  | HexStringWithOpacity<T>
-  | RgbString<T>
-  | HslInputString<T>
-  | OklchInputString<T>
-  | NamedColorString<T>;
+	| HexString<T>
+	| HexStringWithOpacity<T>
+	| RgbString<T>
+	| HslInputString<T>
+	| OklchInputString<T>
+	| NamedColorString<T>;
 
 /**
  * Color object input types.
@@ -92,9 +92,9 @@ export type ColorInput<T extends string = string> = ColorStringInput<T> | RgbCol
  * ```
  */
 export type AnyColorInput<T extends string = string> =
-  | ColorStringInput<T>
-  | ColorObjectInput
-  | RgbColorInput;
+	| ColorStringInput<T>
+	| ColorObjectInput
+	| RgbColorInput;
 
 /**
  * Constraint helper that validates a string is a valid color input.

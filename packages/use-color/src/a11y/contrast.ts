@@ -29,7 +29,7 @@
  * ```
  */
 
-import { type LuminanceInput, luminance } from './luminance.js';
+import { type LuminanceInput, luminance } from "./luminance.js";
 
 /**
  * Calculates the WCAG 2.1 contrast ratio between two colors.
@@ -75,14 +75,14 @@ import { type LuminanceInput, luminance } from './luminance.js';
  * @see https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio
  */
 export function contrast(colorA: LuminanceInput, colorB: LuminanceInput): number {
-  const lumA = luminance(colorA);
-  const lumB = luminance(colorB);
+	const lumA = luminance(colorA);
+	const lumB = luminance(colorB);
 
-  // Ensure L1 is the lighter (higher) luminance
-  const l1 = Math.max(lumA, lumB);
-  const l2 = Math.min(lumA, lumB);
+	// Ensure L1 is the lighter (higher) luminance
+	const l1 = Math.max(lumA, lumB);
+	const l2 = Math.min(lumA, lumB);
 
-  // WCAG contrast ratio formula
-  // The 0.05 offset accounts for ambient light and prevents division by zero
-  return (l1 + 0.05) / (l2 + 0.05);
+	// WCAG contrast ratio formula
+	// The 0.05 offset accounts for ambient light and prevents division by zero
+	return (l1 + 0.05) / (l2 + 0.05);
 }

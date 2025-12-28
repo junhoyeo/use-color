@@ -21,7 +21,7 @@
  * ```
  */
 
-import { SRGB_TO_XYZ, XYZ_TO_SRGB } from './constants.js';
+import { SRGB_TO_XYZ, XYZ_TO_SRGB } from "./constants.js";
 
 /**
  * Linear RGB color representation.
@@ -36,12 +36,12 @@ import { SRGB_TO_XYZ, XYZ_TO_SRGB } from './constants.js';
  * ```
  */
 export interface LinearRGB {
-  /** Red channel (0-1, linear) */
-  r: number;
-  /** Green channel (0-1, linear) */
-  g: number;
-  /** Blue channel (0-1, linear) */
-  b: number;
+	/** Red channel (0-1, linear) */
+	r: number;
+	/** Green channel (0-1, linear) */
+	g: number;
+	/** Blue channel (0-1, linear) */
+	b: number;
 }
 
 /**
@@ -59,12 +59,12 @@ export interface LinearRGB {
  * ```
  */
 export interface XYZ {
-  /** X chromaticity coordinate */
-  x: number;
-  /** Y chromaticity coordinate (luminance) */
-  y: number;
-  /** Z chromaticity coordinate */
-  z: number;
+	/** X chromaticity coordinate */
+	x: number;
+	/** Y chromaticity coordinate (luminance) */
+	y: number;
+	/** Z chromaticity coordinate */
+	z: number;
 }
 
 /**
@@ -97,13 +97,13 @@ export interface XYZ {
  * @see https://www.w3.org/TR/css-color-4/#color-conversion-code
  */
 export function linearRgbToXyz(rgb: LinearRGB): XYZ {
-  const { r, g, b } = rgb;
+	const { r, g, b } = rgb;
 
-  return {
-    x: SRGB_TO_XYZ[0][0] * r + SRGB_TO_XYZ[0][1] * g + SRGB_TO_XYZ[0][2] * b,
-    y: SRGB_TO_XYZ[1][0] * r + SRGB_TO_XYZ[1][1] * g + SRGB_TO_XYZ[1][2] * b,
-    z: SRGB_TO_XYZ[2][0] * r + SRGB_TO_XYZ[2][1] * g + SRGB_TO_XYZ[2][2] * b,
-  };
+	return {
+		x: SRGB_TO_XYZ[0][0] * r + SRGB_TO_XYZ[0][1] * g + SRGB_TO_XYZ[0][2] * b,
+		y: SRGB_TO_XYZ[1][0] * r + SRGB_TO_XYZ[1][1] * g + SRGB_TO_XYZ[1][2] * b,
+		z: SRGB_TO_XYZ[2][0] * r + SRGB_TO_XYZ[2][1] * g + SRGB_TO_XYZ[2][2] * b,
+	};
 }
 
 /**
@@ -135,11 +135,11 @@ export function linearRgbToXyz(rgb: LinearRGB): XYZ {
  * @see https://www.w3.org/TR/css-color-4/#color-conversion-code
  */
 export function xyzToLinearRgb(xyz: XYZ): LinearRGB {
-  const { x, y, z } = xyz;
+	const { x, y, z } = xyz;
 
-  return {
-    r: XYZ_TO_SRGB[0][0] * x + XYZ_TO_SRGB[0][1] * y + XYZ_TO_SRGB[0][2] * z,
-    g: XYZ_TO_SRGB[1][0] * x + XYZ_TO_SRGB[1][1] * y + XYZ_TO_SRGB[1][2] * z,
-    b: XYZ_TO_SRGB[2][0] * x + XYZ_TO_SRGB[2][1] * y + XYZ_TO_SRGB[2][2] * z,
-  };
+	return {
+		r: XYZ_TO_SRGB[0][0] * x + XYZ_TO_SRGB[0][1] * y + XYZ_TO_SRGB[0][2] * z,
+		g: XYZ_TO_SRGB[1][0] * x + XYZ_TO_SRGB[1][1] * y + XYZ_TO_SRGB[1][2] * z,
+		b: XYZ_TO_SRGB[2][0] * x + XYZ_TO_SRGB[2][1] * y + XYZ_TO_SRGB[2][2] * z,
+	};
 }

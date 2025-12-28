@@ -6,7 +6,7 @@
  * const space: ColorSpace = 'oklch';
  * ```
  */
-export type ColorSpace = 'rgb' | 'oklch' | 'hsl' | 'p3';
+export type ColorSpace = "rgb" | "oklch" | "hsl" | "p3";
 
 /**
  * Display P3 color representation with red, green, blue channels (0-1 range) and alpha.
@@ -22,14 +22,14 @@ export type ColorSpace = 'rgb' | 'oklch' | 'hsl' | 'p3';
  * ```
  */
 export interface P3 {
-  /** Red channel (0-1) */
-  r: number;
-  /** Green channel (0-1) */
-  g: number;
-  /** Blue channel (0-1) */
-  b: number;
-  /** Alpha channel (0-1) */
-  a: number;
+	/** Red channel (0-1) */
+	r: number;
+	/** Green channel (0-1) */
+	g: number;
+	/** Blue channel (0-1) */
+	b: number;
+	/** Alpha channel (0-1) */
+	a: number;
 }
 
 /**
@@ -43,14 +43,14 @@ export interface P3 {
  * ```
  */
 export interface RGBA {
-  /** Red channel (0-255) */
-  r: number;
-  /** Green channel (0-255) */
-  g: number;
-  /** Blue channel (0-255) */
-  b: number;
-  /** Alpha channel (0-1) */
-  a: number;
+	/** Red channel (0-255) */
+	r: number;
+	/** Green channel (0-255) */
+	g: number;
+	/** Blue channel (0-255) */
+	b: number;
+	/** Alpha channel (0-1) */
+	a: number;
 }
 
 /**
@@ -64,14 +64,14 @@ export interface RGBA {
  * ```
  */
 export interface OKLCH {
-  /** Lightness (0-1) */
-  l: number;
-  /** Chroma (0 to ~0.4, unbounded) */
-  c: number;
-  /** Hue angle in degrees (0-360) */
-  h: number;
-  /** Alpha channel (0-1) */
-  a: number;
+	/** Lightness (0-1) */
+	l: number;
+	/** Chroma (0 to ~0.4, unbounded) */
+	c: number;
+	/** Hue angle in degrees (0-360) */
+	h: number;
+	/** Alpha channel (0-1) */
+	a: number;
 }
 
 /**
@@ -84,14 +84,14 @@ export interface OKLCH {
  * ```
  */
 export interface HSLA {
-  /** Hue angle in degrees (0-360) */
-  h: number;
-  /** Saturation (0-1) */
-  s: number;
-  /** Lightness (0-1) */
-  l: number;
-  /** Alpha channel (0-1) */
-  a: number;
+	/** Hue angle in degrees (0-360) */
+	h: number;
+	/** Saturation (0-1) */
+	s: number;
+	/** Lightness (0-1) */
+	l: number;
+	/** Alpha channel (0-1) */
+	a: number;
 }
 
 /**
@@ -105,10 +105,10 @@ export interface HSLA {
  * ```
  */
 export interface Oklab {
-  /** Lightness (0-1) */
-  L: number;
-  /** Green-red opponent channel (approximately -0.4 to 0.4) */
-  a: number;
-  /** Blue-yellow opponent channel (approximately -0.4 to 0.4) */
-  b: number;
+	/** Lightness (0-1) */
+	L: number;
+	/** Green-red opponent channel (approximately -0.4 to 0.4) */
+	a: number;
+	/** Blue-yellow opponent channel (approximately -0.4 to 0.4) */
+	b: number;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { type Color, apcaContrast, color } from "use-color";
+import { apcaContrast, type Color, color } from "use-color";
 
 export interface APCAVisualizationProps {
 	color: Color;

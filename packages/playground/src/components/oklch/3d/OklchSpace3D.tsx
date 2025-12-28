@@ -1,16 +1,107 @@
 "use client";
 import { OrbitControls } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as THREE from "three";
 import { tryColor } from "use-color";
-import { ColorPointCloud } from "./ColorPointCloud";
 import { CurrentColorMarker } from "./CurrentColorMarker";
+import { GamutSurface } from "./GamutSurface";
 
 function useIsMobile(): boolean {
 	return useMemo(() => {
 		if (typeof window === "undefined") return false;
 		return window.innerWidth < 768 || /Mobi|Android/i.test(navigator.userAgent);
 	}, []);
+}
+
+interface SlicePlanesProps {
+	l: number;
+	c: number;
+	h: number;
+}
+
+function SlicePlanes({ l, c, h }: SlicePlanesProps) {
+	const lightnessY = l * 2 - 1;
+	const chromaZ = (c / 0.4) * 2 - 1;
+	const hueX = (h / 360) * 2 - 1;
+
+	const planeOpacity = 0.15;
+	const planeSize = 2.2;
+
+	const lineGeometry = useMemo(() => {
+		const geometry = new THREE.BufferGeometry();
+		const positions = new Float32Array([
+			-1.1,
+			lightnessY,
+			chromaZ,
+			1.1,
+			lightnessY,
+			chromaZ,
+			hueX,
+			-1.1,
+			chromaZ,
+			hueX,
+			1.1,
+			chromaZ,
+			hueX,
+			lightnessY,
+			-1.1,
+			hueX,
+			lightnessY,
+			1.1,
+		]);
+		geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+		return geometry;
+	}, [lightnessY, chromaZ, hueX]);
+
+	return (
+		<group>
+			<mesh position={[0, lightnessY, 0]} rotation={[Math.PI / 2, 0, 0]}>
+				<planeGeometry args={[planeSize, planeSize]} />
+				<meshBasicMaterial
+					color="#ffffff"
+					transparent
+					opacity={planeOpacity}
+					side={THREE.DoubleSide}
+					depthWrite={false}
+				/>
+			</mesh>
+
+			<mesh position={[0, 0, chromaZ]}>
+				<planeGeometry args={[planeSize, planeSize]} />
+				<meshBasicMaterial
+					color="#ffffff"
+					transparent
+					opacity={planeOpacity}
+					side={THREE.DoubleSide}
+					depthWrite={false}
+				/>
+			</mesh>
+
+			<mesh position={[hueX, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+				<planeGeometry args={[planeSize, planeSize]} />
+				<meshBasicMaterial
+					color="#ffffff"
+					transparent
+					opacity={planeOpacity}
+					side={THREE.DoubleSide}
+					depthWrite={false}
+				/>
+			</mesh>
+
+			<lineSegments geometry={lineGeometry}>
+				<lineBasicMaterial color="#ffffff" opacity={0.5} transparent />
+			</lineSegments>
+		</group>
+	);
+}
+
+function InvalidateOnChange() {
+	const { invalidate } = useThree();
+	useEffect(() => {
+		invalidate();
+	});
+	return null;
 }
 
 export interface OklchSpace3DProps {
@@ -76,6 +167,7 @@ export default function OklchSpace3D({ l, c, h, gamut }: OklchSpace3DProps) {
 		}
 		return "#808080";
 	}, [l, c, h]);
+
 	const [contextLoss, setContextLoss] = useState<ContextLossState>({
 		isLost: false,
 		retryCount: 0,
@@ -161,11 +253,11 @@ export default function OklchSpace3D({ l, c, h, gamut }: OklchSpace3DProps) {
 		};
 	}, [handleContextLost, handleContextRestored]);
 
-	const resolution = isMobile ? 16 : 32;
+	const resolution = isMobile ? 16 : 24;
 	const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio, 2);
 
 	return (
-		<div className="relative w-full h-64 rounded-lg overflow-hidden">
+		<div className="relative w-full h-full">
 			{contextLoss.isLost && (
 				<ContextLostOverlay retryCount={contextLoss.retryCount} maxRetries={MAX_RETRY_COUNT} />
 			)}
@@ -173,10 +265,13 @@ export default function OklchSpace3D({ l, c, h, gamut }: OklchSpace3DProps) {
 				<Canvas
 					frameloop="demand"
 					dpr={dpr}
-					camera={{ position: [3, 2, 3], fov: 50 }}
+					camera={{ position: [2.5, 1.8, 2.5], fov: 50 }}
 					onCreated={handleCanvasCreated}
+					style={{ background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)" }}
 				>
-					<ambientLight intensity={0.5} />
+					<InvalidateOnChange />
+					<ambientLight intensity={0.6} />
+					<directionalLight position={[5, 5, 5]} intensity={0.4} />
 					<OrbitControls
 						enableDamping
 						dampingFactor={0.05}
@@ -184,7 +279,8 @@ export default function OklchSpace3D({ l, c, h, gamut }: OklchSpace3DProps) {
 						maxDistance={6}
 						enablePan={false}
 					/>
-					<ColorPointCloud gamut={gamut} resolution={resolution} />
+					<GamutSurface gamut={gamut} opacity={0.85} resolution={resolution} />
+					<SlicePlanes l={l} c={c} h={h} />
 					<CurrentColorMarker l={l} c={c} h={h} color={markerColor} />
 				</Canvas>
 			)}

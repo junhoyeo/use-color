@@ -59,7 +59,7 @@ $color-primary-oklch: ${oklch};`;
 	}
 }
 
-export function ExportPanel({ color, palette }: ExportPanelProps) {
+export function ExportPanel({ color, palette: _palette }: ExportPanelProps) {
 	const [format, setFormat] = useState<ExportFormat>("css");
 	const [copied, setCopied] = useState(false);
 

@@ -1,6 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Tooltip } from "../../ui/tooltip";
+
+const CHANNEL_TOOLTIPS: Record<"l" | "c" | "h", string> = {
+	l: "Perceptual lightness from 0 (black) to 1 (white)",
+	c: "Chroma (color intensity). Higher = more saturated",
+	h: "Hue angle in degrees (0-360)",
+};
 
 /**
  * Color space conversion matrices inlined for performance.
@@ -405,12 +412,20 @@ export function GradientSlider({
 	return (
 		<div className={className}>
 			<div className="flex items-center justify-between mb-1">
-				<label
-					htmlFor={`slider-${channel}`}
-					className="text-[10px] font-medium text-[var(--muted)] uppercase tracking-wider"
-				>
-					{config.label}
-				</label>
+				<Tooltip text={CHANNEL_TOOLTIPS[channel]}>
+					<label
+						htmlFor={`slider-${channel}`}
+						className="text-[10px] font-medium text-[var(--muted)] uppercase tracking-wider cursor-help inline-flex items-center gap-1"
+					>
+						{config.label}
+						<span
+							className="inline-flex items-center justify-center w-3 h-3 rounded-full bg-[var(--surface-raised)] text-[8px] text-[var(--muted)]"
+							aria-hidden="true"
+						>
+							?
+						</span>
+					</label>
+				</Tooltip>
 				<span className="text-xs font-mono text-[var(--text)]">{config.formatValue(value)}</span>
 			</div>
 
@@ -468,7 +483,8 @@ export function GradientSlider({
 						borderRadius: "50%",
 						backgroundColor: currentColor,
 						border: "2px solid white",
-						boxShadow: "0 0 0 1px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2)",
+						boxShadow:
+							"0 0 0 1px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.2)",
 						transition: isDragging ? "none" : "left 0.05s ease-out",
 					}}
 					aria-hidden="true"

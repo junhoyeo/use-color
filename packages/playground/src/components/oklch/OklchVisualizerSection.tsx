@@ -254,7 +254,7 @@ export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizer
 							<WebGLCheck
 								fallback={
 									<div className="flex items-center justify-center h-full bg-[var(--surface)]">
-										<p className="text-sm text-[var(--text-muted)]">WebGL not available</p>
+										<p className="text-sm text-[var(--muted)]">WebGL not available</p>
 									</div>
 								}
 							>

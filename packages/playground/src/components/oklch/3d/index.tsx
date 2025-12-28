@@ -6,7 +6,7 @@ function Loading3DPlaceholder() {
 		<div className="flex items-center justify-center h-64 bg-[var(--surface)] rounded-lg">
 			<div className="text-center">
 				<div className="animate-spin w-8 h-8 border-2 border-[var(--brand)] border-t-transparent rounded-full mx-auto mb-2" />
-				<p className="text-sm text-[var(--text-muted)]">Loading 3D view...</p>
+				<p className="text-sm text-[var(--muted)]">Loading 3D view...</p>
 			</div>
 		</div>
 	);

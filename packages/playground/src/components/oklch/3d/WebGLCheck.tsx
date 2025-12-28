@@ -34,12 +34,10 @@ export function WebGLCheck({ children, fallback }: WebGLCheckProps) {
 				<div className="flex items-center justify-center h-64 bg-[var(--surface)] rounded-lg">
 					<div className="text-center p-4">
 						<p className="text-lg font-medium text-[var(--text)]">3D View Unavailable</p>
-						<p className="text-sm text-[var(--text-muted)] mt-1">
+						<p className="text-sm text-[var(--muted)] mt-1">
 							WebGL is not supported on this device.
 						</p>
-						<p className="text-xs text-[var(--text-muted)] mt-2">
-							Use the 2D visualizer tabs above.
-						</p>
+						<p className="text-xs text-[var(--muted)] mt-2">Use the 2D visualizer tabs above.</p>
 					</div>
 				</div>
 			)

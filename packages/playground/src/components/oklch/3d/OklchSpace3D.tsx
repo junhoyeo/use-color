@@ -44,18 +44,18 @@ function ContextLostOverlay({
 				{isGivingUp ? (
 					<>
 						<p className="text-lg font-medium text-[var(--text)]">3D View Unavailable</p>
-						<p className="text-sm text-[var(--text-muted)] mt-1">
+						<p className="text-sm text-[var(--muted)] mt-1">
 							WebGL context could not be recovered.
 						</p>
-						<p className="text-xs text-[var(--text-muted)] mt-2">
+						<p className="text-xs text-[var(--muted)] mt-2">
 							Try refreshing the page or use 2D visualizers.
 						</p>
 					</>
 				) : (
 					<>
-						<div className="inline-block w-6 h-6 border-2 border-[var(--text-muted)] border-t-transparent rounded-full animate-spin mb-2" />
+						<div className="inline-block w-6 h-6 border-2 border-[var(--muted)] border-t-transparent rounded-full animate-spin mb-2" />
 						<p className="text-lg font-medium text-[var(--text)]">Recovering 3D View...</p>
-						<p className="text-sm text-[var(--text-muted)] mt-1">
+						<p className="text-sm text-[var(--muted)] mt-1">
 							Attempt {retryCount + 1} of {maxRetries}
 						</p>
 					</>

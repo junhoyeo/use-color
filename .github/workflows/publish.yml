@@ -62,11 +62,15 @@ jobs:
           git tag "v${{ steps.version.outputs.new_version }}"
           git push origin HEAD --tags
 
+      # https://github.com/pnpm/pnpm/issues/3141#issuecomment-1305563972
+      - name: Set publishing config
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Publish to npm
         run: pnpm publish --access public --no-git-checks
         working-directory: packages/use-color
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1

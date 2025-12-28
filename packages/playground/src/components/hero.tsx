@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { Shuffle } from "lucide-react";
+import Image from "next/image";
 import type { Color } from "use-color";
 import { CheckerboardSwatch } from "./ui/color-swatch";
 

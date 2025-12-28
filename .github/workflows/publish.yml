@@ -1,0 +1,78 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Run Tests
+        run: pnpm test
+        working-directory: packages/use-color
+
+      - name: Build
+        run: pnpm build
+        working-directory: packages/use-color
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump Version
+        id: version
+        run: |
+          cd packages/use-color
+          npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit and Tag
+        run: |
+          git add packages/use-color/package.json
+          git commit -m "release: use-color v${{ steps.version.outputs.new_version }}"
+          git tag "v${{ steps.version.outputs.new_version }}"
+          git push origin HEAD --tags
+
+      - name: Publish to npm
+        run: pnpm publish --access public --no-git-checks
+        working-directory: packages/use-color
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.new_version }}
+          name: use-color v${{ steps.version.outputs.new_version }}
+          generate_release_notes: true

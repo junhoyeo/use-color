@@ -1,6 +1,0 @@
-{
-	"buildCommand": "pnpm --filter use-color build && pnpm --filter @use-color/playground build",
-	"outputDirectory": "packages/playground/.next",
-	"installCommand": "pnpm install",
-	"framework": "nextjs"
-}

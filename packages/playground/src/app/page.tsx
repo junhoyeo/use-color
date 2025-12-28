@@ -7,6 +7,7 @@ import { CodeOutput } from "../components/code-output";
 import { Conversions } from "../components/conversions";
 import { Hero } from "../components/hero";
 import { Manipulations } from "../components/manipulations";
+import { OklchVisualizerSection } from "../components/oklch";
 import { useColorState } from "../hooks/use-color-state";
 
 export default function HomePage() {
@@ -38,6 +39,8 @@ export default function HomePage() {
 					onInputChange={updateColor}
 					onRandomColor={() => {}}
 				/>
+
+				<OklchVisualizerSection color={currentColor} onColorChange={updateColor} />
 
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
 					<Analysis color={currentColor} inputValue={inputValue} />

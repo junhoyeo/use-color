@@ -5,26 +5,8 @@ import { RotateCcw } from "lucide-react";
 import type { Color } from "use-color";
 import type { ColorManipulations } from "../hooks/use-color-state";
 import { Card } from "./ui/card";
+import { CheckerboardSwatch, formatColorForCode } from "./ui/color-swatch";
 import { Slider } from "./ui/slider";
-
-const formatColorForDisplay = (c: Color): string =>
-	c.getAlpha() < 1 ? c.toRgbaString() : c.toHex();
-
-const formatColorForCode = (c: Color): string => (c.getAlpha() < 1 ? c.toHex8() : c.toHex());
-
-const CheckerboardSwatch = ({ color, className }: { color: Color; className?: string }) => (
-	<div
-		className={`relative overflow-hidden ${className || "w-10 h-10"} rounded-md border border-white/20`}
-		style={{
-			backgroundImage:
-				"linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%)",
-			backgroundSize: "8px 8px",
-			backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0px",
-		}}
-	>
-		<div className="absolute inset-0" style={{ backgroundColor: formatColorForDisplay(color) }} />
-	</div>
-);
 
 interface ManipulationsProps {
 	color: Color | null;

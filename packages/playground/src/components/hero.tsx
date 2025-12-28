@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Shuffle } from "lucide-react";
 import type { Color } from "use-color";
+import { CheckerboardSwatch } from "./ui/color-swatch";
 
 interface HeroProps {
 	inputValue: string;
@@ -66,9 +67,10 @@ export function Hero({ inputValue, currentColor, onInputChange, onRandomColor }:
 								initial={{ scale: 0 }}
 								animate={{ scale: 1 }}
 								transition={{ type: "spring", stiffness: 400, damping: 25 }}
-								className="absolute right-2.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-md border border-white/20"
-								style={{ backgroundColor: currentColor.toHex() }}
-							/>
+								className="absolute right-2.5 top-1/2 -translate-y-1/2"
+							>
+								<CheckerboardSwatch color={currentColor} className="w-7 h-7" />
+							</motion.div>
 						)}
 					</div>
 					<motion.button

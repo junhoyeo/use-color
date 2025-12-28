@@ -8,7 +8,7 @@ importers:
 
   .: {}
 
-  packages/demo:
+  packages/playground:
     dependencies:
       clsx:
         specifier: ^2.1.1

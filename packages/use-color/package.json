@@ -61,6 +61,9 @@
 	},
 	"typesVersions": {
 		"*": {
+			".": [
+				"./dist/index.d.ts"
+			],
 			"core": [
 				"./dist/core.d.ts"
 			],

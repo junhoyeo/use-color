@@ -6,7 +6,9 @@
 		"dev": "next dev --port 3333",
 		"build": "next build",
 		"start": "next start",
-		"lint": "eslint"
+		"lint": "biome check . && next lint",
+		"lint:next": "next lint",
+		"format": "biome format --write ."
 	},
 	"dependencies": {
 		"next": "16.1.1",

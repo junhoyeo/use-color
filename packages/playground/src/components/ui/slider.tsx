@@ -25,9 +25,7 @@ export function Slider({
 		<div className="space-y-1">
 			<div className="flex items-center justify-between">
 				<label className="text-xs text-[var(--text-secondary)]">{label}</label>
-				<span className="text-xs font-mono text-[var(--text)]">
-					{formatValue(value)}
-				</span>
+				<span className="text-xs font-mono text-[var(--text)]">{formatValue(value)}</span>
 			</div>
 			<input
 				type="range"

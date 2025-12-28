@@ -1,6 +1,6 @@
 "use client";
 
-import { type Color } from "use-color";
+import type { Color } from "use-color";
 import { Card } from "./ui/card";
 import { CopyButton } from "./ui/copy-button";
 
@@ -8,14 +8,7 @@ interface CodeOutputProps {
 	color: Color | null;
 }
 
-type TokenType =
-	| "keyword"
-	| "string"
-	| "comment"
-	| "method"
-	| "number"
-	| "boolean"
-	| "text";
+type TokenType = "keyword" | "string" | "comment" | "method" | "number" | "boolean" | "text";
 
 interface Token {
 	type: TokenType;
@@ -164,9 +157,7 @@ export function CodeOutput({ color }: CodeOutputProps) {
 		return (
 			<Card delay={0.4}>
 				<h2 className="text-sm font-bold mb-3 text-[var(--text)]">Code</h2>
-				<p className="text-xs text-[var(--text-secondary)]">
-					Enter a valid color to see code
-				</p>
+				<p className="text-xs text-[var(--text-secondary)]">Enter a valid color to see code</p>
 			</Card>
 		);
 	}

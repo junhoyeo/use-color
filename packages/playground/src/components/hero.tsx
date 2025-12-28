@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Shuffle } from "lucide-react";
-import { type Color } from "use-color";
+import type { Color } from "use-color";
 
 interface HeroProps {
 	inputValue: string;
@@ -24,15 +24,9 @@ const RANDOM_COLORS = [
 	"#84cc16",
 ];
 
-export function Hero({
-	inputValue,
-	currentColor,
-	onInputChange,
-	onRandomColor,
-}: HeroProps) {
+export function Hero({ inputValue, currentColor, onInputChange, onRandomColor }: HeroProps) {
 	const handleRandom = () => {
-		const randomColor =
-			RANDOM_COLORS[Math.floor(Math.random() * RANDOM_COLORS.length)];
+		const randomColor = RANDOM_COLORS[Math.floor(Math.random() * RANDOM_COLORS.length)];
 		onInputChange(randomColor);
 		onRandomColor();
 	};

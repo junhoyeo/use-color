@@ -2,13 +2,13 @@
 
 import { Check, X } from "lucide-react";
 import {
-	type Color,
-	detectFormat,
-	luminance,
-	contrast,
 	apcaContrast,
+	type Color,
+	contrast,
+	detectFormat,
 	isInGamut,
 	isInP3Gamut,
+	luminance,
 } from "use-color";
 import { Card } from "./ui/card";
 
@@ -22,9 +22,7 @@ export function Analysis({ color, inputValue }: AnalysisProps) {
 		return (
 			<Card delay={0.1}>
 				<h2 className="text-sm font-bold mb-3 text-[var(--text)]">Analysis</h2>
-				<p className="text-xs text-[var(--text-secondary)]">
-					Enter a valid color to see analysis
-				</p>
+				<p className="text-xs text-[var(--text-secondary)]">Enter a valid color to see analysis</p>
 			</Card>
 		);
 	}
@@ -46,18 +44,10 @@ export function Analysis({ color, inputValue }: AnalysisProps) {
 	const inSRgb = isInGamut(color.toOklch());
 	const inP3 = isInP3Gamut(color.toOklch());
 
-	const DataRow = ({
-		label,
-		value,
-	}: {
-		label: string;
-		value: React.ReactNode;
-	}) => (
+	const DataRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
 		<div className="flex justify-between items-center py-1.5 border-b border-[var(--border)] last:border-0">
 			<span className="text-xs text-[var(--text-secondary)]">{label}</span>
-			<span className="text-xs font-mono font-medium text-[var(--text)]">
-				{value}
-			</span>
+			<span className="text-xs font-mono font-medium text-[var(--text)]">{value}</span>
 		</div>
 	);
 
@@ -87,31 +77,19 @@ export function Analysis({ color, inputValue }: AnalysisProps) {
 					value={
 						<span>
 							{Math.round(lightness * 100)}%{" "}
-							<span className="text-[var(--muted)]">
-								({color.isDark() ? "Dark" : "Light"})
-							</span>
+							<span className="text-[var(--muted)]">({color.isDark() ? "Dark" : "Light"})</span>
 						</span>
 					}
 				/>
 				<DataRow label="Luminance" value={lum.toFixed(3)} />
-				<DataRow
-					label="Contrast on white"
-					value={`${contrastWhite.toFixed(2)}:1`}
-				/>
-				<DataRow
-					label="Contrast on black"
-					value={`${contrastBlack.toFixed(2)}:1`}
-				/>
+				<DataRow label="Contrast on white" value={`${contrastWhite.toFixed(2)}:1`} />
+				<DataRow label="Contrast on black" value={`${contrastBlack.toFixed(2)}:1`} />
 				<DataRow
 					label="WCAG AA"
 					value={
 						<div className="flex items-center gap-1">
 							<StatusIcon valid={isWCAGAA} />
-							<span
-								className={
-									isWCAGAA ? "text-[var(--success)]" : "text-[var(--error)]"
-								}
-							>
+							<span className={isWCAGAA ? "text-[var(--success)]" : "text-[var(--error)]"}>
 								{isWCAGAA ? "Pass" : "Fail"}
 							</span>
 						</div>

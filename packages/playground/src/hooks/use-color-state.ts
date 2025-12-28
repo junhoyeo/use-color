@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Color, type ColorInputValue } from "use-color";
 
 export interface ColorManipulations {
@@ -39,17 +39,15 @@ export function useColorState(initialColor = "#3b82f6") {
 		}
 	}, []);
 
-	const updateManipulation = useCallback(
-		(key: keyof ColorManipulations, value: number) => {
-			setManipulations((prev) => ({ ...prev, [key]: value }));
-		},
-		[],
-	);
+	const updateManipulation = useCallback((key: keyof ColorManipulations, value: number) => {
+		setManipulations((prev) => ({ ...prev, [key]: value }));
+	}, []);
 
 	const applyManipulations = useCallback(() => {
 		if (!currentColor) return;
 
-		let manipulated = Color.from(currentColor.toHex() as ColorInputValue);
+		const rgba = currentColor.toRgb();
+		let manipulated = Color.from(rgba);
 
 		if (manipulations.lighten !== 0) {
 			manipulated =
@@ -102,7 +100,8 @@ export function useColorState(initialColor = "#3b82f6") {
 					break;
 			}
 
-			updateColor(result.toHex());
+			const alpha = currentColor.getAlpha();
+			updateColor(alpha < 1 ? result.toHex8() : result.toHex());
 		},
 		[currentColor, updateColor],
 	);

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { type Color } from "use-color";
+import type { Color } from "use-color";
 import { Card } from "./ui/card";
 import { CopyButton } from "./ui/copy-button";
 
@@ -124,9 +124,7 @@ export function Conversions({ color }: ConversionsProps) {
 	if (!color) {
 		return (
 			<Card delay={0.2}>
-				<h2 className="text-sm font-bold mb-3 text-[var(--text)]">
-					Conversions
-				</h2>
+				<h2 className="text-sm font-bold mb-3 text-[var(--text)]">Conversions</h2>
 				<p className="text-xs text-[var(--text-secondary)]">
 					Enter a valid color to see conversions
 				</p>
@@ -159,9 +157,7 @@ export function Conversions({ color }: ConversionsProps) {
 						<div className="flex items-center gap-2 min-w-0 flex-1">
 							<span
 								className={`text-[10px] font-bold uppercase tracking-wider w-12 flex-shrink-0 ${
-									highlight
-										? "text-[var(--brand)]"
-										: "text-[var(--text-secondary)]"
+									highlight ? "text-[var(--brand)]" : "text-[var(--text-secondary)]"
 								}`}
 							>
 								{label}

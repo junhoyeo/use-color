@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { RotateCcw } from "lucide-react";
-import { type Color } from "use-color";
-import { type ColorManipulations } from "../hooks/use-color-state";
+import type { Color } from "use-color";
+import type { ColorManipulations } from "../hooks/use-color-state";
 import { Card } from "./ui/card";
 import { Slider } from "./ui/slider";
 
@@ -29,12 +29,8 @@ export function Manipulations({
 	if (!color) {
 		return (
 			<Card delay={0.3}>
-				<h2 className="text-sm font-bold mb-3 text-[var(--text)]">
-					Manipulations
-				</h2>
-				<p className="text-xs text-[var(--text-secondary)]">
-					Enter a valid color to manipulate
-				</p>
+				<h2 className="text-sm font-bold mb-3 text-[var(--text)]">Manipulations</h2>
+				<p className="text-xs text-[var(--text-secondary)]">Enter a valid color to manipulate</p>
 			</Card>
 		);
 	}
@@ -47,18 +43,20 @@ export function Manipulations({
 
 	return (
 		<Card delay={0.3}>
-			<div className="flex items-center justify-between mb-3">
+			<div className="flex items-center justify-between mb-3 h-6">
 				<h2 className="text-sm font-bold text-[var(--text)]">Manipulations</h2>
-				{hasChanges && (
-					<button
-						type="button"
-						onClick={onReset}
-						className="flex items-center gap-1 px-2 py-1 rounded text-xs text-[var(--text-secondary)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)] transition-all"
-					>
-						<RotateCcw className="w-3 h-3" />
-						Reset
-					</button>
-				)}
+				<button
+					type="button"
+					onClick={onReset}
+					className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-all ${
+						hasChanges
+							? "text-[var(--text-secondary)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)] opacity-100"
+							: "opacity-0 pointer-events-none"
+					}`}
+				>
+					<RotateCcw className="w-3 h-3" />
+					Reset
+				</button>
 			</div>
 
 			<div className="space-y-3 mb-4">
@@ -102,9 +100,7 @@ export function Manipulations({
 
 			<div className="space-y-3">
 				<div>
-					<h3 className="text-xs font-medium text-[var(--text-secondary)] mb-2">
-						Quick Actions
-					</h3>
+					<h3 className="text-xs font-medium text-[var(--text-secondary)] mb-2">Quick Actions</h3>
 					<div className="flex gap-1.5">
 						{(["invert", "complement", "grayscale"] as const).map((action) => (
 							<button

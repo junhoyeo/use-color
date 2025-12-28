@@ -37,7 +37,12 @@ export default function HomePage() {
 					inputValue={inputValue}
 					currentColor={currentColor}
 					onInputChange={updateColor}
-					onRandomColor={() => {}}
+					onRandomColor={() => {
+						const randomHex = `#${Math.floor(Math.random() * 0xffffff)
+							.toString(16)
+							.padStart(6, "0")}`;
+						updateColor(randomHex);
+					}}
 				/>
 
 				<OklchVisualizerSection color={currentColor} onColorChange={updateColor} />

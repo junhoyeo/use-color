@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Color, type ColorInputValue } from "use-color";
 
 export interface OklchDraft {
@@ -75,20 +75,30 @@ export function useOklchDraft(
 	});
 
 	const baseOklchRef = useRef<OklchDraft | null>(baseColor ? colorToOklchDraft(baseColor) : null);
+	const baseColorKey = baseColor?.toHex8() ?? null;
+	const prevBaseKeyRef = useRef<string | null>(baseColorKey);
 
-	const prevBaseColorRef = useRef<Color | null>(baseColor);
-	if (baseColor !== prevBaseColorRef.current) {
-		prevBaseColorRef.current = baseColor;
+	useEffect(() => {
+		if (baseColorKey === prevBaseKeyRef.current) return;
+		prevBaseKeyRef.current = baseColorKey;
+
 		if (baseColor) {
 			const newBaseOklch = colorToOklchDraft(baseColor);
 			baseOklchRef.current = newBaseOklch;
+
 			if (newBaseOklch.c >= CHROMA_THRESHOLD) {
 				lastMeaningfulHueRef.current = newBaseOklch.h;
+			} else {
+				newBaseOklch.h = lastMeaningfulHueRef.current;
 			}
+
+			setDraftState((prev) => (draftsEqual(prev, newBaseOklch) ? prev : newBaseOklch));
 		} else {
 			baseOklchRef.current = null;
+			lastMeaningfulHueRef.current = DEFAULT_DRAFT.h;
+			setDraftState((prev) => (draftsEqual(prev, DEFAULT_DRAFT) ? prev : DEFAULT_DRAFT));
 		}
-	}
+	}, [baseColor, baseColorKey]);
 
 	const setDraft = useCallback((patch: Partial<OklchDraft>) => {
 		setDraftState((prev) => {

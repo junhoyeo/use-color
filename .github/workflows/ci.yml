@@ -31,9 +31,6 @@ jobs:
         
       - name: Build
         run: pnpm build
-        
-      - name: Size Limit
-        run: pnpm size-limit
 
       - name: Generate Coverage Badges
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'

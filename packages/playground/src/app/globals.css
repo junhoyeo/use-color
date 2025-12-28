@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --brand: oklch(0.70 0.24 330);
-  --brand-light: oklch(0.80 0.20 330);
-  --brand-dark: oklch(0.60 0.28 330);
+  --brand: #FE6AB6;
+  --brand-light: oklch(0.80 0.18 350);
+  --brand-dark: oklch(0.58 0.22 350);
   
   --bg: oklch(0.12 0.01 260);
   --surface: oklch(0.16 0.01 260);

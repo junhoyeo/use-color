@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Shuffle } from "lucide-react";
 import type { Color } from "use-color";
 import { CheckerboardSwatch } from "./ui/color-swatch";
@@ -39,8 +40,9 @@ export function Hero({ inputValue, currentColor, onInputChange, onRandomColor }:
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.4 }}
 			>
-				<h1 className="text-4xl sm:text-5xl font-black mb-2 bg-gradient-to-r from-[var(--brand)] to-[var(--brand-light)] bg-clip-text text-transparent">
-					🛼 use-color
+				<h1 className="text-4xl sm:text-5xl font-black mb-2 bg-gradient-to-r from-[var(--brand)] to-[var(--brand-light)] bg-clip-text text-transparent flex items-center justify-center gap-2">
+					<Image src="/assets/logo.png" alt="" width={48} height={48} className="inline-block" />
+					use-color
 				</h1>
 				<p className="text-base text-[var(--text-secondary)] mb-6">
 					Type-safe CSS colors for TypeScript

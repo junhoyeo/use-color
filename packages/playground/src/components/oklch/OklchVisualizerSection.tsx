@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Color } from "use-color";
 import { useOklchDraft } from "../../hooks/use-oklch-draft";
 import { Card } from "../ui/card";
-import { OklchSpace3D, WebGLCheck } from "./3d";
+import { OklchSpace3D } from "./3d";
 import { CursorOverlay } from "./charts/CursorOverlay";
 import { OklchPlane, type PlaneAxis } from "./charts/OklchPlane";
 import { GamutToggle, type GamutType } from "./controls/GamutToggle";
@@ -306,21 +306,7 @@ export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizer
 						className="rounded-lg overflow-hidden border border-[var(--border)]"
 						style={{ width: PLANE_WIDTH, height: PLANE_HEIGHT }}
 					>
-						<WebGLCheck
-							fallback={
-								<div className="flex items-center justify-center h-full bg-[var(--surface)]">
-									<p className="text-sm text-[var(--muted)]">WebGL not available</p>
-								</div>
-							}
-						>
-							<OklchSpace3D
-								l={draft.l}
-								c={draft.c}
-								h={draft.h}
-								gamut={gamut}
-								onColorChange={(l, c, h) => setDraft({ l, c, h })}
-							/>
-						</WebGLCheck>
+						<OklchSpace3D l={draft.l} c={draft.c} h={draft.h} gamut={gamut} />
 					</div>
 				</div>
 

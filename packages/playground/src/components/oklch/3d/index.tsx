@@ -17,10 +17,4 @@ export const OklchSpace3D = dynamic(() => import("./OklchSpace3D"), {
 	loading: () => <Loading3DPlaceholder />,
 });
 
-export type { ColorPointCloudProps } from "./ColorPointCloud";
-export { ColorPointCloud } from "./ColorPointCloud";
-export { CurrentColorMarker } from "./CurrentColorMarker";
-export type { GamutSurfaceProps } from "./GamutSurface";
-export { GamutSurface } from "./GamutSurface";
 export type { OklchSpace3DProps } from "./OklchSpace3D";
-export { WebGLCheck } from "./WebGLCheck";

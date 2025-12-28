@@ -65,6 +65,9 @@ export function usePointerDrag(
 
 			setIsDragging(true);
 			onDragStartRef.current?.();
+
+			// Optional haptic feedback on drag start
+			navigator.vibrate?.(10);
 		},
 		[ref],
 	);

@@ -1,5 +1,7 @@
 export type { CanvasSurfaceProps, CanvasSurfaceRef } from "./CanvasSurface";
 export { CanvasSurface } from "./CanvasSurface";
+export type { GamutType, PlaneAxis, PlaneCache } from "./cache";
+export { buildCacheKey, createPlaneCache } from "./cache";
 export type {
 	CanvasColorSpace,
 	UseCanvasSurfaceOptions,

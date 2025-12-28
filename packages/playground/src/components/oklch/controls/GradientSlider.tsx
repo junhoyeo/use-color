@@ -223,8 +223,8 @@ function renderSliderGradient(
 	return new ImageData(data, width, height);
 }
 
-const SLIDER_HEIGHT = 24;
-const THUMB_SIZE = 20;
+const SLIDER_HEIGHT = 44;
+const THUMB_SIZE = 24;
 
 export function GradientSlider({
 	channel,
@@ -420,7 +420,7 @@ export function GradientSlider({
 				style={{
 					height: SLIDER_HEIGHT,
 					cursor: isDragging ? "grabbing" : "pointer",
-					touchAction: "none",
+					touchAction: "pan-y",
 				}}
 				onPointerDown={handlePointerDown}
 				onPointerMove={handlePointerMove}

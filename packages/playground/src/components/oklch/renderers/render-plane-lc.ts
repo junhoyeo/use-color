@@ -3,6 +3,11 @@ import type { RenderPlaneLcParams } from "./types";
 /**
  * Renders a Lightness-Chroma (LC) plane for OKLCH visualization.
  *
+ * Performance Note:
+ * Web Workers were evaluated but deemed unnecessary. With inlined OKLCH→RGB matrices,
+ * precomputed trigonometry, and a 280×200 canvas (56K pixels), render times are <6ms.
+ * The added complexity of worker files and message passing is not justified.
+ *
  * NOTE: P3 gamut mode currently checks P3 color boundaries but outputs sRGB values.
  * This is intentional for the MVP (Phase 1) - actual P3 color output using
  * color(display-p3 r g b) is planned for Phase 1.1.

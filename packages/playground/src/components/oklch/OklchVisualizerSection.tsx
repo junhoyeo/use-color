@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Color } from "use-color";
 import { useOklchDraft } from "../../hooks/use-oklch-draft";
 import { Card } from "../ui/card";
@@ -10,6 +10,8 @@ import { GamutToggle, type GamutType } from "./controls/GamutToggle";
 import { OklchSliders } from "./controls/OklchSliders";
 import { usePointerDrag } from "./engine/use-pointer-drag";
 import { type BoundaryPoint, computeGamutBoundary } from "./renderers/gamut-boundary";
+
+const ANNOUNCEMENT_DEBOUNCE_MS = 400;
 
 const MAX_CHROMA = 0.4;
 const PLANE_WIDTH = 280;
@@ -32,18 +34,61 @@ const AXIS_LABELS: Record<PlaneAxis, { x: string; y: string }> = {
 	CH: { x: "Hue →", y: "↑ Chroma" },
 };
 
+function formatAnnouncement(l: number, c: number, h: number): string {
+	const lightnessPct = Math.round(l * 100);
+	const chromaFormatted = c.toFixed(2);
+	const hueDegrees = Math.round(h);
+	return `Lightness ${lightnessPct}%, Chroma ${chromaFormatted}, Hue ${hueDegrees} degrees`;
+}
+
 export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizerSectionProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	const [planeAxis, setPlaneAxis] = useState<PlaneAxis>("LC");
 	const [gamut, setGamut] = useState<GamutType>("srgb");
+	const [announcement, setAnnouncement] = useState<string>("");
+
+	const announcementTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const { draft, setDraft, previewColor, commit, reset, isDirty } = useOklchDraft(color, {
 		onCommit: (newColor) => {
 			const alpha = newColor.getAlpha();
 			onColorChange(alpha < 1 ? newColor.toHex8() : newColor.toHex());
+			setAnnouncement(`Color applied: ${formatAnnouncement(draft.l, draft.c, draft.h)}`);
 		},
 	});
+
+	const announceColorDebounced = useCallback((l: number, c: number, h: number) => {
+		if (announcementTimeoutRef.current) {
+			clearTimeout(announcementTimeoutRef.current);
+		}
+		announcementTimeoutRef.current = setTimeout(() => {
+			setAnnouncement(formatAnnouncement(l, c, h));
+		}, ANNOUNCEMENT_DEBOUNCE_MS);
+	}, []);
+
+	useEffect(() => {
+		announceColorDebounced(draft.l, draft.c, draft.h);
+	}, [draft.l, draft.c, draft.h, announceColorDebounced]);
+
+	useEffect(() => {
+		return () => {
+			if (announcementTimeoutRef.current) {
+				clearTimeout(announcementTimeoutRef.current);
+			}
+		};
+	}, []);
+
+	const handlePlaneAxisChange = useCallback((axis: PlaneAxis) => {
+		setPlaneAxis(axis);
+		const description = PLANE_LABELS[axis].description;
+		setAnnouncement(`Viewing ${description} plane, fixed ${PLANE_LABELS[axis].full}`);
+	}, []);
+
+	const handleReset = useCallback(() => {
+		reset();
+		setAnnouncement("Color reset to original");
+	}, [reset]);
 
 	const fixedValue = useMemo(() => {
 		switch (planeAxis) {
@@ -148,8 +193,8 @@ export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizer
 					<button
 						key={axis}
 						type="button"
-						onClick={() => setPlaneAxis(axis)}
-						className={`px-4 py-2 rounded-md text-xs font-medium transition-all ${
+						onClick={() => handlePlaneAxisChange(axis)}
+						className={`px-4 py-2 min-h-11 rounded-md text-xs font-medium transition-all ${
 							planeAxis === axis
 								? "bg-[var(--brand)] text-white shadow-sm"
 								: "text-[var(--text)] hover:bg-[var(--surface)]"
@@ -172,7 +217,13 @@ export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizer
 							cursor: isDragging ? "grabbing" : "crosshair",
 						}}
 					>
-						<OklchPlane axis={planeAxis} fixedValue={fixedValue} draft={draft} gamut={gamut} />
+						<OklchPlane
+							axis={planeAxis}
+							fixedValue={fixedValue}
+							draft={draft}
+							gamut={gamut}
+							isDragging={isDragging}
+						/>
 
 						{boundaryPath && (
 							<svg
@@ -262,9 +313,9 @@ export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizer
 					<div className="flex gap-2">
 						<button
 							type="button"
-							onClick={reset}
+							onClick={handleReset}
 							disabled={!isDirty}
-							className={`px-4 py-2 rounded-md text-xs transition-all ${
+							className={`px-4 py-2 min-h-11 rounded-md text-xs transition-all ${
 								isDirty
 									? "bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--text)] hover:border-[var(--brand)]"
 									: "opacity-50 cursor-not-allowed bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--text-secondary)]"
@@ -276,7 +327,7 @@ export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizer
 							type="button"
 							onClick={commit}
 							disabled={!isDirty}
-							className={`px-4 py-2 rounded-md text-xs font-medium transition-all ${
+							className={`px-4 py-2 min-h-11 rounded-md text-xs font-medium transition-all ${
 								isDirty
 									? "bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]"
 									: "opacity-50 cursor-not-allowed bg-[var(--brand)] text-white"
@@ -308,6 +359,10 @@ export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizer
 					Evil Martians
 				</a>
 			</footer>
+
+			<div aria-live="polite" aria-atomic="true" className="sr-only">
+				{announcement}
+			</div>
 		</Card>
 	);
 }

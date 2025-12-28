@@ -7,6 +7,7 @@ export interface CanvasSurfaceProps {
 	width: number;
 	height: number;
 	className?: string;
+	style?: React.CSSProperties;
 	colorSpace?: CanvasColorSpace;
 	onRender?: (ctx: CanvasRenderingContext2D, width: number, height: number) => void;
 }
@@ -35,7 +36,7 @@ function getEffectiveDpr(maxDpr = 2): number {
 
 export const CanvasSurface = forwardRef<CanvasSurfaceRef, CanvasSurfaceProps>(
 	function CanvasSurface(
-		{ width: cssWidth, height: cssHeight, className, colorSpace = "srgb", onRender },
+		{ width: cssWidth, height: cssHeight, className, style, colorSpace = "srgb", onRender },
 		ref,
 	) {
 		const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -140,6 +141,7 @@ export const CanvasSurface = forwardRef<CanvasSurfaceRef, CanvasSurfaceProps>(
 					width: cssWidth,
 					height: cssHeight,
 					display: "block",
+					...style,
 				}}
 			/>
 		);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef } from "react";
+import { type KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { OklchDraft } from "../../../hooks/use-oklch-draft";
 import { CanvasSurface, type CanvasSurfaceRef } from "../engine/CanvasSurface";
 import { renderPlaneCh } from "../renderers/render-plane-ch";
@@ -10,6 +10,14 @@ import { renderPlaneLh } from "../renderers/render-plane-lh";
 export type PlaneAxis = "LC" | "LH" | "CH";
 export type GamutType = "srgb" | "p3";
 
+const MAX_CHROMA = 0.4;
+const PLANE_WIDTH = 280;
+const PLANE_HEIGHT = 200;
+const SMALL_STEP = 0.01;
+const LARGE_STEP = 0.1;
+const LOW_RES_SCALE = 0.5;
+const LOW_RES_RESTORE_DELAY_MS = 100;
+
 export interface OklchPlaneProps {
 	axis: PlaneAxis;
 	fixedValue: number;
@@ -17,11 +25,10 @@ export interface OklchPlaneProps {
 	gamut: GamutType;
 	showBoundary?: boolean;
 	className?: string;
+	isDragging?: boolean;
+	onDraftChange?: (patch: Partial<OklchDraft>) => void;
+	onCommit?: () => void;
 }
-
-const MAX_CHROMA = 0.4;
-const PLANE_WIDTH = 280;
-const PLANE_HEIGHT = 200;
 
 export function OklchPlane({
 	axis,
@@ -30,16 +37,128 @@ export function OklchPlane({
 	gamut,
 	showBoundary = false,
 	className,
+	isDragging = false,
+	onDraftChange,
+	onCommit,
 }: OklchPlaneProps) {
 	const canvasRef = useRef<CanvasSurfaceRef>(null);
 	const imageDataCacheRef = useRef<{
 		key: string;
 		data: ImageData;
 	} | null>(null);
+	const lowResTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	const [isFocused, setIsFocused] = useState(false);
+	const [isLowRes, setIsLowRes] = useState(false);
+
+	useEffect(() => {
+		if (isDragging) {
+			if (lowResTimeoutRef.current) {
+				clearTimeout(lowResTimeoutRef.current);
+				lowResTimeoutRef.current = null;
+			}
+			setIsLowRes(true);
+		} else {
+			lowResTimeoutRef.current = setTimeout(() => {
+				setIsLowRes(false);
+			}, LOW_RES_RESTORE_DELAY_MS);
+		}
+
+		return () => {
+			if (lowResTimeoutRef.current) {
+				clearTimeout(lowResTimeoutRef.current);
+			}
+		};
+	}, [isDragging]);
+
+	const handleKeyDown = useCallback(
+		(e: KeyboardEvent<HTMLDivElement>) => {
+			if (!onDraftChange) return;
+
+			const step = e.shiftKey ? LARGE_STEP : SMALL_STEP;
+			let handled = false;
+
+			switch (e.key) {
+				case "ArrowUp": {
+					handled = true;
+					switch (axis) {
+						case "LC":
+						case "LH":
+							onDraftChange({ l: Math.min(1, draft.l + step) });
+							break;
+						case "CH":
+							onDraftChange({ c: Math.min(MAX_CHROMA, draft.c + step * MAX_CHROMA) });
+							break;
+					}
+					break;
+				}
+				case "ArrowDown": {
+					handled = true;
+					switch (axis) {
+						case "LC":
+						case "LH":
+							onDraftChange({ l: Math.max(0, draft.l - step) });
+							break;
+						case "CH":
+							onDraftChange({ c: Math.max(0, draft.c - step * MAX_CHROMA) });
+							break;
+					}
+					break;
+				}
+				case "ArrowRight": {
+					handled = true;
+					switch (axis) {
+						case "LC":
+							onDraftChange({ c: Math.min(MAX_CHROMA, draft.c + step * MAX_CHROMA) });
+							break;
+						case "LH":
+						case "CH":
+							onDraftChange({ h: (draft.h + step * 360) % 360 });
+							break;
+					}
+					break;
+				}
+				case "ArrowLeft": {
+					handled = true;
+					switch (axis) {
+						case "LC":
+							onDraftChange({ c: Math.max(0, draft.c - step * MAX_CHROMA) });
+							break;
+						case "LH":
+						case "CH":
+							onDraftChange({ h: (draft.h - step * 360 + 360) % 360 });
+							break;
+					}
+					break;
+				}
+				case "Enter":
+				case " ": {
+					handled = true;
+					onCommit?.();
+					break;
+				}
+			}
+
+			if (handled) {
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		},
+		[axis, draft.l, draft.c, draft.h, onDraftChange, onCommit],
+	);
+
+	const ariaLabel = useMemo(() => {
+		const lPercent = Math.round(draft.l * 100);
+		const cValue = draft.c.toFixed(2);
+		const hDeg = Math.round(draft.h);
+		return `OKLCH color picker, ${axis} plane. Lightness ${lPercent}%, Chroma ${cValue}, Hue ${hDeg} degrees. Use arrow keys to adjust.`;
+	}, [axis, draft.l, draft.c, draft.h]);
+
+	const resolutionScale = isLowRes ? LOW_RES_SCALE : 1;
 
 	const cacheKey = useMemo(() => {
-		return `${axis}-${fixedValue.toFixed(4)}-${gamut}-${showBoundary}`;
-	}, [axis, fixedValue, gamut, showBoundary]);
+		return `${axis}-${fixedValue.toFixed(4)}-${gamut}-${showBoundary}-${resolutionScale}`;
+	}, [axis, fixedValue, gamut, showBoundary, resolutionScale]);
 
 	const crosshairPosition = useMemo(() => {
 		switch (axis) {
@@ -59,7 +178,9 @@ export function OklchPlane({
 
 	const handleRender = useCallback(
 		(ctx: CanvasRenderingContext2D, width: number, height: number) => {
-			const fullCacheKey = `${cacheKey}-${width}-${height}`;
+			const renderWidth = Math.floor(width * resolutionScale);
+			const renderHeight = Math.floor(height * resolutionScale);
+			const fullCacheKey = `${cacheKey}-${renderWidth}-${renderHeight}`;
 			const cached = imageDataCacheRef.current;
 
 			let imageData: ImageData;
@@ -69,24 +190,24 @@ export function OklchPlane({
 			} else {
 				if (axis === "LC") {
 					imageData = renderPlaneLc({
-						width,
-						height,
+						width: renderWidth,
+						height: renderHeight,
 						h: fixedValue,
 						gamut,
 						showBoundary,
 					});
 				} else if (axis === "LH") {
 					imageData = renderPlaneLh({
-						width,
-						height,
+						width: renderWidth,
+						height: renderHeight,
 						c: fixedValue,
 						gamut,
 						showBoundary,
 					});
 				} else if (axis === "CH") {
 					imageData = renderPlaneCh({
-						width,
-						height,
+						width: renderWidth,
+						height: renderHeight,
 						l: fixedValue,
 						gamut,
 						showBoundary,
@@ -102,9 +223,19 @@ export function OklchPlane({
 				};
 			}
 
-			ctx.putImageData(imageData, 0, 0);
+			if (resolutionScale < 1) {
+				const offscreen = new OffscreenCanvas(renderWidth, renderHeight);
+				const offCtx = offscreen.getContext("2d");
+				if (offCtx) {
+					offCtx.putImageData(imageData, 0, 0);
+					ctx.imageSmoothingEnabled = false;
+					ctx.drawImage(offscreen, 0, 0, width, height);
+				}
+			} else {
+				ctx.putImageData(imageData, 0, 0);
+			}
 		},
-		[axis, fixedValue, gamut, showBoundary, cacheKey],
+		[axis, fixedValue, gamut, showBoundary, cacheKey, resolutionScale],
 	);
 
 	const showCrosshair = axis === "LC" || axis === "LH" || axis === "CH";
@@ -116,13 +247,28 @@ export function OklchPlane({
 				position: "relative",
 				width: PLANE_WIDTH,
 				height: PLANE_HEIGHT,
+				outline: isFocused ? "2px solid var(--brand, #3b82f6)" : "none",
+				outlineOffset: 2,
+				borderRadius: 4,
+				touchAction: "none",
 			}}
+			tabIndex={0}
+			role="slider"
+			aria-label={ariaLabel}
+			aria-valuemin={0}
+			aria-valuemax={100}
+			aria-valuenow={Math.round(draft.l * 100)}
+			aria-valuetext={`Lightness ${Math.round(draft.l * 100)}%, Chroma ${draft.c.toFixed(2)}, Hue ${Math.round(draft.h)} degrees`}
+			onKeyDown={handleKeyDown}
+			onFocus={() => setIsFocused(true)}
+			onBlur={() => setIsFocused(false)}
 		>
 			<CanvasSurface
 				ref={canvasRef}
 				width={PLANE_WIDTH}
 				height={PLANE_HEIGHT}
 				colorSpace={gamut === "p3" ? "display-p3" : "srgb"}
+				style={isLowRes ? { imageRendering: "pixelated" } : undefined}
 				onRender={handleRender}
 			/>
 

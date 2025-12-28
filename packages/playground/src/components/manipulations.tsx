@@ -7,6 +7,45 @@ import type { ColorManipulations } from "../hooks/use-color-state";
 import { Card } from "./ui/card";
 import { Slider } from "./ui/slider";
 
+/**
+ * Returns rgba() for CSS backgrounds (full transparency support).
+ * Uses rgba format which works in all browsers for transparency.
+ */
+const formatColorForDisplay = (c: Color): string => {
+	return c.getAlpha() < 1 ? c.toRgbaString() : c.toHex();
+};
+
+/**
+ * Returns hex8 (#rrggbbaa) when alpha < 1, otherwise hex (#rrggbb).
+ * For code output display.
+ */
+const formatColorForCode = (c: Color): string => {
+	return c.getAlpha() < 1 ? c.toHex8() : c.toHex();
+};
+
+/**
+ * Swatch component with checkerboard background to visualize transparency.
+ */
+const CheckerboardSwatch = ({
+	color,
+	className,
+}: { color: Color; className?: string }) => (
+	<div
+		className={`relative overflow-hidden ${className || "w-10 h-10"} rounded-md border border-white/20`}
+		style={{
+			backgroundImage:
+				"linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%)",
+			backgroundSize: "8px 8px",
+			backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0px",
+		}}
+	>
+		<div
+			className="absolute inset-0"
+			style={{ backgroundColor: formatColorForDisplay(color) }}
+		/>
+	</div>
+);
+
 interface ManipulationsProps {
 	color: Color | null;
 	manipulations: ColorManipulations;
@@ -29,7 +68,11 @@ export function Manipulations({
 	if (!color) {
 		return (
 			<Card delay={0.3}>
-				<h2 className="text-sm font-bold mb-3 text-[var(--text)]">Manipulations</h2>
+				<div className="flex items-center justify-between mb-3 h-6">
+					<h2 className="text-sm font-bold text-[var(--text)]">Manipulations</h2>
+					{/* Invisible placeholder to maintain consistent layout */}
+					<div className="w-[52px]" aria-hidden="true" />
+				</div>
 				<p className="text-xs text-[var(--text-secondary)]">Enter a valid color to manipulate</p>
 			</Card>
 		);

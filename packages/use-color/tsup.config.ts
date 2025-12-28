@@ -1,7 +1,13 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-	entry: ["src/index.ts"],
+	entry: {
+		index: "src/index.ts",
+		core: "src/core.ts",
+		a11y: "src/a11y.ts",
+		names: "src/names.ts",
+		p3: "src/p3.ts",
+	},
 	format: ["esm", "cjs"],
 	dts: true,
 	clean: true,
@@ -10,7 +16,7 @@ export default defineConfig({
 		preset: "smallest",
 		moduleSideEffects: false,
 	},
-	splitting: false,
+	splitting: true,
 	sourcemap: true,
 	outDir: "dist",
 	target: "es2020",

@@ -7,29 +7,12 @@ import type { ColorManipulations } from "../hooks/use-color-state";
 import { Card } from "./ui/card";
 import { Slider } from "./ui/slider";
 
-/**
- * Returns rgba() for CSS backgrounds (full transparency support).
- * Uses rgba format which works in all browsers for transparency.
- */
-const formatColorForDisplay = (c: Color): string => {
-	return c.getAlpha() < 1 ? c.toRgbaString() : c.toHex();
-};
+const formatColorForDisplay = (c: Color): string =>
+	c.getAlpha() < 1 ? c.toRgbaString() : c.toHex();
 
-/**
- * Returns hex8 (#rrggbbaa) when alpha < 1, otherwise hex (#rrggbb).
- * For code output display.
- */
-const formatColorForCode = (c: Color): string => {
-	return c.getAlpha() < 1 ? c.toHex8() : c.toHex();
-};
+const formatColorForCode = (c: Color): string => (c.getAlpha() < 1 ? c.toHex8() : c.toHex());
 
-/**
- * Swatch component with checkerboard background to visualize transparency.
- */
-const CheckerboardSwatch = ({
-	color,
-	className,
-}: { color: Color; className?: string }) => (
+const CheckerboardSwatch = ({ color, className }: { color: Color; className?: string }) => (
 	<div
 		className={`relative overflow-hidden ${className || "w-10 h-10"} rounded-md border border-white/20`}
 		style={{
@@ -39,10 +22,7 @@ const CheckerboardSwatch = ({
 			backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0px",
 		}}
 	>
-		<div
-			className="absolute inset-0"
-			style={{ backgroundColor: formatColorForDisplay(color) }}
-		/>
+		<div className="absolute inset-0" style={{ backgroundColor: formatColorForDisplay(color) }} />
 	</div>
 );
 
@@ -165,17 +145,11 @@ export function Manipulations({
 						className="space-y-2"
 					>
 						<div className="flex items-center gap-2 p-2.5 rounded-lg bg-[var(--surface-raised)]">
-							<div
-								className="w-10 h-10 rounded-md border border-white/20"
-								style={{ backgroundColor: color.toHex() }}
-							/>
+							<CheckerboardSwatch color={color} />
 							<span className="text-[var(--muted)] text-sm">→</span>
-							<div
-								className="w-10 h-10 rounded-md border border-white/20"
-								style={{ backgroundColor: manipulatedColor.toHex() }}
-							/>
+							<CheckerboardSwatch color={manipulatedColor} />
 							<code className="text-xs font-mono text-[var(--text)] ml-auto">
-								{manipulatedColor.toHex()}
+								{formatColorForCode(manipulatedColor)}
 							</code>
 						</div>
 						<button

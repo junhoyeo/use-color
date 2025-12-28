@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Color } from "use-color";
 import { useOklchDraft } from "../../hooks/use-oklch-draft";
 import { Card } from "../ui/card";
+import { OklchSpace3D, WebGLCheck } from "./3d";
 import { CursorOverlay } from "./charts/CursorOverlay";
 import { OklchPlane, type PlaneAxis } from "./charts/OklchPlane";
 import { GamutToggle, type GamutType } from "./controls/GamutToggle";
@@ -21,6 +22,8 @@ interface OklchVisualizerSectionProps {
 	color: Color | null;
 	onColorChange: (colorString: string) => void;
 }
+
+type ViewMode = PlaneAxis | "3D";
 
 const PLANE_LABELS: Record<PlaneAxis, { short: string; full: string; description: string }> = {
 	LC: { short: "H", full: "Hue", description: "Lightness × Chroma" },
@@ -44,9 +47,12 @@ function formatAnnouncement(l: number, c: number, h: number): string {
 export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizerSectionProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const [planeAxis, setPlaneAxis] = useState<PlaneAxis>("LC");
+	const [viewMode, setViewMode] = useState<ViewMode>("LC");
 	const [gamut, setGamut] = useState<GamutType>("srgb");
 	const [announcement, setAnnouncement] = useState<string>("");
+
+	const planeAxis: PlaneAxis = viewMode === "3D" ? "LC" : viewMode;
+	const is3DView = viewMode === "3D";
 
 	const announcementTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -79,10 +85,14 @@ export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizer
 		};
 	}, []);
 
-	const handlePlaneAxisChange = useCallback((axis: PlaneAxis) => {
-		setPlaneAxis(axis);
-		const description = PLANE_LABELS[axis].description;
-		setAnnouncement(`Viewing ${description} plane, fixed ${PLANE_LABELS[axis].full}`);
+	const handleViewModeChange = useCallback((mode: ViewMode) => {
+		setViewMode(mode);
+		if (mode === "3D") {
+			setAnnouncement("Viewing 3D color space visualization");
+		} else {
+			const description = PLANE_LABELS[mode].description;
+			setAnnouncement(`Viewing ${description} plane, fixed ${PLANE_LABELS[mode].full}`);
+		}
 	}, []);
 
 	const handleReset = useCallback(() => {
@@ -193,9 +203,9 @@ export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizer
 					<button
 						key={axis}
 						type="button"
-						onClick={() => handlePlaneAxisChange(axis)}
+						onClick={() => handleViewModeChange(axis)}
 						className={`px-4 py-2 min-h-11 rounded-md text-xs font-medium transition-all ${
-							planeAxis === axis
+							viewMode === axis
 								? "bg-[var(--brand)] text-white shadow-sm"
 								: "text-[var(--text)] hover:bg-[var(--surface)]"
 						}`}
@@ -204,73 +214,110 @@ export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizer
 						{PLANE_LABELS[axis].full}
 					</button>
 				))}
+				<button
+					type="button"
+					onClick={() => handleViewModeChange("3D")}
+					className={`px-4 py-2 min-h-11 rounded-md text-xs font-medium transition-all ${
+						viewMode === "3D"
+							? "bg-[var(--brand)] text-white shadow-sm"
+							: "text-[var(--text)] hover:bg-[var(--surface)]"
+					}`}
+					title="3D color space visualization"
+				>
+					3D
+				</button>
 			</div>
 
 			<div className="flex flex-col lg:flex-row gap-6">
 				<div className="flex-shrink-0">
-					<div
-						ref={containerRef}
-						className="relative rounded-lg overflow-hidden border border-[var(--border)]"
-						style={{
-							width: PLANE_WIDTH,
-							height: PLANE_HEIGHT,
-							cursor: isDragging ? "grabbing" : "crosshair",
-						}}
-					>
-						<OklchPlane
-							axis={planeAxis}
-							fixedValue={fixedValue}
-							draft={draft}
-							gamut={gamut}
-							isDragging={isDragging}
-						/>
-
-						{boundaryPath && (
-							<svg
-								width={PLANE_WIDTH}
-								height={PLANE_HEIGHT}
-								style={{
-									position: "absolute",
-									top: 0,
-									left: 0,
-									pointerEvents: "none",
-								}}
-								aria-hidden="true"
+					{is3DView ? (
+						<div
+							className="rounded-lg overflow-hidden border border-[var(--border)]"
+							style={{ width: PLANE_WIDTH, height: PLANE_HEIGHT + 32 }}
+						>
+							<WebGLCheck
+								fallback={
+									<div className="flex items-center justify-center h-full bg-[var(--surface)]">
+										<p className="text-sm text-[var(--text-muted)]">WebGL not available</p>
+									</div>
+								}
 							>
-								<path
-									d={boundaryPath}
-									fill="none"
-									stroke="rgba(255, 255, 255, 0.6)"
-									strokeWidth={1.5}
-									strokeDasharray="4 3"
-									style={{ filter: "drop-shadow(0 0 1px rgba(0,0,0,0.5))" }}
+								<OklchSpace3D
+									l={draft.l}
+									c={draft.c}
+									h={draft.h}
+									gamut={gamut}
+									onColorChange={(l, c, h) => setDraft({ l, c, h })}
 								/>
-							</svg>
-						)}
+							</WebGLCheck>
+						</div>
+					) : (
+						<>
+							<div
+								ref={containerRef}
+								className="relative rounded-lg overflow-hidden border border-[var(--border)]"
+								style={{
+									width: PLANE_WIDTH,
+									height: PLANE_HEIGHT,
+									cursor: isDragging ? "grabbing" : "crosshair",
+								}}
+							>
+								<OklchPlane
+									axis={planeAxis}
+									fixedValue={fixedValue}
+									draft={draft}
+									gamut={gamut}
+									isDragging={isDragging}
+								/>
 
-						<CursorOverlay
-							x={cursorPosition.x}
-							y={cursorPosition.y}
-							color={previewColor?.toHex()}
-							isDragging={isDragging}
-							width={PLANE_WIDTH}
-							height={PLANE_HEIGHT}
-						/>
-					</div>
+								{boundaryPath && (
+									<svg
+										width={PLANE_WIDTH}
+										height={PLANE_HEIGHT}
+										style={{
+											position: "absolute",
+											top: 0,
+											left: 0,
+											pointerEvents: "none",
+										}}
+										aria-hidden="true"
+									>
+										<path
+											d={boundaryPath}
+											fill="none"
+											stroke="rgba(255, 255, 255, 0.6)"
+											strokeWidth={1.5}
+											strokeDasharray="4 3"
+											style={{ filter: "drop-shadow(0 0 1px rgba(0,0,0,0.5))" }}
+										/>
+									</svg>
+								)}
 
-					<div className="flex justify-between mt-1.5 text-[10px] text-[var(--muted)]">
-						<span>{AXIS_LABELS[planeAxis].x}</span>
-						<span>{AXIS_LABELS[planeAxis].y}</span>
-					</div>
+								<CursorOverlay
+									x={cursorPosition.x}
+									y={cursorPosition.y}
+									color={previewColor?.toHex()}
+									isDragging={isDragging}
+									width={PLANE_WIDTH}
+									height={PLANE_HEIGHT}
+								/>
+							</div>
 
-					<div className="mt-2 text-xs text-[var(--text-secondary)]">
-						Fixed {PLANE_LABELS[planeAxis].full}:{" "}
-						<span className="font-mono font-medium text-[var(--text)]">
-							{planeAxis === "LC" && `${fixedValue.toFixed(1)}°`}
-							{planeAxis === "LH" && fixedValue.toFixed(3)}
-							{planeAxis === "CH" && fixedValue.toFixed(2)}
-						</span>
-					</div>
+							<div className="flex justify-between mt-1.5 text-[10px] text-[var(--muted)]">
+								<span>{AXIS_LABELS[planeAxis].x}</span>
+								<span>{AXIS_LABELS[planeAxis].y}</span>
+							</div>
+
+							<div className="mt-2 text-xs text-[var(--text-secondary)]">
+								Fixed {PLANE_LABELS[planeAxis].full}:{" "}
+								<span className="font-mono font-medium text-[var(--text)]">
+									{planeAxis === "LC" && `${fixedValue.toFixed(1)}°`}
+									{planeAxis === "LH" && fixedValue.toFixed(3)}
+									{planeAxis === "CH" && fixedValue.toFixed(2)}
+								</span>
+							</div>
+						</>
+					)}
 				</div>
 
 				<div className="flex-1 min-w-0 space-y-5">

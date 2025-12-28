@@ -10,6 +10,13 @@ import { OklchPlane, type PlaneAxis } from "./charts/OklchPlane";
 import { GamutToggle, type GamutType } from "./controls/GamutToggle";
 import { OklchSliders } from "./controls/OklchSliders";
 import { usePointerDrag } from "./engine/use-pointer-drag";
+import {
+	APCAVisualization,
+	ColorBlindnessPreview,
+	ExportPanel,
+	HarmoniesPanel,
+	PaletteGenerator,
+} from "./features";
 import { type BoundaryPoint, computeGamutBoundary } from "./renderers/gamut-boundary";
 
 const ANNOUNCEMENT_DEBOUNCE_MS = 400;
@@ -99,6 +106,15 @@ export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizer
 		reset();
 		setAnnouncement("Color reset to original");
 	}, [reset]);
+
+	const handleColorSelect = useCallback(
+		(selectedColor: Color) => {
+			const oklch = selectedColor.toOklch();
+			setDraft({ l: oklch.l, c: oklch.c, h: oklch.h });
+			setAnnouncement(`Color selected: ${formatAnnouncement(oklch.l, oklch.c, oklch.h)}`);
+		},
+		[setDraft],
+	);
 
 	const fixedValue = useMemo(() => {
 		switch (planeAxis) {
@@ -385,6 +401,31 @@ export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizer
 					</div>
 				</div>
 			</div>
+
+			{previewColor && (
+				<details className="mt-6">
+					<summary className="text-sm font-medium cursor-pointer text-[var(--text)] hover:text-[var(--brand)] transition-colors">
+						Advanced Features
+					</summary>
+					<div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+						<div className="p-4 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
+							<HarmoniesPanel color={previewColor} onColorSelect={handleColorSelect} />
+						</div>
+						<div className="p-4 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
+							<PaletteGenerator baseColor={previewColor} onColorSelect={handleColorSelect} />
+						</div>
+						<div className="p-4 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
+							<ColorBlindnessPreview color={previewColor} />
+						</div>
+						<div className="p-4 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
+							<APCAVisualization color={previewColor} />
+						</div>
+						<div className="p-4 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
+							<ExportPanel color={previewColor} />
+						</div>
+					</div>
+				</details>
+			)}
 
 			<footer className="mt-5 pt-3 border-t border-[var(--border)] text-xs text-[var(--muted)]">
 				Visualization inspired by{" "}

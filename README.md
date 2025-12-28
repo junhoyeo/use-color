@@ -266,6 +266,32 @@ const lighter = lighten(rgba, 0.2);
 const hex = toHex(lighter);
 ```
 
+## Modular Imports
+
+For smaller bundles, import only what you need:
+
+```typescript
+// Core only (~8KB gzip) - parsing, formatting, manipulation
+import { color, lighten, darken, toHex } from 'use-color/core';
+
+// Accessibility functions (~3KB gzip)
+import { contrast, isReadable, apcaContrast } from 'use-color/a11y';
+
+// Named colors (~2KB gzip) - adds 'coral', 'rebeccapurple', etc.
+import { parseNamed, NAMED_COLORS } from 'use-color/names';
+
+// Display P3 wide gamut (~3KB gzip)
+import { toP3String, isInP3Gamut } from 'use-color/p3';
+```
+
+| Import | Size (gzip) | Description |
+|--------|-------------|-------------|
+| `use-color` | ~10KB | Full bundle with everything |
+| `use-color/core` | ~8KB | Core color operations |
+| `use-color/a11y` | ~3KB | WCAG contrast, APCA |
+| `use-color/names` | ~2KB | CSS named colors |
+| `use-color/p3` | ~3KB | Display P3 gamut |
+
 ## Type Guards & Assertions
 
 ```typescript
@@ -291,7 +317,8 @@ assertHex(userInput);  // throws ColorParseError if invalid
 | **P3 wide gamut** | **✅** | ❌ | ❌ | ❌ |
 | **Accessibility** | **Built-in** | Plugin | ❌ | Basic |
 | **Tree-shakeable** | **✅** | ✅ | ❌ | ❌ |
-| **Bundle size (gzip)** | **11.4KB** | 2.1KB | 16.7KB | 5.3KB |
+| **Modular imports** | **✅** | ❌ | ❌ | ❌ |
+| **Bundle size (gzip)** | **8-10KB** | 2.1KB | 16.7KB | 5.3KB |
 | **TypeScript** | Excellent | Good | Poor | Poor |
 | **Maintained** | **✅** | ❌ 3yr | ⚠️ | ⚠️ |
 

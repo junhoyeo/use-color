@@ -4,7 +4,7 @@
 </p>
 
 <p align="center">
-  <strong>Type-safe CSS colors for TypeScript.</strong><br/>
+  <strong>A TypeScript-first, OKLCH-based, framework-agnostic color library that validates color strings at compile time.</strong><br/>
   <em>Never ship an invalid color string again.</em>
 </p>
 

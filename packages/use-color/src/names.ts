@@ -31,7 +31,7 @@
  */
 
 // Named color constant and parsing functions
-export { NAMED_COLORS, parseNamed, tryParseNamed, isNamedColor } from "./parse/named.js";
+export { isNamedColor, NAMED_COLORS, parseNamed, tryParseNamed } from "./parse/named.js";
 
 // Type for named color strings
 export type { NamedColor, NamedColorString } from "./types/Named.js";

@@ -22,17 +22,36 @@
 // Core Color class and factory functions
 export type { ColorInputValue, MixOptions } from "./Color.js";
 export { Color, color, tryColor } from "./Color.js";
-
+export type { GamutMapOptions } from "./convert/gamut.js";
+export { clampToGamut, DEFAULT_JND, isInGamut, mapToGamut } from "./convert/gamut.js";
+export { hslToRgb, rgbToHsl } from "./convert/hsl.js";
+export type { LinearRGB } from "./convert/linear.js";
+export { linearRgbToRgb, rgbToLinearRgb } from "./convert/linear.js";
+// Essential conversions
+export { oklchToRgb, rgbToOklch } from "./convert/rgb-oklch.js";
+// Errors
+export { ColorErrorCode, ColorOutOfGamutError, ColorParseError } from "./errors.js";
+export type { CssColorInput, CssFormat, CssOptions } from "./format/css.js";
+export { toCss } from "./format/css.js";
+// Essential formatting
+export type { HexInput, HexOptions } from "./format/hex.js";
+export { toHex, toHex8, toHexShort } from "./format/hex.js";
+export { toHslaString, toHslModern, toHslString } from "./format/hsl.js";
+export type { OklchFormatOptions } from "./format/oklch.js";
+export { toOklchString } from "./format/oklch.js";
+export type { RgbFormattableColor } from "./format/rgb.js";
+export { toRgbaString, toRgbModern, toRgbString } from "./format/rgb.js";
+export { alpha, opacify, transparentize } from "./ops/alpha.js";
+export { darken } from "./ops/darken.js";
+export { invert, invertLightness } from "./ops/invert.js";
+// Essential operations
+export { lighten } from "./ops/lighten.js";
+export type { MixSpace } from "./ops/mix.js";
+export { mix, mixColors } from "./ops/mix.js";
+export { complement, rotate } from "./ops/rotate.js";
+export { desaturate, grayscale, saturate } from "./ops/saturate.js";
 // Essential parsing (NO named colors)
 export { parseHex, parseHex3, parseHex4, parseHex6, parseHex8, tryParseHex } from "./parse/hex.js";
-export {
-	isRgbString,
-	parseRgb,
-	parseRgbaLegacy,
-	parseRgbLegacy,
-	parseRgbModern,
-	tryParseRgb,
-} from "./parse/rgb.js";
 export {
 	normalizeHue,
 	parseHsl,
@@ -42,75 +61,43 @@ export {
 	tryParseHsl,
 } from "./parse/hsl.js";
 export { parseOklch, tryParseOklch } from "./parse/oklch.js";
-
-// Essential formatting
-export type { HexInput, HexOptions } from "./format/hex.js";
-export { toHex, toHex8, toHexShort } from "./format/hex.js";
-export type { RgbFormattableColor } from "./format/rgb.js";
-export { toRgbaString, toRgbModern, toRgbString } from "./format/rgb.js";
-export { toHslaString, toHslModern, toHslString } from "./format/hsl.js";
-export type { OklchFormatOptions } from "./format/oklch.js";
-export { toOklchString } from "./format/oklch.js";
-export type { CssColorInput, CssFormat, CssOptions } from "./format/css.js";
-export { toCss } from "./format/css.js";
-
-// Essential operations
-export { lighten } from "./ops/lighten.js";
-export { darken } from "./ops/darken.js";
-export { desaturate, grayscale, saturate } from "./ops/saturate.js";
-export { complement, rotate } from "./ops/rotate.js";
-export { alpha, opacify, transparentize } from "./ops/alpha.js";
-export type { MixSpace } from "./ops/mix.js";
-export { mix, mixColors } from "./ops/mix.js";
-export { invert, invertLightness } from "./ops/invert.js";
-
-// Essential conversions
-export { rgbToOklch, oklchToRgb } from "./convert/rgb-oklch.js";
-export { rgbToHsl, hslToRgb } from "./convert/hsl.js";
-export type { GamutMapOptions } from "./convert/gamut.js";
-export { isInGamut, clampToGamut, mapToGamut, DEFAULT_JND } from "./convert/gamut.js";
-export type { LinearRGB } from "./convert/linear.js";
-export { rgbToLinearRgb, linearRgbToRgb } from "./convert/linear.js";
-
-// Errors
-export { ColorErrorCode, ColorParseError, ColorOutOfGamutError } from "./errors.js";
-
-// Result type
-export type { Ok, Err, Result } from "./types/Result.js";
-export { ok, err, isOk, isErr } from "./types/Result.js";
+export {
+	isRgbString,
+	parseRgb,
+	parseRgbaLegacy,
+	parseRgbLegacy,
+	parseRgbModern,
+	tryParseRgb,
+} from "./parse/rgb.js";
+export type {
+	AnyColorInput,
+	AsValidColor,
+	ColorInput,
+	ColorObjectInput,
+	ColorStringInput,
+} from "./types/ColorInput.js";
+export type {
+	AnyColor,
+	ColorOf,
+	HslColor,
+	OklchColor,
+	RgbColor,
+} from "./types/ColorObject.js";
 
 // Essential types (zero runtime cost)
 export type {
 	ColorSpace,
-	RGBA,
-	OKLCH,
 	HSLA,
+	OKLCH,
 	Oklab,
+	RGBA,
 } from "./types/color.js";
-
-export type {
-	AnyColor,
-	RgbColor,
-	OklchColor,
-	HslColor,
-	ColorOf,
-} from "./types/ColorObject.js";
-
-export type {
-	ColorInput,
-	ColorStringInput,
-	ColorObjectInput,
-	AnyColorInput,
-	AsValidColor,
-} from "./types/ColorInput.js";
-
 export type {
 	AnyHexString,
 	HexDigit,
 	HexString,
 	HexStringWithOpacity,
 } from "./types/Hex.js";
-
 export type {
 	HslaLegacyString,
 	HslaString,
@@ -120,13 +107,15 @@ export type {
 	HslModernString,
 	HslString,
 } from "./types/Hsl.js";
-
 export type {
 	OklchAlphaString,
 	OklchInputString,
 	OklchString,
 	PercentString,
 } from "./types/Oklch.js";
+// Result type
+export type { Err, Ok, Result } from "./types/Result.js";
+export { err, isErr, isOk, ok } from "./types/Result.js";
 
 export type {
 	RgbaObject,

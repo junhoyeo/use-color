@@ -32,20 +32,16 @@
  * ```
  */
 
+// P3 Gamut
+export { clampToP3Gamut, isInP3Gamut } from "./convert/gamut.js";
 // P3 Conversion
 export type { LinearP3 } from "./convert/p3.js";
-export { rgbToP3, p3ToRgb, linearP3ToXyz, xyzToLinearP3 } from "./convert/p3.js";
-
+export { linearP3ToXyz, p3ToRgb, rgbToP3, xyzToLinearP3 } from "./convert/p3.js";
 // P3 Formatting
 export type { P3FormatOptions } from "./format/p3.js";
 export { toP3String } from "./format/p3.js";
-
 // P3 Parsing
-export { parseP3, tryParseP3, isP3String } from "./parse/p3.js";
-
-// P3 Gamut
-export { isInP3Gamut, clampToP3Gamut } from "./convert/gamut.js";
-
+export { isP3String, parseP3, tryParseP3 } from "./parse/p3.js";
+export type { P3Color } from "./types/ColorObject.js";
 // P3 Types
 export type { P3 } from "./types/color.js";
-export type { P3Color } from "./types/ColorObject.js";

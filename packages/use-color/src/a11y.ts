@@ -27,21 +27,17 @@
  * ```
  */
 
-// WCAG 2.1 Contrast Ratio
-export { contrast } from "./a11y/contrast.js";
-
-// WCAG 2.1 Luminance
-export type { LuminanceInput } from "./a11y/luminance.js";
-export { luminance } from "./a11y/luminance.js";
-
-// Readability Checks
-export type { ReadabilityLevel, ReadabilityOptions } from "./a11y/readable.js";
-export { isReadable, getReadabilityLevel, WCAG_THRESHOLDS } from "./a11y/readable.js";
-
 // Contrast Adjustment
 export type { EnsureContrastOptions } from "./a11y/adjust.js";
 export { ensureContrast } from "./a11y/adjust.js";
-
 // APCA (Experimental - WCAG 3.0 Draft)
 export type { APCAInput } from "./a11y/apca.js";
-export { apcaContrast, APCA_THRESHOLDS } from "./a11y/apca.js";
+export { APCA_THRESHOLDS, apcaContrast } from "./a11y/apca.js";
+// WCAG 2.1 Contrast Ratio
+export { contrast } from "./a11y/contrast.js";
+// WCAG 2.1 Luminance
+export type { LuminanceInput } from "./a11y/luminance.js";
+export { luminance } from "./a11y/luminance.js";
+// Readability Checks
+export type { ReadabilityLevel, ReadabilityOptions } from "./a11y/readable.js";
+export { getReadabilityLevel, isReadable, WCAG_THRESHOLDS } from "./a11y/readable.js";

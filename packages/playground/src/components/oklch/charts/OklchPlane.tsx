@@ -3,7 +3,9 @@
 import { useCallback, useMemo, useRef } from "react";
 import type { OklchDraft } from "../../../hooks/use-oklch-draft";
 import { CanvasSurface, type CanvasSurfaceRef } from "../engine/CanvasSurface";
+import { renderPlaneCh } from "../renderers/render-plane-ch";
 import { renderPlaneLc } from "../renderers/render-plane-lc";
+import { renderPlaneLh } from "../renderers/render-plane-lh";
 
 export type PlaneAxis = "LC" | "LH" | "CH";
 export type GamutType = "srgb" | "p3";
@@ -74,25 +76,21 @@ export function OklchPlane({
 						showBoundary,
 					});
 				} else if (axis === "LH") {
-					console.warn("LH plane renderer not yet implemented - coming in Phase 2");
-					ctx.fillStyle = "#1a1a1a";
-					ctx.fillRect(0, 0, width, height);
-					ctx.fillStyle = "#666";
-					ctx.font = "14px system-ui";
-					ctx.textAlign = "center";
-					ctx.textBaseline = "middle";
-					ctx.fillText("LH Plane (Coming Soon)", width / 2, height / 2);
-					return;
+					imageData = renderPlaneLh({
+						width,
+						height,
+						c: fixedValue,
+						gamut,
+						showBoundary,
+					});
 				} else if (axis === "CH") {
-					console.warn("CH plane renderer not yet implemented - coming in Phase 2");
-					ctx.fillStyle = "#1a1a1a";
-					ctx.fillRect(0, 0, width, height);
-					ctx.fillStyle = "#666";
-					ctx.font = "14px system-ui";
-					ctx.textAlign = "center";
-					ctx.textBaseline = "middle";
-					ctx.fillText("CH Plane (Coming Soon)", width / 2, height / 2);
-					return;
+					imageData = renderPlaneCh({
+						width,
+						height,
+						l: fixedValue,
+						gamut,
+						showBoundary,
+					});
 				} else {
 					console.warn(`Unknown axis type: ${axis}`);
 					return;
@@ -109,7 +107,7 @@ export function OklchPlane({
 		[axis, fixedValue, gamut, showBoundary, cacheKey],
 	);
 
-	const showCrosshair = axis === "LC";
+	const showCrosshair = axis === "LC" || axis === "LH" || axis === "CH";
 
 	return (
 		<div

@@ -36,7 +36,8 @@ jobs:
         with:
           branches: main
           badges-icon: vitest
-          coverage-summary-path: ./coverage/coverage-summary.json
+          coverage-summary-path: ./packages/use-color/coverage/coverage-summary.json
+          output-folder: ./packages/use-color/badges
           commit-message: 'ci: update coverage badges'
 
   lint:

@@ -13,6 +13,7 @@ type TokenType = "keyword" | "string" | "comment" | "method" | "number" | "boole
 interface Token {
 	type: TokenType;
 	value: string;
+	position: number;
 }
 
 function tokenize(code: string): Token[] {
@@ -38,13 +39,15 @@ function tokenize(code: string): Token[] {
 	const booleans = ["true", "false", "null", "undefined"];
 
 	while (i < code.length) {
+		const startPos = i;
+
 		if (/\s/.test(code[i])) {
 			let ws = "";
 			while (i < code.length && /\s/.test(code[i])) {
 				ws += code[i];
 				i++;
 			}
-			tokens.push({ type: "text", value: ws });
+			tokens.push({ type: "text", value: ws, position: startPos });
 			continue;
 		}
 
@@ -54,7 +57,7 @@ function tokenize(code: string): Token[] {
 				comment += code[i];
 				i++;
 			}
-			tokens.push({ type: "comment", value: comment });
+			tokens.push({ type: "comment", value: comment, position: startPos });
 			continue;
 		}
 
@@ -75,7 +78,7 @@ function tokenize(code: string): Token[] {
 				str += code[i];
 				i++;
 			}
-			tokens.push({ type: "string", value: str });
+			tokens.push({ type: "string", value: str, position: startPos });
 			continue;
 		}
 
@@ -85,7 +88,7 @@ function tokenize(code: string): Token[] {
 				num += code[i];
 				i++;
 			}
-			tokens.push({ type: "number", value: num });
+			tokens.push({ type: "number", value: num, position: startPos });
 			continue;
 		}
 
@@ -101,33 +104,34 @@ function tokenize(code: string): Token[] {
 			const isMethod = code[j] === "(";
 
 			if (keywords.includes(word)) {
-				tokens.push({ type: "keyword", value: word });
+				tokens.push({ type: "keyword", value: word, position: startPos });
 			} else if (booleans.includes(word)) {
-				tokens.push({ type: "boolean", value: word });
+				tokens.push({ type: "boolean", value: word, position: startPos });
 			} else if (isMethod) {
-				tokens.push({ type: "method", value: word });
+				tokens.push({ type: "method", value: word, position: startPos });
 			} else {
-				tokens.push({ type: "text", value: word });
+				tokens.push({ type: "text", value: word, position: startPos });
 			}
 			continue;
 		}
 
 		if (code[i] === ".") {
-			tokens.push({ type: "text", value: "." });
+			tokens.push({ type: "text", value: ".", position: startPos });
 			i++;
 
 			if (/[a-zA-Z_$]/.test(code[i])) {
+				const methodStartPos = i;
 				let method = "";
 				while (i < code.length && /[a-zA-Z0-9_$]/.test(code[i])) {
 					method += code[i];
 					i++;
 				}
-				tokens.push({ type: "method", value: method });
+				tokens.push({ type: "method", value: method, position: methodStartPos });
 			}
 			continue;
 		}
 
-		tokens.push({ type: "text", value: code[i] });
+		tokens.push({ type: "text", value: code[i], position: startPos });
 		i++;
 	}
 
@@ -185,8 +189,11 @@ c.rotate(30);      // Shift hue`;
 			</div>
 			<pre className="text-[11px] font-mono overflow-x-auto p-3 rounded-lg bg-[var(--bg)] border border-[var(--border)] text-[var(--text)]">
 				<code>
-					{tokens.map((token, i) => (
-						<span key={i} style={{ color: getTokenColor(token.type) }}>
+					{tokens.map((token) => (
+						<span
+							key={`${token.type}-${token.position}`}
+							style={{ color: getTokenColor(token.type) }}
+						>
 							{token.value}
 						</span>
 					))}

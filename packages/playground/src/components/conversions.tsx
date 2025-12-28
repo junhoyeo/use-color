@@ -9,6 +9,21 @@ interface ConversionsProps {
 	color: Color | null;
 }
 
+interface KeyedPart {
+	part: string;
+	key: string;
+}
+
+function splitWithKeys(str: string, pattern: RegExp, prefix: string): KeyedPart[] {
+	const parts = str.split(pattern);
+	let position = 0;
+	return parts.map((part) => {
+		const key = `${prefix}-${position}`;
+		position += part.length;
+		return { part, key };
+	});
+}
+
 function highlightColorValue(value: string): ReactElement {
 	if (value.startsWith("#")) {
 		return (
@@ -23,19 +38,20 @@ function highlightColorValue(value: string): ReactElement {
 		const match = value.match(/^(rgb|rgba)\((.+)\)$/);
 		if (match) {
 			const [, funcName, params] = match;
+			const keyedParts = splitWithKeys(params, /([,\s]+)/, "rgb");
 			return (
 				<>
 					<span style={{ color: "oklch(0.75 0.12 220)" }}>{funcName}</span>
 					<span>(</span>
-					{params.split(/([,\s]+)/).map((part, i) => {
+					{keyedParts.map(({ part, key }) => {
 						if (/^\d+\.?\d*%?$/.test(part.trim())) {
 							return (
-								<span key={i} style={{ color: "oklch(0.75 0.15 60)" }}>
+								<span key={key} style={{ color: "oklch(0.75 0.15 60)" }}>
 									{part}
 								</span>
 							);
 						}
-						return <span key={i}>{part}</span>;
+						return <span key={key}>{part}</span>;
 					})}
 					<span>)</span>
 				</>
@@ -47,19 +63,20 @@ function highlightColorValue(value: string): ReactElement {
 		const match = value.match(/^(hsl|hsla)\((.+)\)$/);
 		if (match) {
 			const [, funcName, params] = match;
+			const keyedParts = splitWithKeys(params, /([,\s]+)/, "hsl");
 			return (
 				<>
 					<span style={{ color: "oklch(0.75 0.12 220)" }}>{funcName}</span>
 					<span>(</span>
-					{params.split(/([,\s]+)/).map((part, i) => {
+					{keyedParts.map(({ part, key }) => {
 						if (/^\d+\.?\d*%?$/.test(part.trim())) {
 							return (
-								<span key={i} style={{ color: "oklch(0.75 0.15 60)" }}>
+								<span key={key} style={{ color: "oklch(0.75 0.15 60)" }}>
 									{part}
 								</span>
 							);
 						}
-						return <span key={i}>{part}</span>;
+						return <span key={key}>{part}</span>;
 					})}
 					<span>)</span>
 				</>
@@ -71,19 +88,20 @@ function highlightColorValue(value: string): ReactElement {
 		const match = value.match(/^(oklch)\((.+)\)$/);
 		if (match) {
 			const [, funcName, params] = match;
+			const keyedParts = splitWithKeys(params, /(\s+)/, "oklch");
 			return (
 				<>
 					<span style={{ color: "oklch(0.75 0.12 220)" }}>{funcName}</span>
 					<span>(</span>
-					{params.split(/(\s+)/).map((part, i) => {
+					{keyedParts.map(({ part, key }) => {
 						if (/^\d+\.?\d*$/.test(part.trim())) {
 							return (
-								<span key={i} style={{ color: "oklch(0.75 0.15 60)" }}>
+								<span key={key} style={{ color: "oklch(0.75 0.15 60)" }}>
 									{part}
 								</span>
 							);
 						}
-						return <span key={i}>{part}</span>;
+						return <span key={key}>{part}</span>;
 					})}
 					<span>)</span>
 				</>
@@ -95,21 +113,22 @@ function highlightColorValue(value: string): ReactElement {
 		const match = value.match(/^color\((display-p3)\s+(.+)\)$/);
 		if (match) {
 			const [, colorSpace, params] = match;
+			const keyedParts = splitWithKeys(params, /(\s+)/, "p3");
 			return (
 				<>
 					<span style={{ color: "oklch(0.75 0.12 220)" }}>color</span>
 					<span>(</span>
 					<span style={{ color: "oklch(0.75 0.12 220)" }}>{colorSpace}</span>
 					<span> </span>
-					{params.split(/(\s+)/).map((part, i) => {
+					{keyedParts.map(({ part, key }) => {
 						if (/^\d+\.?\d*$/.test(part.trim())) {
 							return (
-								<span key={i} style={{ color: "oklch(0.75 0.15 60)" }}>
+								<span key={key} style={{ color: "oklch(0.75 0.15 60)" }}>
 									{part}
 								</span>
 							);
 						}
-						return <span key={i}>{part}</span>;
+						return <span key={key}>{part}</span>;
 					})}
 					<span>)</span>
 				</>
@@ -132,9 +151,11 @@ export function Conversions({ color }: ConversionsProps) {
 		);
 	}
 
+	const hasAlpha = color.getAlpha() < 1;
+
 	const conversions = [
 		{ label: "HEX", value: color.toHex() },
-		{ label: "HEX8", value: color.toHex8() },
+		...(hasAlpha ? [{ label: "HEX8", value: color.toHex8() }] : []),
 		{ label: "RGB", value: color.toRgbString() },
 		{ label: "HSL", value: color.toHslString() },
 		{ label: "OKLCH", value: color.toOklchString(), highlight: true },

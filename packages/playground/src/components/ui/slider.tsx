@@ -1,5 +1,7 @@
 "use client";
 
+import { useId } from "react";
+
 interface SliderProps {
 	label: string;
 	value: number;
@@ -19,15 +21,19 @@ export function Slider({
 	step,
 	formatValue = (v) => v.toString(),
 }: SliderProps) {
+	const id = useId();
 	const percentage = ((value - min) / (max - min)) * 100;
 
 	return (
 		<div className="space-y-1">
 			<div className="flex items-center justify-between">
-				<label className="text-xs text-[var(--text-secondary)]">{label}</label>
+				<label htmlFor={id} className="text-xs text-[var(--text-secondary)]">
+					{label}
+				</label>
 				<span className="text-xs font-mono text-[var(--text)]">{formatValue(value)}</span>
 			</div>
 			<input
+				id={id}
 				type="range"
 				min={min}
 				max={max}

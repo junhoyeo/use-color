@@ -60,6 +60,7 @@ jobs:
           git add packages/use-color/package.json
           git commit -m "release: use-color v${{ steps.version.outputs.new_version }}"
           git tag "v${{ steps.version.outputs.new_version }}"
+          git pull --rebase origin main
           git push origin HEAD --tags
 
       # https://github.com/pnpm/pnpm/issues/3141#issuecomment-1305563972

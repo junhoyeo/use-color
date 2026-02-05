@@ -37,6 +37,74 @@ describe("parseOklch", () => {
 		});
 	});
 
+	describe("percentage chroma", () => {
+		it("parses oklch(0.96 2% 259) - chroma as percentage", () => {
+			const result = parseOklch("oklch(0.96 2% 259)");
+			expect(result.c).toBeCloseTo(0.008, 5);
+			expect(result).toEqual(expect.objectContaining({ l: 0.96, h: 259, a: 1 }));
+		});
+
+		it("parses oklch(0.5 50% 180) - 50% chroma = 0.2", () => {
+			const result = parseOklch("oklch(0.5 50% 180)");
+			expect(result.c).toBeCloseTo(0.2, 5);
+			expect(result).toEqual(expect.objectContaining({ l: 0.5, h: 180, a: 1 }));
+		});
+
+		it("parses oklch(0.5 100% 180) - 100% chroma = 0.4", () => {
+			const result = parseOklch("oklch(0.5 100% 180)");
+			expect(result.c).toBeCloseTo(0.4, 5);
+			expect(result).toEqual(expect.objectContaining({ l: 0.5, h: 180, a: 1 }));
+		});
+
+		it("parses oklch(0.5 0% 180) - 0% chroma = 0", () => {
+			const result = parseOklch("oklch(0.5 0% 180)");
+			expect(result.c).toBeCloseTo(0, 5);
+			expect(result).toEqual(expect.objectContaining({ l: 0.5, h: 180, a: 1 }));
+		});
+	});
+
+	describe("percentage lightness and chroma combined", () => {
+		it("parses oklch(96% 2% 259) - both L and C as percentages", () => {
+			const result = parseOklch("oklch(96% 2% 259)");
+			expect(result.l).toBeCloseTo(0.96, 5);
+			expect(result.c).toBeCloseTo(0.008, 5);
+			expect(result.h).toBe(259);
+			expect(result.a).toBe(1);
+		});
+
+		it("parses oklch(50% 50% 180) - both L and C at 50%", () => {
+			const result = parseOklch("oklch(50% 50% 180)");
+			expect(result.l).toBeCloseTo(0.5, 5);
+			expect(result.c).toBeCloseTo(0.2, 5);
+			expect(result.h).toBe(180);
+			expect(result.a).toBe(1);
+		});
+
+		it("parses oklch(100% 100% 0) - max percentages", () => {
+			const result = parseOklch("oklch(100% 100% 0)");
+			expect(result.l).toBeCloseTo(1, 5);
+			expect(result.c).toBeCloseTo(0.4, 5);
+			expect(result.h).toBe(0);
+			expect(result.a).toBe(1);
+		});
+
+		it("parses oklch(96% 2% 259 / 0.5) - percentages with alpha", () => {
+			const result = parseOklch("oklch(96% 2% 259 / 0.5)");
+			expect(result.l).toBeCloseTo(0.96, 5);
+			expect(result.c).toBeCloseTo(0.008, 5);
+			expect(result.h).toBe(259);
+			expect(result.a).toBe(0.5);
+		});
+
+		it("parses oklch(96% 2% 259 / 80%) - all percentages including alpha", () => {
+			const result = parseOklch("oklch(96% 2% 259 / 80%)");
+			expect(result.l).toBeCloseTo(0.96, 5);
+			expect(result.c).toBeCloseTo(0.008, 5);
+			expect(result.h).toBe(259);
+			expect(result.a).toBeCloseTo(0.8, 5);
+		});
+	});
+
 	describe("with alpha", () => {
 		it("parses oklch(0.5 0.2 180 / 0.5)", () => {
 			const result = parseOklch("oklch(0.5 0.2 180 / 0.5)");

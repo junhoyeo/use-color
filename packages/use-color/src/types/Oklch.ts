@@ -41,7 +41,7 @@ type SlashSep = `${OptSpace}/${OptSpace}`;
  * Format: oklch(L C H) where L can be number or percentage.
  * @internal
  */
-type OklchNoAlphaPattern = `oklch(${NumberOrPercent} ${NumberString} ${NumberString})`;
+type OklchNoAlphaPattern = `oklch(${NumberOrPercent} ${NumberOrPercent} ${NumberString})`;
 
 /**
  * Pattern for OKLCH color with alpha channel.
@@ -49,7 +49,7 @@ type OklchNoAlphaPattern = `oklch(${NumberOrPercent} ${NumberString} ${NumberStr
  * @internal
  */
 type OklchAlphaPattern =
-	`oklch(${NumberOrPercent} ${NumberString} ${NumberString}${SlashSep}${NumberOrPercent})`;
+	`oklch(${NumberOrPercent} ${NumberOrPercent} ${NumberString}${SlashSep}${NumberOrPercent})`;
 
 /**
  * Validates an OKLCH color string without alpha channel.

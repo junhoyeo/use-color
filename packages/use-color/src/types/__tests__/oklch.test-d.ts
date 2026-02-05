@@ -42,6 +42,13 @@ describe("Oklch types", () => {
 		expectTypeOf<OklchString<"oklch(0.5 0.4 180)">>().toEqualTypeOf<"oklch(0.5 0.4 180)">();
 	});
 
+	it("OklchString validates percentage chroma values", () => {
+		expectTypeOf<OklchString<"oklch(0.5 50% 180)">>().toEqualTypeOf<"oklch(0.5 50% 180)">();
+		expectTypeOf<OklchString<"oklch(0.5 0% 180)">>().toEqualTypeOf<"oklch(0.5 0% 180)">();
+		expectTypeOf<OklchString<"oklch(0.5 100% 180)">>().toEqualTypeOf<"oklch(0.5 100% 180)">();
+		expectTypeOf<OklchString<"oklch(96% 2% 259)">>().toEqualTypeOf<"oklch(96% 2% 259)">();
+	});
+
 	it("OklchString rejects comma-separated format", () => {
 		expectTypeOf<OklchString<"oklch(0.5, 0.2, 180)">>().toEqualTypeOf<never>();
 		expectTypeOf<OklchString<"oklch(50%, 0.2, 180)">>().toEqualTypeOf<never>();
@@ -98,6 +105,15 @@ describe("Oklch types", () => {
 		>().toEqualTypeOf<"oklch(50% 0.2 180 / 80%)">();
 	});
 
+	it("OklchAlphaString validates percentage chroma with alpha", () => {
+		expectTypeOf<
+			OklchAlphaString<"oklch(0.96 2% 259 / 0.5)">
+		>().toEqualTypeOf<"oklch(0.96 2% 259 / 0.5)">();
+		expectTypeOf<
+			OklchAlphaString<"oklch(96% 2% 259 / 80%)">
+		>().toEqualTypeOf<"oklch(96% 2% 259 / 80%)">();
+	});
+
 	it("OklchAlphaString validates flexible whitespace around slash", () => {
 		expectTypeOf<
 			OklchAlphaString<"oklch(0.5 0.2 180/0.5)">
@@ -140,6 +156,14 @@ describe("Oklch types", () => {
 		expectTypeOf<
 			OklchInputString<"oklch(1 0.4 360 / 1)">
 		>().toEqualTypeOf<"oklch(1 0.4 360 / 1)">();
+	});
+
+	it("OklchInputString accepts percentage chroma", () => {
+		expectTypeOf<OklchInputString<"oklch(0.5 50% 180)">>().toEqualTypeOf<"oklch(0.5 50% 180)">();
+		expectTypeOf<OklchInputString<"oklch(96% 2% 259)">>().toEqualTypeOf<"oklch(96% 2% 259)">();
+		expectTypeOf<
+			OklchInputString<"oklch(96% 2% 259 / 0.5)">
+		>().toEqualTypeOf<"oklch(96% 2% 259 / 0.5)">();
 	});
 
 	it("OklchInputString rejects invalid formats", () => {

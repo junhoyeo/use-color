@@ -80,6 +80,17 @@ function toRgba(color: LuminanceInput): RGBA {
  * Adjusts the lightness of a color to achieve a target contrast ratio.
  * Uses binary search on OKLCH lightness for perceptually uniform adjustment.
  *
+ * Every candidate is produced via {@link oklchToRgb}, which gamut-maps
+ * through {@link clampToGamut} before conversion, so every RGBA this
+ * function considers (and returns) is already guaranteed to have channels
+ * in [0, 255] - contrast is always measured on the actual color that will
+ * be returned, never on an out-of-gamut candidate.
+ *
+ * If the target ratio is never reached within `maxIterations`, this
+ * returns the best-effort candidate that came closest to (without
+ * exceeding into) the search, falling back to the last-tested candidate
+ * rather than the original (still-failing) input color.
+ *
  * @param fgOklch - Foreground color in OKLCH
  * @param bgRgba - Background color in RGBA
  * @param targetRatio - Target contrast ratio
@@ -98,9 +109,16 @@ function adjustLightness(
 ): RGBA {
 	let low = lighten ? fgOklch.l : 0;
 	let high = lighten ? 1 : fgOklch.l;
-	let bestRgba: RGBA = oklchToRgb(fgOklch);
-	let bestRatio = contrast(bestRgba, bgRgba);
-	let bestDiff = Math.abs(bestRatio - targetRatio);
+
+	// Only set once the target ratio has actually been met; never falls back
+	// to the original (failing) color.
+	let bestRgba: RGBA | null = null;
+	let bestDiff = Number.POSITIVE_INFINITY;
+
+	// Tracks the most recently tested candidate so that, if the target is
+	// never reached, we can still return the closest attempt instead of the
+	// original failing color.
+	let lastRgba: RGBA = oklchToRgb(fgOklch);
 
 	for (let i = 0; i < maxIterations; i++) {
 		const mid = (low + high) / 2;
@@ -109,10 +127,11 @@ function adjustLightness(
 		const testRatio = contrast(testRgba, bgRgba);
 		const diff = Math.abs(testRatio - targetRatio);
 
+		lastRgba = testRgba;
+
 		// Update best if this is closer to target and meets minimum
 		if (testRatio >= targetRatio && diff < bestDiff) {
 			bestRgba = testRgba;
-			bestRatio = testRatio;
 			bestDiff = diff;
 		}
 
@@ -139,7 +158,7 @@ function adjustLightness(
 		}
 	}
 
-	return bestRgba;
+	return bestRgba ?? lastRgba;
 }
 
 /**
@@ -258,14 +277,16 @@ export function ensureContrast(
 		};
 	}
 
-	// Return the one with better contrast
-	/* istanbul ignore next -- @preserve unreachable: both directions return same color when target impossible */
-	const result = primaryRatio >= secondaryRatio ? primaryResult : secondaryResult;
-	return {
-		space: "rgb",
-		r: result.r,
-		g: result.g,
-		b: result.b,
-		a: result.a,
-	};
+	// Neither direction reached minRatio within gamut: the target is
+	// unreachable by adjusting lightness alone. Fall back to whichever of
+	// pure black or pure white gives higher contrast against the
+	// background - these are the extremes of the lightness range, so if
+	// they can't satisfy minRatio, nothing in gamut can.
+	const black: RGBA = { r: 0, g: 0, b: 0, a: fgRgba.a };
+	const white: RGBA = { r: 255, g: 255, b: 255, a: fgRgba.a };
+	const blackRatio = contrast(black, bgRgba);
+	const whiteRatio = contrast(white, bgRgba);
+	const fallback = blackRatio >= whiteRatio ? black : white;
+
+	return { space: "rgb", r: fallback.r, g: fallback.g, b: fallback.b, a: fallback.a };
 }

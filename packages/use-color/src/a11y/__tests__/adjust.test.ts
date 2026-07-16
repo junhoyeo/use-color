@@ -144,30 +144,135 @@ describe("ensureContrast", () => {
 			expect(ratio).toBeGreaterThanOrEqual(4.5);
 		});
 
-		it("returns secondary result when it has better contrast (line 262 false branch)", () => {
-			// Force preferLighten on a light background where darkening is better
-			// Primary (lighten) gives worse contrast, secondary (darken) is better
+		it("falls back to black or white when preferLighten=true and target is unreachable", () => {
+			// minRatio=21 exceeds the maximum possible contrast ratio (21:1 is the
+			// theoretical max, only achieved by pure black on pure white), so
+			// neither lightness-adjustment direction can reach it. This now
+			// exercises the explicit black/white fallback rather than falling
+			// back to a (previously dead) "better of the two directions" branch.
 			const darkFg = { r: 100, g: 100, b: 100, a: 1 };
 			const lightBg = { r: 220, g: 220, b: 220, a: 1 };
 
 			const result = ensureContrast(darkFg, lightBg, 21, { preferLighten: true });
 
 			expect(result.space).toBe("rgb");
+			// Against a light background, black gives the higher contrast.
+			expect(result.r).toBe(0);
+			expect(result.g).toBe(0);
+			expect(result.b).toBe(0);
 			const finalRatio = contrast(result, lightBg);
 			expect(finalRatio).toBeGreaterThan(1);
 		});
 
-		it("returns primary result when it has better contrast (line 262 true branch)", () => {
-			// Use preferLighten=false on light bg - primary (darken) is correct
-			// but target is impossible, so both directions fail
+		it("falls back to black or white when preferLighten=false and target is unreachable", () => {
 			const midFg = { r: 150, g: 150, b: 150, a: 1 };
 			const lightBg = { r: 200, g: 200, b: 200, a: 1 };
 
 			const result = ensureContrast(midFg, lightBg, 21, { preferLighten: false });
 
 			expect(result.space).toBe("rgb");
+			expect(result.r).toBe(0);
+			expect(result.g).toBe(0);
+			expect(result.b).toBe(0);
 			const finalRatio = contrast(result, lightBg);
 			expect(finalRatio).toBeGreaterThan(1);
+		});
+
+		it("falls back to white when it gives higher contrast than black against a dark bg", () => {
+			// Unreachable target (21) against a dark background: white should
+			// win the black-vs-white fallback comparison.
+			const midFg = { r: 60, g: 60, b: 60, a: 1 };
+			const darkBg = { r: 30, g: 30, b: 30, a: 1 };
+
+			const result = ensureContrast(midFg, darkBg, 21);
+
+			expect(result.r).toBe(255);
+			expect(result.g).toBe(255);
+			expect(result.b).toBe(255);
+		});
+
+		it("preserves original alpha in the black/white fallback", () => {
+			const midFg = { r: 150, g: 150, b: 150, a: 0.4 };
+			const lightBg = { r: 200, g: 200, b: 200, a: 1 };
+
+			const result = ensureContrast(midFg, lightBg, 21);
+			expect(result.a).toBe(0.4);
+		});
+	});
+
+	describe("convergence at WCAG boundaries (1.6 fix)", () => {
+		it("converges to >= AA (4.5) for a near-threshold gray pair", () => {
+			// Chosen so the input is just below the AA threshold, forcing the
+			// binary search to actually adjust lightness to converge.
+			const nearAaFg = { r: 160, g: 160, b: 160, a: 1 };
+			const result = ensureContrast(nearAaFg, white, WCAG_THRESHOLDS.AA);
+			const ratio = contrast(result, white);
+			expect(ratio).toBeGreaterThanOrEqual(WCAG_THRESHOLDS.AA);
+		});
+
+		it("converges to >= AAA (7) for a near-threshold gray pair", () => {
+			const nearAaaFg = { r: 130, g: 130, b: 130, a: 1 };
+			const result = ensureContrast(nearAaaFg, white, WCAG_THRESHOLDS.AAA);
+			const ratio = contrast(result, white);
+			expect(ratio).toBeGreaterThanOrEqual(WCAG_THRESHOLDS.AAA);
+		});
+
+		it("converges to >= AA for near-threshold colored input on a dark background", () => {
+			const nearThresholdFg = { r: 90, g: 95, b: 100, a: 1 };
+			const darkBg = { r: 20, g: 20, b: 25, a: 1 };
+			const result = ensureContrast(nearThresholdFg, darkBg, WCAG_THRESHOLDS.AA);
+			const ratio = contrast(result, darkBg);
+			expect(ratio).toBeGreaterThanOrEqual(WCAG_THRESHOLDS.AA);
+		});
+
+		it("converges to >= AAA for near-threshold colored input against mid-tone bg", () => {
+			const nearThresholdFg = { r: 140, g: 130, b: 150, a: 1 };
+			const midBg = { r: 210, g: 205, b: 215, a: 1 };
+			const result = ensureContrast(nearThresholdFg, midBg, WCAG_THRESHOLDS.AAA);
+			const ratio = contrast(result, midBg);
+			expect(ratio).toBeGreaterThanOrEqual(WCAG_THRESHOLDS.AAA);
+		});
+
+		it("only black or white can satisfy an extreme target against a mid-gray bg", () => {
+			// Against 50%-gray, no in-gamut chroma-preserving lightness
+			// adjustment can reach a 15:1 ratio (max ~ black-or-white vs mid
+			// gray), so the result must be exactly black or white.
+			const fg = { r: 140, g: 140, b: 140, a: 1 };
+			const midBg = { r: 128, g: 128, b: 128, a: 1 };
+			const result = ensureContrast(fg, midBg, 15);
+			const isBlack = result.r === 0 && result.g === 0 && result.b === 0;
+			const isWhite = result.r === 255 && result.g === 255 && result.b === 255;
+			expect(isBlack || isWhite).toBe(true);
+			expect(contrast(result, midBg)).toBeGreaterThan(contrast(fg, midBg));
+		});
+
+		it("always returns channels within [0, 255], across a sweep of inputs and targets", () => {
+			const fgs = [
+				{ r: 0, g: 0, b: 0, a: 1 },
+				{ r: 255, g: 255, b: 255, a: 1 },
+				{ r: 128, g: 64, b: 200, a: 1 },
+				{ r: 200, g: 100, b: 50, a: 1 },
+				{ r: 10, g: 10, b: 10, a: 1 },
+			];
+			const bgs = [white, black, gray, { r: 30, g: 30, b: 30, a: 1 }];
+			const ratios = [1, 2, 4.5, 7, 15, 21];
+
+			for (const fg of fgs) {
+				for (const bg of bgs) {
+					for (const ratio of ratios) {
+						const result = ensureContrast(fg, bg, ratio);
+						expect(result.r).toBeGreaterThanOrEqual(0);
+						expect(result.r).toBeLessThanOrEqual(255);
+						expect(result.g).toBeGreaterThanOrEqual(0);
+						expect(result.g).toBeLessThanOrEqual(255);
+						expect(result.b).toBeGreaterThanOrEqual(0);
+						expect(result.b).toBeLessThanOrEqual(255);
+						expect(Number.isNaN(result.r)).toBe(false);
+						expect(Number.isNaN(result.g)).toBe(false);
+						expect(Number.isNaN(result.b)).toBe(false);
+					}
+				}
+			}
 		});
 	});
 

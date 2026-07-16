@@ -182,6 +182,33 @@ describe("Oklch types", () => {
 		expectTypeOf<OklchInputString<"oklch(100% 0.2 180)">>().toEqualTypeOf<"oklch(100% 0.2 180)">();
 	});
 
+	// 1.11: the runtime OKLCH parser accepts a negative hue and normalizes it
+	// into [0, 360), so the type layer must accept negative hue strings too
+	// (the `${number}` template already permits a leading "-", this just
+	// proves it isn't accidentally narrowed anywhere in the OKLCH types).
+	it("OklchString and OklchInputString accept a negative hue", () => {
+		expectTypeOf<OklchString<"oklch(0.5 0.2 -90)">>().toEqualTypeOf<"oklch(0.5 0.2 -90)">();
+		expectTypeOf<OklchInputString<"oklch(0.5 0.2 -90)">>().toEqualTypeOf<"oklch(0.5 0.2 -90)">();
+		expectTypeOf<
+			OklchInputString<"oklch(0.5 0.2 -90 / 0.5)">
+		>().toEqualTypeOf<"oklch(0.5 0.2 -90 / 0.5)">();
+	});
+
+	// 1.12: the runtime parser clamps L to [0, 1] and C to [0, Infinity) at
+	// parse time, but the type layer only validates grammar (not numeric
+	// range), so out-of-range and negative L/C strings still type-check —
+	// clamping is a runtime concern, not a compile-time rejection.
+	it("OklchString and OklchInputString accept out-of-range L and C values", () => {
+		expectTypeOf<OklchString<"oklch(1.5 0.2 180)">>().toEqualTypeOf<"oklch(1.5 0.2 180)">();
+		expectTypeOf<OklchString<"oklch(-0.2 0.2 180)">>().toEqualTypeOf<"oklch(-0.2 0.2 180)">();
+		expectTypeOf<OklchString<"oklch(0.5 -0.2 180)">>().toEqualTypeOf<"oklch(0.5 -0.2 180)">();
+		expectTypeOf<OklchString<"oklch(0.5 1.5 180)">>().toEqualTypeOf<"oklch(0.5 1.5 180)">();
+		expectTypeOf<OklchInputString<"oklch(1.5 0.2 180)">>().toEqualTypeOf<"oklch(1.5 0.2 180)">();
+		expectTypeOf<
+			OklchInputString<"oklch(-0.2 -0.2 180)">
+		>().toEqualTypeOf<"oklch(-0.2 -0.2 180)">();
+	});
+
 	it("OklchInputString validates various alpha formats with different slash spacing", () => {
 		expectTypeOf<
 			OklchInputString<"oklch(0.5 0.2 180/1)">

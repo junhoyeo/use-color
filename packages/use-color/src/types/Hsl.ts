@@ -71,6 +71,15 @@ type HslaLegacyPattern =
 	`hsla(${NumberString}${CommaSep}${PercentString}${CommaSep}${PercentString}${CommaSep}${AlphaValue})`;
 
 /**
+ * Pattern for legacy HSL format with alpha: hsl(h, s%, l%, a)
+ * CSS Color 4 makes hsl()/hsla() exact aliases, so the 3-arg legacy `hsl(...)`
+ * form also accepts a 4th alpha value.
+ * @internal
+ */
+type HslLegacyAlphaPattern =
+	`hsl(${NumberString}${CommaSep}${PercentString}${CommaSep}${PercentString}${CommaSep}${AlphaValue})`;
+
+/**
  * Validates legacy HSL format: `hsl(h, s%, l%)`
  *
  * @example
@@ -93,6 +102,22 @@ export type HslLegacyString<T extends string> = [T] extends [HslLegacyPattern] ?
  * ```
  */
 export type HslaLegacyString<T extends string> = [T] extends [HslaLegacyPattern] ? T : never;
+
+/**
+ * Validates legacy HSL format with alpha: `hsl(h, s%, l%, a)`
+ *
+ * CSS Color 4 makes hsl()/hsla() exact aliases, so the 3-arg legacy `hsl(...)`
+ * form also accepts a 4th alpha value.
+ *
+ * @example
+ * ```ts
+ * type A = HslLegacyAlphaString<'hsl(120, 50%, 50%, 0.5)'>;  // valid
+ * type B = HslLegacyAlphaString<'hsl(180, 50%, 50%)'>;       // never (no alpha)
+ * ```
+ */
+export type HslLegacyAlphaString<T extends string> = [T] extends [HslLegacyAlphaPattern]
+	? T
+	: never;
 
 // ============================================================================
 // Modern HSL (CSS Level 4 space-separated)
@@ -183,7 +208,10 @@ export type HslString<T extends string> = HslLegacyString<T> | HslModernString<T
  * type B = HslaString<'hsl(180 50% 50% / 0.5)'>;    // modern
  * ```
  */
-export type HslaString<T extends string> = HslaLegacyString<T> | HslModernAlphaString<T>;
+export type HslaString<T extends string> =
+	| HslaLegacyString<T>
+	| HslLegacyAlphaString<T>
+	| HslModernAlphaString<T>;
 
 /**
  * Unified HSL/HSLA color string validator.
@@ -209,5 +237,6 @@ export type HslaString<T extends string> = HslaLegacyString<T> | HslModernAlphaS
 export type HslInputString<T extends string> =
 	| HslLegacyString<T>
 	| HslaLegacyString<T>
+	| HslLegacyAlphaString<T>
 	| HslModernString<T>
 	| HslModernAlphaString<T>;

@@ -15,6 +15,13 @@ export type RgbFunctionString<T extends string> =
 		? T
 		: never;
 
+// CSS Color 4 makes rgb()/rgba() exact aliases, so the 3-arg legacy `rgb(...)` form
+// also accepts a 4th alpha value: rgb(255, 0, 0, 0.5)
+export type RgbFunctionAlphaString<T extends string> =
+	T extends `rgb(${ColorValue},${OptionalSpace}${ColorValue},${OptionalSpace}${ColorValue},${OptionalSpace}${AlphaValue})`
+		? T
+		: never;
+
 export type RgbaFunctionString<T extends string> =
 	T extends `rgba(${ColorValue},${OptionalSpace}${ColorValue},${OptionalSpace}${ColorValue},${OptionalSpace}${AlphaValue})`
 		? T
@@ -29,6 +36,7 @@ export type RgbModernString<T extends string> =
 
 export type RgbString<T extends string> =
 	| RgbFunctionString<T>
+	| RgbFunctionAlphaString<T>
 	| RgbaFunctionString<T>
 	| RgbModernString<T>;
 

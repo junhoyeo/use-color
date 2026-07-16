@@ -25,6 +25,7 @@ export type {
 	HslaLegacyString,
 	HslaString,
 	HslInputString,
+	HslLegacyAlphaString,
 	HslLegacyString,
 	HslModernAlphaString,
 	HslModernString,

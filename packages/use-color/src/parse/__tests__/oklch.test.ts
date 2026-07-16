@@ -9,9 +9,9 @@ describe("parseOklch", () => {
 			expect(result).toEqual({ l: 0.5, c: 0.2, h: 180, a: 1 });
 		});
 
-		it("parses oklch(1 0.4 360)", () => {
+		it("parses oklch(1 0.4 360) - hue normalized to [0, 360), so 360 wraps to 0", () => {
 			const result = parseOklch("oklch(1 0.4 360)");
-			expect(result).toEqual({ l: 1, c: 0.4, h: 360, a: 1 });
+			expect(result).toEqual({ l: 1, c: 0.4, h: 0, a: 1 });
 		});
 
 		it("parses oklch(0 0 0)", () => {
@@ -26,9 +26,9 @@ describe("parseOklch", () => {
 			expect(result).toEqual({ l: 0.5, c: 0.2, h: 180, a: 1 });
 		});
 
-		it("parses oklch(100% 0.4 360)", () => {
+		it("parses oklch(100% 0.4 360) - hue normalized to [0, 360), so 360 wraps to 0", () => {
 			const result = parseOklch("oklch(100% 0.4 360)");
-			expect(result).toEqual({ l: 1, c: 0.4, h: 360, a: 1 });
+			expect(result).toEqual({ l: 1, c: 0.4, h: 0, a: 1 });
 		});
 
 		it("parses oklch(0% 0 0)", () => {
@@ -164,6 +164,55 @@ describe("parseOklch", () => {
 		});
 	});
 
+	describe("hue normalization", () => {
+		it("normalizes negative hue: oklch(0.5 0.2 -90) -> h: 270", () => {
+			const result = parseOklch("oklch(0.5 0.2 -90)");
+			expect(result).toEqual({ l: 0.5, c: 0.2, h: 270, a: 1 });
+		});
+
+		it("normalizes negative hue: oklch(0.5 0.2 -1) -> h: 359", () => {
+			const result = parseOklch("oklch(0.5 0.2 -1)");
+			expect(result.h).toBeCloseTo(359, 5);
+		});
+
+		it("normalizes hue beyond 360: oklch(0.5 0.2 720) -> h: 0", () => {
+			const result = parseOklch("oklch(0.5 0.2 720)");
+			expect(result.h).toBe(0);
+		});
+
+		it("normalizes explicit +hue sign: oklch(0.5 0.2 +90)", () => {
+			const result = parseOklch("oklch(0.5 0.2 +90)");
+			expect(result.h).toBe(90);
+		});
+	});
+
+	describe("L/C range clamping", () => {
+		it("clamps L > 1 to 1: oklch(1.5 0.2 180)", () => {
+			const result = parseOklch("oklch(1.5 0.2 180)");
+			expect(result).toEqual({ l: 1, c: 0.2, h: 180, a: 1 });
+		});
+
+		it("clamps negative L to 0: oklch(-0.5 0.2 180)", () => {
+			const result = parseOklch("oklch(-0.5 0.2 180)");
+			expect(result).toEqual({ l: 0, c: 0.2, h: 180, a: 1 });
+		});
+
+		it("clamps negative C to 0: oklch(0.5 -0.2 180)", () => {
+			const result = parseOklch("oklch(0.5 -0.2 180)");
+			expect(result).toEqual({ l: 0.5, c: 0, h: 180, a: 1 });
+		});
+
+		it("clamps both negative L and C: oklch(-1 -0.5 180)", () => {
+			const result = parseOklch("oklch(-1 -0.5 180)");
+			expect(result).toEqual({ l: 0, c: 0, h: 180, a: 1 });
+		});
+
+		it("does not clamp high out-of-gamut chroma (only negative C is clamped)", () => {
+			const result = parseOklch("oklch(0.5 2 180)");
+			expect(result).toEqual({ l: 0.5, c: 2, h: 180, a: 1 });
+		});
+	});
+
 	describe("edge cases - high chroma (out-of-gamut)", () => {
 		it("parses oklch(0.5 0.5 180) - high chroma", () => {
 			const result = parseOklch("oklch(0.5 0.5 180)");
@@ -232,6 +281,29 @@ describe("parseOklch", () => {
 				expect(e).toBeInstanceOf(ColorParseError);
 				expect((e as ColorParseError).code).toBe(ColorErrorCode.INVALID_OKLCH);
 			}
+		});
+
+		it("throws on multi-dot numbers instead of silently truncating", () => {
+			// parseFloat("1.2.3") would silently truncate to 1.2; the strict
+			// number token must reject the whole match instead.
+			expect(() => parseOklch("oklch(0.5.1 0.2 180)")).toThrow(ColorParseError);
+			expect(() => parseOklch("oklch(0.5 0.2.1 180)")).toThrow(ColorParseError);
+			expect(() => parseOklch("oklch(0.5 0.2 180.1.1)")).toThrow(ColorParseError);
+		});
+
+		it("throws on trailing garbage after a numeric value", () => {
+			expect(() => parseOklch("oklch(0.5deg 0.2 180)")).toThrow(ColorParseError);
+		});
+	});
+
+	describe("scientific notation", () => {
+		it("accepts scientific notation for L, C, and H", () => {
+			expect(parseOklch("oklch(5e-1 2e-1 1.8e2)")).toEqual({
+				l: 0.5,
+				c: 0.2,
+				h: 180,
+				a: 1,
+			});
 		});
 	});
 });

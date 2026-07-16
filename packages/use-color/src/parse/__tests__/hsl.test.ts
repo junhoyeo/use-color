@@ -114,12 +114,71 @@ describe("parseHslLegacy", () => {
 		expect(() => parseHslLegacy("hsl()")).toThrow();
 		expect(() => parseHslLegacy("hsl(0)")).toThrow();
 		expect(() => parseHslLegacy("hsl(0, 100%)")).toThrow();
-		expect(() => parseHslLegacy("hsl(0, 100%, 50%, 1)")).toThrow();
 		expect(() => parseHslLegacy("rgb(0, 100%, 50%)")).toThrow();
 	});
 
 	it("throws on non-percentage saturation/lightness", () => {
 		expect(() => parseHslLegacy("hsl(0, 100, 50)")).toThrow();
+	});
+
+	// CSS Color 4 makes hsl()/hsla() exact aliases, so the 3-arg legacy `hsl(...)`
+	// form also accepts a 4th alpha value (previously this silently threw).
+	it("parses hsl(h, s%, l%, a) with an explicit alpha (hsl/hsla alias)", () => {
+		expect(parseHslLegacy("hsl(0, 100%, 50%, 1)")).toEqual({
+			h: 0,
+			s: 1,
+			l: 0.5,
+			a: 1,
+		});
+		expect(parseHslLegacy("hsl(120, 50%, 50%, 0.5)")).toEqual({
+			h: 120,
+			s: 0.5,
+			l: 0.5,
+			a: 0.5,
+		});
+	});
+
+	it("parses alpha as percentage in hsl(h, s%, l%, a%)", () => {
+		expect(parseHslLegacy("hsl(180, 50%, 50%, 50%)")).toEqual({
+			h: 180,
+			s: 0.5,
+			l: 0.5,
+			a: 0.5,
+		});
+	});
+
+	it("clamps out-of-range alpha in hsl(h, s%, l%, a)", () => {
+		expect(parseHslLegacy("hsl(0, 100%, 50%, 1.5)")).toEqual({
+			h: 0,
+			s: 1,
+			l: 0.5,
+			a: 1,
+		});
+		expect(parseHslLegacy("hsl(0, 100%, 50%, -0.5)")).toEqual({
+			h: 0,
+			s: 1,
+			l: 0.5,
+			a: 0,
+		});
+	});
+
+	it("throws on multi-dot hue instead of silently truncating", () => {
+		// parseFloat("1.2.3") would silently truncate to 1.2; the strict
+		// number token must reject the whole match instead.
+		expect(() => parseHslLegacy("hsl(1.2.3, 100%, 50%)")).toThrow();
+	});
+
+	it("throws on trailing garbage after the hue value", () => {
+		expect(() => parseHslLegacy("hsl(0deg, 100%, 50%)")).toThrow();
+	});
+
+	it("accepts scientific notation", () => {
+		expect(parseHslLegacy("hsl(1.2e2, 1e2%, 5e1%, 5e-1)")).toEqual({
+			h: 120,
+			s: 1,
+			l: 0.5,
+			a: 0.5,
+		});
 	});
 });
 

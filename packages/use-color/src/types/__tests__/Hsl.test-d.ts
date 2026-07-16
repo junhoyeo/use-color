@@ -4,6 +4,7 @@ import type {
 	HslaLegacyString,
 	HslaString,
 	HslInputString,
+	HslLegacyAlphaString,
 	HslLegacyString,
 	HslModernAlphaString,
 	HslModernString,
@@ -91,5 +92,31 @@ describe("Hsl types", () => {
 		expectTypeOf<HslInputString<"hsl(0, 0%, 0%)">>().toEqualTypeOf<"hsl(0, 0%, 0%)">();
 		expectTypeOf<HslInputString<"hsl(360, 100%, 100%)">>().toEqualTypeOf<"hsl(360, 100%, 100%)">();
 		expectTypeOf<HslInputString<"hsl(0 0% 0%)">>().toEqualTypeOf<"hsl(0 0% 0%)">();
+	});
+
+	// CSS Color 4 makes hsl()/hsla() exact aliases, so the 3-arg legacy `hsl(...)`
+	// form also accepts a 4th alpha value: hsl(120, 50%, 50%, 0.5)
+	it("HslLegacyAlphaString validates legacy hsl() with a 4th alpha value", () => {
+		expectTypeOf<
+			HslLegacyAlphaString<"hsl(120, 50%, 50%, 0.5)">
+		>().toEqualTypeOf<"hsl(120, 50%, 50%, 0.5)">();
+		expectTypeOf<
+			HslLegacyAlphaString<"hsl(120,50%,50%,0.5)">
+		>().toEqualTypeOf<"hsl(120,50%,50%,0.5)">();
+		expectTypeOf<
+			HslLegacyAlphaString<"hsl(120, 50%, 50%, 50%)">
+		>().toEqualTypeOf<"hsl(120, 50%, 50%, 50%)">();
+		expectTypeOf<HslLegacyAlphaString<"hsl(120, 50%, 50%)">>().toEqualTypeOf<never>();
+		expectTypeOf<HslLegacyAlphaString<"hsla(120, 50%, 50%, 0.5)">>().toEqualTypeOf<never>();
+	});
+
+	it("HslInputString accepts legacy hsl() with a 4th alpha value, but hsla() 3-arg alias remains rejected", () => {
+		expectTypeOf<
+			HslInputString<"hsl(120, 50%, 50%, 0.5)">
+		>().toEqualTypeOf<"hsl(120, 50%, 50%, 0.5)">();
+
+		// 3-arg hsla() without alpha is intentionally deferred/out of scope, not accepted here
+		expectTypeOf<HslaLegacyString<"hsla(180, 50%, 50%)">>().toEqualTypeOf<never>();
+		expectTypeOf<HslInputString<"hsla(180, 50%, 50%)">>().toEqualTypeOf<never>();
 	});
 });

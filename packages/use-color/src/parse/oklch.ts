@@ -1,10 +1,18 @@
 import { ColorErrorCode, ColorParseError } from "../errors.js";
 import type { OKLCH } from "../types/color.js";
 import { err, ok, type Result } from "../types/Result.js";
+import { normalizeHue } from "./hsl.js";
+import { NUM, NUM_OPT_PCT, NUM_UNSIGNED_OPT_PCT } from "./number.js";
 
-/** Matches: oklch(L C H) or oklch(L C H / A) where L, C, and A can be percentages */
-const OKLCH_REGEX =
-	/^oklch\(\s*([0-9.]+%?)\s+([0-9.]+%?)\s+([0-9.]+)\s*(?:\/\s*([0-9.]+%?))?\s*\)$/i;
+/**
+ * Matches: oklch(L C H) or oklch(L C H / A) where L, C, and A can be percentages.
+ * Hue accepts a leading sign (negative hues arise from hue arithmetic and are
+ * normalized into [0, 360) after parsing). Alpha does not accept a sign.
+ */
+const OKLCH_REGEX = new RegExp(
+	`^oklch\\(\\s*(${NUM_OPT_PCT})\\s+(${NUM_OPT_PCT})\\s+(${NUM})\\s*(?:\\/\\s*(${NUM_UNSIGNED_OPT_PCT}))?\\s*\\)$`,
+	"i",
+);
 
 function parsePercentageOrNumber(value: string, scale = 1): number {
 	if (value.endsWith("%")) {
@@ -31,6 +39,8 @@ function isValidOklch(oklch: OKLCH): boolean {
  * parseOklch('oklch(0.5 0.2 180)');      // { l: 0.5, c: 0.2, h: 180, a: 1 }
  * parseOklch('oklch(50% 0.2 180)');      // { l: 0.5, c: 0.2, h: 180, a: 1 }
  * parseOklch('oklch(0.5 0.2 180 / 0.5)'); // { l: 0.5, c: 0.2, h: 180, a: 0.5 }
+ * parseOklch('oklch(0.5 0.2 -90)');      // { l: 0.5, c: 0.2, h: 270, a: 1 } (negative hue normalized)
+ * parseOklch('oklch(1.5 0.2 180)');      // { l: 1, c: 0.2, h: 180, a: 1 } (L clamped to [0, 1])
  */
 export function parseOklch(str: string): OKLCH {
 	const result = tryParseOklch(str);
@@ -64,12 +74,18 @@ export function tryParseOklch(str: string): Result<OKLCH, ColorParseError> {
 
 	const [, lStr, cStr, hStr, aStr] = match;
 
-	const l = parsePercentageOrNumber(lStr!, 1);
-	const c = parsePercentageOrNumber(cStr!, 0.4);
-	const h = parseFloat(hStr!);
+	const lRaw = parsePercentageOrNumber(lStr!, 1);
+	const cRaw = parsePercentageOrNumber(cStr!, 0.4);
+	const h = normalizeHue(parseFloat(hStr!));
 	const a = aStr !== undefined ? parsePercentageOrNumber(aStr, 1) : 1;
 
-	const oklch: OKLCH = { l, c, h, a };
+	// CSS clamps out-of-range L/C rather than rejecting them: L to [0, 1], C to [0, ∞).
+	const oklch: OKLCH = {
+		l: Math.max(0, Math.min(1, lRaw)),
+		c: Math.max(0, cRaw),
+		h,
+		a,
+	};
 
 	/* v8 ignore start - regex ensures numeric patterns */
 	if (!isValidOklch(oklch)) {

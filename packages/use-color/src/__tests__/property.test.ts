@@ -169,7 +169,13 @@ describe("Property: Parse ∘ Format = Identity", () => {
 					expect(parsed.l).toBeCloseTo(oklch.l, 5);
 					expect(parsed.c).toBeCloseTo(oklch.c, 5);
 					if (oklch.c > 0.001) {
-						expect(parsed.h).toBeCloseTo(oklch.h, 3);
+						// Hue is circular: a source hue that rounds up to exactly 360
+						// when formatted (e.g. 359.9999995 at precision 6) normalizes
+						// to 0 on parse, so compare the wraparound-aware distance
+						// rather than the raw difference.
+						const hueDiff = Math.abs(parsed.h - oklch.h);
+						const circularHueDiff = Math.min(hueDiff, 360 - hueDiff);
+						expect(circularHueDiff).toBeCloseTo(0, 3);
 					}
 					expect(parsed.a).toBeCloseTo(oklch.a, 5);
 				}),

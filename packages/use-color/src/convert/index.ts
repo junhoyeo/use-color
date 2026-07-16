@@ -29,7 +29,7 @@ import { ColorErrorCode, ColorParseError } from "../errors.js";
 import type { AnyColor, HslColor, OklchColor, P3Color, RgbColor } from "../types/ColorObject.js";
 import type { ColorSpace, HSLA, OKLCH, P3, RGBA } from "../types/color.js";
 import { hslToRgb, rgbToHsl } from "./hsl.js";
-import { p3ToRgb, rgbToP3 } from "./p3.js";
+import { oklchToP3, p3ToOklch, p3ToRgb, rgbToP3 } from "./p3.js";
 import { oklchToRgb, rgbToOklch } from "./rgb-oklch.js";
 
 export type { GamutMapOptions } from "./gamut.js";
@@ -47,7 +47,7 @@ export { linearRgbToRgb, rgbToLinearRgb } from "./linear.js";
 export { oklabToOklch, oklabToXyz, oklchToOklab, xyzToOklab } from "./oklab.js";
 export type { LinearP3 } from "./p3.js";
 
-export { linearP3ToXyz, p3ToRgb, rgbToP3, xyzToLinearP3 } from "./p3.js";
+export { linearP3ToXyz, oklchToP3, p3ToOklch, p3ToRgb, rgbToP3, xyzToLinearP3 } from "./p3.js";
 export { oklchToRgb, rgbToOklch } from "./rgb-oklch.js";
 export type { LinearRGB as XyzLinearRGB, XYZ } from "./xyz.js";
 export { linearRgbToXyz, xyzToLinearRgb } from "./xyz.js";
@@ -105,6 +105,18 @@ type ConvertResult<T extends ColorSpace> = T extends "rgb"
 export function convert<T extends ColorSpace>(color: AnyColor, toSpace: T): ConvertResult<T> {
 	if (color.space === toSpace) {
 		return { ...color } as ConvertResult<T>;
+	}
+
+	// Direct OKLCH <-> P3 path: bypasses the 8-bit sRGB intermediate used
+	// below, which would clamp Display P3's wider gamut down to sRGB before
+	// expanding back out, permanently discarding out-of-sRGB-but-in-P3 color.
+	if (color.space === "oklch" && toSpace === "p3") {
+		const p3 = oklchToP3({ l: color.l, c: color.c, h: color.h, a: color.a });
+		return { space: "p3", ...p3 } as ConvertResult<T>;
+	}
+	if (color.space === "p3" && toSpace === "oklch") {
+		const oklch = p3ToOklch({ r: color.r, g: color.g, b: color.b, a: color.a });
+		return { space: "oklch", ...oklch } as ConvertResult<T>;
 	}
 
 	let rgba: RGBA;

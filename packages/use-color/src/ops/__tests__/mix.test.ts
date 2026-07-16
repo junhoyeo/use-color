@@ -84,7 +84,11 @@ describe("mix", () => {
 			const resultNeg = mix(a, b, -0.5) as OKLCH;
 			const resultOver = mix(a, b, 1.5) as OKLCH;
 			expect(resultNeg.l).toBeCloseTo(0.3, 5);
-			expect(resultOver.l).toBeCloseTo(0.7, 5);
+			// `b` is outside sRGB gamut, so ratio 1.5 (clamped to 1, returning `b`
+			// gamut-mapped) goes through clampToGamut's JND early-exit, which
+			// shifts lightness by a small, JND-bounded amount rather than
+			// preserving it exactly.
+			expect(Math.abs(resultOver.l - 0.7)).toBeLessThan(0.02);
 		});
 
 		it("should handle achromatic colors", () => {

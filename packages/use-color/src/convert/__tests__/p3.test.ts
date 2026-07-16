@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
+import type { OKLCH } from "../../types/color.js";
 import {
 	linearP3ToP3,
 	linearP3ToXyz,
+	oklchToP3,
 	p3ToLinearP3,
+	p3ToOklch,
 	p3ToRgb,
 	rgbToP3,
 	xyzToLinearP3,
@@ -208,6 +211,36 @@ describe("P3 conversion functions", () => {
 			expect(result.r).toBeCloseTo(0.00155, 4);
 			expect(result.g).toBeCloseTo(0.00155, 4);
 			expect(result.b).toBeCloseTo(0.00155, 4);
+		});
+	});
+
+	describe("P3 ↔ OKLCH round-trip (wide-gamut preservation)", () => {
+		it("preserves a wide-gamut color that is outside sRGB but inside P3", () => {
+			// h=150 at this L/C is outside sRGB gamut but within Display P3, so a
+			// correct direct OKLCH<->P3 path (not funneled through 8-bit sRGB)
+			// should round-trip it losslessly rather than clipping it to sRGB.
+			const wideGamut: OKLCH = { l: 0.7, c: 0.2, h: 150, a: 1 };
+			const p3 = oklchToP3(wideGamut);
+			const result = p3ToOklch(p3);
+
+			expect(result.l).toBeCloseTo(wideGamut.l, 3);
+			expect(result.c).toBeCloseTo(wideGamut.c, 3);
+			expect(result.h).toBeCloseTo(wideGamut.h, 1);
+			expect(result.a).toBe(wideGamut.a);
+		});
+
+		it("preserves alpha through the OKLCH -> P3 -> OKLCH round-trip", () => {
+			const color: OKLCH = { l: 0.6, c: 0.1, h: 200, a: 0.42 };
+			const result = p3ToOklch(oklchToP3(color));
+			expect(result.a).toBe(color.a);
+		});
+
+		it("round-trips an in-sRGB-gamut color through P3 as well", () => {
+			const color: OKLCH = { l: 0.5, c: 0.05, h: 30, a: 1 };
+			const result = p3ToOklch(oklchToP3(color));
+
+			expect(result.l).toBeCloseTo(color.l, 3);
+			expect(result.c).toBeCloseTo(color.c, 3);
 		});
 	});
 

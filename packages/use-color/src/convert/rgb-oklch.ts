@@ -27,6 +27,7 @@
  */
 
 import type { OKLCH, RGBA } from "../types/color.js";
+import { clampToGamut } from "./gamut.js";
 import { linearRgbToRgb, rgbToLinearRgb } from "./linear.js";
 import { oklabToOklch, oklabToXyz, oklchToOklab, xyzToOklab } from "./oklab.js";
 import { linearRgbToXyz, xyzToLinearRgb } from "./xyz.js";
@@ -78,8 +79,9 @@ export function rgbToOklch(rgba: RGBA): OKLCH {
  *
  * The alpha channel is passed through unchanged.
  *
- * Note: OKLCH colors outside the sRGB gamut may produce
- * RGB values that are clamped to 0-255.
+ * Note: OKLCH colors outside the sRGB gamut are gamut-mapped
+ * (via {@link clampToGamut}) before conversion, so the result is
+ * always a valid RGB color with channels in the 0-255 range.
  *
  * @param oklch - The OKLCH color to convert (l: 0-1, c: 0-~0.4, h: 0-360, a: 0-1)
  * @returns RGBA color (r, g, b: 0-255, a: 0-1)
@@ -104,7 +106,8 @@ export function rgbToOklch(rgba: RGBA): OKLCH {
  * ```
  */
 export function oklchToRgb(oklch: OKLCH): RGBA {
-	const oklab = oklchToOklab(oklch);
+	const clamped = clampToGamut(oklch);
+	const oklab = oklchToOklab(clamped);
 	const xyz = oklabToXyz(oklab);
 	const linear = xyzToLinearRgb(xyz);
 

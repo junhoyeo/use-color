@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { OKLCH, RGBA } from "../../types/color.js";
+import { clampToGamut } from "../gamut.js";
 import { oklchToRgb, rgbToOklch } from "../rgb-oklch.js";
 
 describe("rgbToOklch", () => {
@@ -262,16 +263,78 @@ describe("round-trip conversion: OKLCH → RGB → OKLCH", () => {
 		const rgb = oklchToRgb(oklch);
 		const result = rgbToOklch(rgb);
 
-		expect(result.l).toBeCloseTo(oklch.l, 2);
+		// oklchToRgb gamut-maps out-of-sRGB-gamut input before conversion, so
+		// the round-trip should be compared against the gamut-mapped color,
+		// not the raw (possibly out-of-gamut) input. For in-gamut inputs,
+		// clampToGamut is a no-op, so this is equivalent to the original oklch.
+		const expected = clampToGamut(oklch);
 
-		if (oklch.c === 0) {
+		expect(result.l).toBeCloseTo(expected.l, 2);
+
+		if (expected.c === 0) {
 			expect(result.c).toBeCloseTo(0, 2);
 		} else {
-			expect(result.c).toBeCloseTo(oklch.c, 2);
-			expect(Math.abs(result.h - oklch.h)).toBeLessThanOrEqual(hueTolerance);
+			expect(result.c).toBeCloseTo(expected.c, 2);
+			expect(Math.abs(result.h - expected.h)).toBeLessThanOrEqual(hueTolerance);
 		}
 
 		expect(result.a).toBe(oklch.a);
+	});
+});
+
+describe("achromatic round-trip precision", () => {
+	it("white round-trips to l≈1, c≈0", () => {
+		const result = rgbToOklch({ r: 255, g: 255, b: 255, a: 1 });
+		// OKLAB_M1_INV/LMS_TO_LRGB are the CSS Color 4 spec's actual matrices,
+		// which are deliberately calibrated for exact white-point round-tripping
+		// (see the JSDoc on `OKLAB_M1_INV` in constants.ts). The achieved
+		// precision here (~8e-6) is far tighter than for general chromatic
+		// colors (~1e-4), but still not bit-exact, hence the 1e-4 tolerance
+		// rather than requiring an exact 1.
+		expect(Math.abs(result.l - 1)).toBeLessThan(1e-4);
+		expect(Math.abs(result.c - 0)).toBeLessThan(1e-4);
+	});
+
+	it("black round-trips to l≈0, c≈0", () => {
+		const result = rgbToOklch({ r: 0, g: 0, b: 0, a: 1 });
+		expect(Math.abs(result.l - 0)).toBeLessThan(1e-6);
+		expect(Math.abs(result.c - 0)).toBeLessThan(1e-6);
+	});
+});
+
+describe("out-of-gamut oklchToRgb always produces valid 8-bit channels", () => {
+	it("emits r/g/b in [0, 255] across a dense out-of-gamut L/C/H sweep", () => {
+		// Regression coverage for the green/cyan boundary overshoot previously
+		// fixed in linear.ts's `linearToSrgb` clamp: floating-point noise from
+		// the matrix pipeline could push a channel a hair outside [0, 1] before
+		// rounding, producing an out-of-range -1 or 256.
+		for (let l = 0; l <= 1; l += 0.05) {
+			for (let c = 0; c <= 0.5; c += 0.05) {
+				for (let h = 0; h < 360; h += 15) {
+					const result = oklchToRgb({ l, c, h, a: 1 });
+					expect(result.r).toBeGreaterThanOrEqual(0);
+					expect(result.r).toBeLessThanOrEqual(255);
+					expect(result.g).toBeGreaterThanOrEqual(0);
+					expect(result.g).toBeLessThanOrEqual(255);
+					expect(result.b).toBeGreaterThanOrEqual(0);
+					expect(result.b).toBeLessThanOrEqual(255);
+				}
+			}
+		}
+	});
+
+	it("emits valid channels for the previously-problematic green/cyan boundary", () => {
+		const green = oklchToRgb({ l: 0.86, c: 0.3, h: 142, a: 1 });
+		const cyan = oklchToRgb({ l: 0.9, c: 0.3, h: 190, a: 1 });
+
+		for (const rgba of [green, cyan]) {
+			expect(rgba.r).toBeGreaterThanOrEqual(0);
+			expect(rgba.r).toBeLessThanOrEqual(255);
+			expect(rgba.g).toBeGreaterThanOrEqual(0);
+			expect(rgba.g).toBeLessThanOrEqual(255);
+			expect(rgba.b).toBeGreaterThanOrEqual(0);
+			expect(rgba.b).toBeLessThanOrEqual(255);
+		}
 	});
 });
 

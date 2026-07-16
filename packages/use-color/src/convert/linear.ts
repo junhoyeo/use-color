@@ -104,7 +104,7 @@ export function srgbToLinear(value: number): number {
  * - Power curve with gamma ≈ 1/2.4 for brighter values
  *
  * @param value - Linear light value (0-1)
- * @returns sRGB component value (0-255, rounded to integer)
+ * @returns sRGB component value (0-255, rounded to integer, clamped to the valid range)
  *
  * @example
  * ```typescript
@@ -127,7 +127,11 @@ export function linearToSrgb(value: number): number {
 	// Linear segment (≤ 0.0031308) vs power curve (gamma 1/2.4)
 	const v = value <= 0.0031308 ? value * 12.92 : 1.055 * value ** (1 / 2.4) - 0.055;
 
-	return Math.round(v * 255);
+	// Clamp to [0, 255]: colors that are exactly on (or extremely close to) a
+	// gamut boundary can pick up a few ULPs of floating-point noise from the
+	// matrix pipeline, pushing `v` a hair outside [0, 1]. Without this clamp,
+	// rounding can emit -1 or 256, which is out of range for an RGB channel.
+	return Math.max(0, Math.min(255, Math.round(v * 255)));
 }
 
 /**

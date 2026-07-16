@@ -6,11 +6,11 @@
 import {
 	clampToGamut,
 	convert,
+	oklchToP3,
 	oklchToRgb,
-	p3ToRgb,
+	p3ToOklch,
 	rgbToHsl,
 	rgbToOklch,
-	rgbToP3,
 } from "./convert/index.js";
 import { ColorErrorCode, ColorParseError } from "./errors.js";
 import type { CssOptions } from "./format/css.js";
@@ -243,7 +243,7 @@ export class Color {
 				return { space: "hsl", h: hsla.h, s: hsla.s, l: hsla.l, a: hsla.a };
 			}
 			case "p3": {
-				const p3 = rgbToP3(oklchToRgb(this._oklch));
+				const p3 = oklchToP3(this._oklch);
 				return { space: "p3", r: p3.r, g: p3.g, b: p3.b, a: p3.a };
 			}
 		}
@@ -415,10 +415,8 @@ function toOklchFromAnyColor(anyColor: AnyColor): OKLCH {
 			const rgb = convert(anyColor, "rgb");
 			return rgbToOklch({ r: rgb.r, g: rgb.g, b: rgb.b, a: rgb.a });
 		}
-		case "p3": {
-			const rgb = p3ToRgb({ r: anyColor.r, g: anyColor.g, b: anyColor.b, a: anyColor.a });
-			return rgbToOklch(rgb);
-		}
+		case "p3":
+			return p3ToOklch({ r: anyColor.r, g: anyColor.g, b: anyColor.b, a: anyColor.a });
 	}
 }
 

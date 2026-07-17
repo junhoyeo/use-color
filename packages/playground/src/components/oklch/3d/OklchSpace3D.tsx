@@ -300,11 +300,20 @@ export default function OklchSpace3D({ l, c, h, gamut }: OklchSpace3DProps) {
 
 		const { l: l0, c: c0, h: h0 } = valuesRef.current;
 
-		const sliceL = new Vector2(0, -(l0 / L_MAX - 0.5));
-		const sliceC = new Vector2(0, -(c0 / (C_MAX * 2) - 0.5));
-		const sliceH = new Vector2(0, h0 / 360 - 0.5);
+		const sliceL = new Vector2(0, 0);
+		const sliceC = new Vector2(0, 0);
+		const sliceH = new Vector2(0, 0);
 
 		const { mesh, offset } = generateMesh(gamut, sliceL, sliceC, sliceH);
+
+		// The slice planes live in the same centered coordinate frame as the
+		// marker: geometry.center() shifts by the ACTUAL bounding-box center
+		// (chroma axis ~0.201, not 0.5), so the uniforms must be seeded from
+		// the real offset or the highlighted slice misses the marker by ~0.3.
+		const initialPos = markerPosition(l0, c0, h0, offset);
+		sliceL.y = -initialPos.x;
+		sliceC.y = -initialPos.y;
+		sliceH.y = initialPos.z;
 		scene.add(mesh);
 
 		const marker = generateMarker(l0, c0, h0, offset);
@@ -368,11 +377,14 @@ export default function OklchSpace3D({ l, c, h, gamut }: OklchSpace3DProps) {
 
 		const { sliceL, sliceC, sliceH, marker, offset } = sceneRef.current;
 
-		sliceL.y = -(l / L_MAX - 0.5);
-		sliceC.y = -(c / (C_MAX * 2) - 0.5);
-		sliceH.y = h / 360 - 0.5;
+		// Marker and slice uniforms share one coordinate computation so they
+		// can never drift apart again (both use the real centering offset).
+		const pos = markerPosition(l, c, h, offset);
+		sliceL.y = -pos.x;
+		sliceC.y = -pos.y;
+		sliceH.y = pos.z;
 
-		marker.position.copy(markerPosition(l, c, h, offset));
+		marker.position.copy(pos);
 	}, [l, c, h]);
 
 	return (

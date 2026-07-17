@@ -1,3 +1,4 @@
+import { computeGamutBoundary, paintBoundaryLine } from "./gamut-boundary";
 import type { RenderPlaneChParams } from "./types";
 
 /**
@@ -74,7 +75,7 @@ function linearToSrgb8(v: number): number {
 }
 
 export function renderPlaneCh(params: RenderPlaneChParams): ImageData {
-	const { width, height, l, gamut } = params;
+	const { width, height, l, gamut, showBoundary } = params;
 	const data = new Uint8ClampedArray(width * height * 4);
 
 	const widthMinus1 = width - 1;
@@ -157,6 +158,11 @@ export function renderPlaneCh(params: RenderPlaneChParams): ImageData {
 				data[idx + 3] = 0;
 			}
 		}
+	}
+
+	if (showBoundary) {
+		const boundary = computeGamutBoundary({ width, height, axis: "CH", fixedValue: l, gamut });
+		paintBoundaryLine(data, width, height, boundary);
 	}
 
 	return new ImageData(data, width, height);

@@ -7,6 +7,7 @@ import { Card } from "../ui/card";
 import { OklchSpace3D } from "./3d";
 import { CursorOverlay } from "./charts/CursorOverlay";
 import { OklchPlane, type PlaneAxis } from "./charts/OklchPlane";
+import { PLANE_HEIGHT, PLANE_WIDTH } from "./charts/plane-size";
 import { GamutToggle, type GamutType } from "./controls/GamutToggle";
 import { OklchSliders } from "./controls/OklchSliders";
 import { usePointerDrag } from "./engine/use-pointer-drag";
@@ -22,8 +23,6 @@ import { type BoundaryPoint, computeGamutBoundary } from "./renderers/gamut-boun
 const ANNOUNCEMENT_DEBOUNCE_MS = 400;
 
 const MAX_CHROMA = 0.4;
-const PLANE_WIDTH = 380;
-const PLANE_HEIGHT = 280;
 
 interface OklchVisualizerSectionProps {
 	color: Color | null;
@@ -257,6 +256,8 @@ export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizer
 							draft={draft}
 							gamut={gamut}
 							isDragging={isDragging}
+							onDraftChange={setDraft}
+							onCommit={commit}
 						/>
 
 						{boundaryPath && (

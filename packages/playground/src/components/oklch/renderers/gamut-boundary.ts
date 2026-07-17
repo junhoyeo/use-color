@@ -135,6 +135,32 @@ function binarySearchMaxInGamut(
 	return low;
 }
 
+// Finds the smallest value in [min, max] for which checkFn is true, assuming
+// checkFn is false near `min` and true near `max` (mirror of binarySearchMaxInGamut).
+function binarySearchMinInGamut(
+	checkFn: (value: number) => boolean,
+	min: number,
+	max: number,
+	tolerance = 0.001,
+): number | null {
+	if (!checkFn(max)) return null;
+	if (checkFn(min)) return min;
+
+	let low = min;
+	let high = max;
+
+	while (high - low > tolerance) {
+		const mid = (low + high) / 2;
+		if (checkFn(mid)) {
+			high = mid;
+		} else {
+			low = mid;
+		}
+	}
+
+	return high;
+}
+
 // LC plane: For each lightness (Y), find max chroma (X)
 function computeLCBoundary(params: GamutBoundaryParams): BoundaryPoint[] {
 	const { width, height, fixedValue: h, gamut } = params;
@@ -155,24 +181,71 @@ function computeLCBoundary(params: GamutBoundaryParams): BoundaryPoint[] {
 	return points;
 }
 
-// LH plane: For each hue (X), find max lightness (Y)
+// LH plane: for a fixed chroma, in-gamut lightness forms a contiguous band
+// somewhere between L=0 (black) and L=1 (white) — neither endpoint is in
+// gamut for c > 0, so the boundary has an upper AND a lower edge per hue.
+// Find a seed lightness that is in gamut, then binary search outward in
+// both directions to locate the two edges of the band.
+const LH_SEED_SAMPLES = 40;
+// Fallback sampling density when the coarse pass misses. Bands can be as
+// narrow as ~0.003 in L (e.g. sRGB c=0.145 near h=211°), so the coarse
+// 40-sample pass (step 0.025) can step right over them.
+const LH_SEED_SAMPLES_DENSE = 800;
+
+function findSeedLightness(
+	c: number,
+	h: number,
+	gamut: "srgb" | "p3",
+	hint: number | null,
+): number | null {
+	// The band moves continuously with hue, so the previous column's band
+	// midpoint almost always lands inside this column's band — making the
+	// dense fallback below a rare cost (band emergence only).
+	if (hint !== null && isInGamut(hint, c, h, gamut)) return hint;
+	for (let i = 1; i < LH_SEED_SAMPLES; i++) {
+		const l = i / LH_SEED_SAMPLES;
+		if (isInGamut(l, c, h, gamut)) return l;
+	}
+	for (let i = 1; i < LH_SEED_SAMPLES_DENSE; i++) {
+		const l = i / LH_SEED_SAMPLES_DENSE;
+		if (isInGamut(l, c, h, gamut)) return l;
+	}
+	return null;
+}
+
 function computeLHBoundary(params: GamutBoundaryParams): BoundaryPoint[] {
 	const { width, height, fixedValue: c, gamut } = params;
-	const points: BoundaryPoint[] = [];
 
 	if (c <= 0) return [];
 
+	const upperEdge: BoundaryPoint[] = [];
+	const lowerEdge: BoundaryPoint[] = [];
+	let hint: number | null = null;
+
 	for (let x = 0; x < width; x++) {
 		const h = (x / (width - 1)) * 360;
-		const maxL = binarySearchMaxInGamut((l) => isInGamut(l, c, h, gamut), 0, 1);
-
-		if (maxL !== null && maxL > 0 && maxL < 1) {
-			const y = (1 - maxL) * (height - 1); // top=1, bottom=0
-			points.push({ x, y });
+		const seedL = findSeedLightness(c, h, gamut, hint);
+		if (seedL === null) {
+			hint = null;
+			continue;
 		}
+
+		const checkFn = (l: number) => isInGamut(l, c, h, gamut);
+		const maxL = binarySearchMaxInGamut(checkFn, seedL, 1);
+		const minL = binarySearchMinInGamut(checkFn, 0, seedL);
+
+		if (maxL !== null) {
+			upperEdge.push({ x, y: (1 - maxL) * (height - 1) }); // top=1, bottom=0
+		}
+		if (minL !== null) {
+			lowerEdge.push({ x, y: (1 - minL) * (height - 1) });
+		}
+		hint = maxL !== null && minL !== null ? (maxL + minL) / 2 : seedL;
 	}
 
-	return points;
+	// Trace the upper edge left-to-right, then the lower edge right-to-left,
+	// so the combined points form a single closed-ish polyline outlining the band.
+	return [...upperEdge, ...lowerEdge.reverse()];
 }
 
 // CH plane: For each hue (X), find max chroma (Y)
@@ -193,6 +266,50 @@ function computeCHBoundary(params: GamutBoundaryParams): BoundaryPoint[] {
 	}
 
 	return points;
+}
+
+/**
+ * Rasterizes a boundary polyline (as produced by computeGamutBoundary) directly
+ * into an RGBA pixel buffer, for renderers that build ImageData by hand rather
+ * than drawing via the 2D canvas API.
+ */
+export function paintBoundaryLine(
+	data: Uint8ClampedArray,
+	width: number,
+	height: number,
+	points: BoundaryPoint[],
+): void {
+	const setPixel = (px: number, py: number) => {
+		if (px < 0 || px >= width || py < 0 || py >= height) return;
+		const idx = (py * width + px) * 4;
+		data[idx] = 255;
+		data[idx + 1] = 255;
+		data[idx + 2] = 255;
+		data[idx + 3] = 255;
+	};
+
+	// Connect consecutive points with a vertical span instead of painting
+	// isolated dots: adjacent columns can differ by many pixels of y where the
+	// boundary is steep (e.g. the CH plane near a gamut cusp), which left
+	// visible gaps. Points more than one column apart are NOT connected — that
+	// gap means the band genuinely vanished for the skipped hues.
+	let prev: BoundaryPoint | null = null;
+	for (const point of points) {
+		const px = Math.round(point.x);
+		const py = Math.round(point.y);
+
+		if (prev !== null && Math.abs(point.x - prev.x) <= 1.5) {
+			const py0 = Math.round(prev.y);
+			const step = py >= py0 ? 1 : -1;
+			for (let y = py0; y !== py + step; y += step) {
+				setPixel(px, y);
+			}
+		} else {
+			setPixel(px, py);
+		}
+
+		prev = point;
+	}
 }
 
 export function computeGamutBoundary(params: GamutBoundaryParams): BoundaryPoint[] {

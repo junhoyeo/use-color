@@ -1,3 +1,4 @@
+import { computeGamutBoundary, paintBoundaryLine } from "./gamut-boundary";
 import type { RenderPlaneLcParams } from "./types";
 
 /**
@@ -74,7 +75,7 @@ function linearToSrgb8(v: number): number {
 }
 
 export function renderPlaneLc(params: RenderPlaneLcParams): ImageData {
-	const { width, height, h, gamut } = params;
+	const { width, height, h, gamut, showBoundary } = params;
 	const data = new Uint8ClampedArray(width * height * 4);
 
 	const rad = h * DEG_TO_RAD;
@@ -151,6 +152,11 @@ export function renderPlaneLc(params: RenderPlaneLcParams): ImageData {
 				data[idx + 3] = 0;
 			}
 		}
+	}
+
+	if (showBoundary) {
+		const boundary = computeGamutBoundary({ width, height, axis: "LC", fixedValue: h, gamut });
+		paintBoundaryLine(data, width, height, boundary);
 	}
 
 	return new ImageData(data, width, height);

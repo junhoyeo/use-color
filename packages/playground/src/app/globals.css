@@ -38,6 +38,14 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
+/* Tailwind v4 preflight no longer sets cursor: pointer on interactive elements */
+button:not(:disabled),
+[role="button"]:not(:disabled),
+[role="tab"]:not(:disabled),
+summary {
+  cursor: pointer;
+}
+
 ::selection {
   background: var(--brand);
   color: white;

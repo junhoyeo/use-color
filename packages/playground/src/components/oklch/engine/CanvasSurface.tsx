@@ -110,14 +110,28 @@ export const CanvasSurface = forwardRef<CanvasSurfaceRef, CanvasSurfaceProps>(
 			});
 			resizeObserver.observe(canvas);
 
-			const dpr = window.devicePixelRatio;
-			const mediaQuery = window.matchMedia(`(resolution: ${dpr}dppx)`);
-			const handleDprChange = () => updateCanvas();
-			mediaQuery.addEventListener("change", handleDprChange);
+			let mediaQuery: MediaQueryList | null = null;
+			let disposed = false;
+
+			const handleDprChange = () => {
+				updateCanvas();
+				subscribe();
+			};
+
+			const subscribe = () => {
+				if (disposed) return;
+				mediaQuery?.removeEventListener("change", handleDprChange);
+				const dpr = window.devicePixelRatio;
+				mediaQuery = window.matchMedia(`(resolution: ${dpr}dppx)`);
+				mediaQuery.addEventListener("change", handleDprChange);
+			};
+
+			subscribe();
 
 			return () => {
+				disposed = true;
 				resizeObserver.disconnect();
-				mediaQuery.removeEventListener("change", handleDprChange);
+				mediaQuery?.removeEventListener("change", handleDprChange);
 			};
 		}, [updateCanvas]);
 

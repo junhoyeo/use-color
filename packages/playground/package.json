@@ -9,11 +9,10 @@
 		"lint": "biome check . && next lint",
 		"lint:next": "next lint",
 		"format": "biome format --write .",
-		"test": "vitest run"
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@react-three/drei": "^10.7.7",
-		"@react-three/fiber": "^9.4.2",
 		"clsx": "^2.1.1",
 		"delaunator": "^5.0.1",
 		"framer-motion": "^12.18.2",

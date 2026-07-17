@@ -206,13 +206,23 @@ export function OklchPlane({
 				};
 			}
 
-			if (resolutionScale < 1) {
+			if (resolutionScale < 1 && typeof OffscreenCanvas !== "undefined") {
 				const offscreen = new OffscreenCanvas(renderWidth, renderHeight);
 				const offCtx = offscreen.getContext("2d");
 				if (offCtx) {
 					offCtx.putImageData(imageData, 0, 0);
 					ctx.imageSmoothingEnabled = false;
 					ctx.drawImage(offscreen, 0, 0, width, height);
+				}
+			} else if (resolutionScale < 1) {
+				const fallbackCanvas = document.createElement("canvas");
+				fallbackCanvas.width = renderWidth;
+				fallbackCanvas.height = renderHeight;
+				const fallbackCtx = fallbackCanvas.getContext("2d");
+				if (fallbackCtx) {
+					fallbackCtx.putImageData(imageData, 0, 0);
+					ctx.imageSmoothingEnabled = false;
+					ctx.drawImage(fallbackCanvas, 0, 0, width, height);
 				}
 			} else {
 				ctx.putImageData(imageData, 0, 0);

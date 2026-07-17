@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Check, Copy } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface CopyButtonProps {
 	text: string;
@@ -11,11 +11,32 @@ interface CopyButtonProps {
 
 export function CopyButton({ text, className = "" }: CopyButtonProps) {
 	const [copied, setCopied] = useState(false);
+	const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const mountedRef = useRef(true);
+
+	useEffect(() => {
+		mountedRef.current = true;
+		return () => {
+			mountedRef.current = false;
+			if (resetTimeoutRef.current) {
+				clearTimeout(resetTimeoutRef.current);
+			}
+		};
+	}, []);
 
 	const handleCopy = async () => {
 		await navigator.clipboard.writeText(text);
+		// The clipboard await can outlive the component: without this guard an
+		// unmount during the await would set state on a dead component and
+		// schedule a fresh timer AFTER the cleanup above already ran.
+		if (!mountedRef.current) {
+			return;
+		}
 		setCopied(true);
-		setTimeout(() => setCopied(false), 2000);
+		if (resetTimeoutRef.current) {
+			clearTimeout(resetTimeoutRef.current);
+		}
+		resetTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
 	};
 
 	return (

@@ -28,11 +28,12 @@ export function useColorState(initialColor = "#3b82f6") {
 		const result = Color.tryFrom(newColor as ColorInputValue);
 		if (result.ok) {
 			setCurrentColor(result.value);
+			const actualAlpha = result.value.getAlpha();
 			setManipulations({
 				lighten: 0,
 				saturate: 0,
 				rotate: 0,
-				alpha: 1,
+				alpha: actualAlpha >= 0.995 ? 1 : actualAlpha,
 			});
 		} else {
 			setCurrentColor(null);

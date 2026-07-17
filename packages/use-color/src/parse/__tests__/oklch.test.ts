@@ -135,6 +135,28 @@ describe("parseOklch", () => {
 			const result = parseOklch("oklch(0.5 0.2 180 / 1)");
 			expect(result).toEqual({ l: 0.5, c: 0.2, h: 180, a: 1 });
 		});
+
+		// CSS <alpha-value> accepts signed values and clamps to [0, 1] at
+		// parse time — negative alpha is valid syntax, not an error.
+		it("clamps negative alpha to 0 (oklch(50% .2 30 / -20%))", () => {
+			const result = parseOklch("oklch(50% .2 30 / -20%)");
+			expect(result.a).toBe(0);
+		});
+
+		it("clamps alpha above 1 (oklch(50% .2 30 / 200%))", () => {
+			const result = parseOklch("oklch(50% .2 30 / 200%)");
+			expect(result.a).toBe(1);
+		});
+
+		it("clamps numeric alpha above 1 (oklch(0.5 0.2 180 / 2))", () => {
+			const result = parseOklch("oklch(0.5 0.2 180 / 2)");
+			expect(result.a).toBe(1);
+		});
+
+		it("clamps negative numeric alpha (oklch(0.5 0.2 180 / -0.5))", () => {
+			const result = parseOklch("oklch(0.5 0.2 180 / -0.5)");
+			expect(result.a).toBe(0);
+		});
 	});
 
 	describe("whitespace handling", () => {

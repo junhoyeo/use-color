@@ -2,15 +2,16 @@ import { ColorErrorCode, ColorParseError } from "../errors.js";
 import type { OKLCH } from "../types/color.js";
 import { err, ok, type Result } from "../types/Result.js";
 import { normalizeHue } from "./hsl.js";
-import { NUM, NUM_OPT_PCT, NUM_UNSIGNED_OPT_PCT } from "./number.js";
+import { NUM, NUM_OPT_PCT } from "./number.js";
 
 /**
  * Matches: oklch(L C H) or oklch(L C H / A) where L, C, and A can be percentages.
  * Hue accepts a leading sign (negative hues arise from hue arithmetic and are
- * normalized into [0, 360) after parsing). Alpha does not accept a sign.
+ * normalized into [0, 360) after parsing). Alpha accepts a sign per the CSS
+ * `<alpha-value>` grammar; out-of-range values clamp to [0, 1] at parse time.
  */
 const OKLCH_REGEX = new RegExp(
-	`^oklch\\(\\s*(${NUM_OPT_PCT})\\s+(${NUM_OPT_PCT})\\s+(${NUM})\\s*(?:\\/\\s*(${NUM_UNSIGNED_OPT_PCT}))?\\s*\\)$`,
+	`^oklch\\(\\s*(${NUM_OPT_PCT})\\s+(${NUM_OPT_PCT})\\s+(${NUM})\\s*(?:\\/\\s*(${NUM_OPT_PCT}))?\\s*\\)$`,
 	"i",
 );
 
@@ -77,14 +78,15 @@ export function tryParseOklch(str: string): Result<OKLCH, ColorParseError> {
 	const lRaw = parsePercentageOrNumber(lStr!, 1);
 	const cRaw = parsePercentageOrNumber(cStr!, 0.4);
 	const h = normalizeHue(parseFloat(hStr!));
-	const a = aStr !== undefined ? parsePercentageOrNumber(aStr, 1) : 1;
+	const aRaw = aStr !== undefined ? parsePercentageOrNumber(aStr, 1) : 1;
 
-	// CSS clamps out-of-range L/C rather than rejecting them: L to [0, 1], C to [0, ∞).
+	// CSS clamps out-of-range values rather than rejecting them:
+	// L to [0, 1], C to [0, ∞), and alpha (like every <alpha-value>) to [0, 1].
 	const oklch: OKLCH = {
 		l: Math.max(0, Math.min(1, lRaw)),
 		c: Math.max(0, cRaw),
 		h,
-		a,
+		a: Math.max(0, Math.min(1, aRaw)),
 	};
 
 	/* v8 ignore start - regex ensures numeric patterns */

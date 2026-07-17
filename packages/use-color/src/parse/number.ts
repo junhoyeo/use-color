@@ -25,10 +25,3 @@ export const NUM_PCT = `${NUM}%`;
 
 /** Strict numeric token with an optional trailing percent sign. */
 export const NUM_OPT_PCT = `${NUM}%?`;
-
-/**
- * Strict unsigned numeric token (no leading sign) with an optional trailing
- * percent sign. Used for slots (like alpha) where a leading sign was never
- * part of the accepted grammar.
- */
-export const NUM_UNSIGNED_OPT_PCT = `${NUM_BODY}%?`;

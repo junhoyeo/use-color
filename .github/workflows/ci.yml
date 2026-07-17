@@ -20,7 +20,12 @@ jobs:
           cache: 'pnpm'
           
       - run: pnpm install --frozen-lockfile
-      
+
+      # Playground typecheck resolves use-color via its published dist/ types,
+      # so the library must be built before any dependent typecheck runs.
+      - name: Build library
+        run: pnpm --filter use-color build
+
       - name: Type Check
         run: pnpm typecheck
         

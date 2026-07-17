@@ -366,7 +366,7 @@ describe("Color output methods", () => {
 			const anyColor = red.toAnyColor("p3");
 			expect(anyColor.space).toBe("p3");
 			if (anyColor.space === "p3") {
-				expect(anyColor.r).toBeDefined();
+				expect(anyColor.r).toBeCloseTo(0.9174, 3);
 				expect(anyColor.a).toBe(1);
 			}
 		});
@@ -535,7 +535,8 @@ describe("Mix with hue interpolation edge cases", () => {
 	it("mix in rgb space interpolates RGB values", () => {
 		const red = color("#ff0000");
 		const mixed = red.mix("#0000ff", { ratio: 0.5, space: "rgb" });
-		expect(mixed.toHex()).toBeDefined();
+		expect(mixed.toHex()).toBe("#800080");
+		expect(mixed.toRgb()).toEqual({ r: 128, g: 0, b: 128, a: 1 });
 	});
 });
 
@@ -543,7 +544,7 @@ describe("P3 color space input", () => {
 	it("accepts P3Color with space discriminant", () => {
 		const p3Color = { space: "p3" as const, r: 1, g: 0.5, b: 0.2, a: 1 };
 		const c = color(p3Color);
-		expect(c.toHex()).toBeDefined();
+		expect(c.toHex()).toBe("#ff8036");
 		expect(c.getAlpha()).toBe(1);
 	});
 

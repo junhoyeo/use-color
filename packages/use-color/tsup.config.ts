@@ -1,6 +1,6 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { minify } from "@swc/core";
+import { transform } from "@swc/core";
 import { defineConfig } from "tsup";
 
 async function swcMinify() {
@@ -11,26 +11,46 @@ async function swcMinify() {
 	await Promise.all(
 		jsFiles.map(async (file) => {
 			const filePath = join(distDir, file);
-			const code = await readFile(filePath, "utf-8");
+			const mapPath = `${filePath}.map`;
+			const isEsm = file.endsWith(".js");
+			const [code, inputSourceMap] = await Promise.all([
+				readFile(filePath, "utf-8"),
+				readFile(mapPath, "utf-8"),
+			]);
 
-			const result = await minify(code, {
-				compress: {
-					passes: 3,
-					pure_getters: true,
-					unsafe_math: true,
-					drop_debugger: true,
-					toplevel: true,
+			// `swc.minify()` has no way to accept an input source map, so it can
+			// only ever emit a map from minified output back to the pre-minified
+			// bundle, not through to the original TypeScript. `swc.transform()`
+			// with `minify: true` accepts `inputSourceMap`, letting it chain
+			// through tsup's esbuild-generated map back to the real sources.
+			const result = await transform(code, {
+				filename: file,
+				sourceMaps: true,
+				inputSourceMap,
+				isModule: isEsm,
+				minify: true,
+				jsc: {
+					parser: { syntax: "ecmascript" },
+					target: "es2020",
+					minify: {
+						compress: {
+							passes: 3,
+							pure_getters: true,
+							unsafe_math: true,
+							drop_debugger: true,
+							toplevel: true,
+						},
+						mangle: {
+							toplevel: true,
+						},
+						module: isEsm,
+					},
 				},
-				mangle: {
-					toplevel: true,
-				},
-				module: true,
-				sourceMap: true,
 			});
 
 			await writeFile(filePath, result.code);
 			if (result.map) {
-				await writeFile(`${filePath}.map`, result.map);
+				await writeFile(mapPath, result.map);
 			}
 		}),
 	);

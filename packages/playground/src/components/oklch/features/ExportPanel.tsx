@@ -5,7 +5,6 @@ import type { Color } from "use-color";
 
 export interface ExportPanelProps {
 	color: Color;
-	palette?: Color[];
 }
 
 export type ExportFormat = "css" | "tailwind" | "scss" | "json" | "figma";
@@ -59,7 +58,7 @@ $color-primary-oklch: ${oklch};`;
 	}
 }
 
-export function ExportPanel({ color, palette: _palette }: ExportPanelProps) {
+export function ExportPanel({ color }: ExportPanelProps) {
 	const [format, setFormat] = useState<ExportFormat>("css");
 	const [copied, setCopied] = useState(false);
 

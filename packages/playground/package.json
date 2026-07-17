@@ -6,8 +6,7 @@
 		"dev": "next dev --port 3333",
 		"build": "next build",
 		"start": "next start",
-		"lint": "biome check . && next lint",
-		"lint:next": "next lint",
+		"lint": "biome check .",
 		"format": "biome format --write .",
 		"test": "vitest run",
 		"typecheck": "tsc --noEmit"

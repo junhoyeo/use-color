@@ -187,10 +187,27 @@ function computeLCBoundary(params: GamutBoundaryParams): BoundaryPoint[] {
 // Find a seed lightness that is in gamut, then binary search outward in
 // both directions to locate the two edges of the band.
 const LH_SEED_SAMPLES = 40;
+// Fallback sampling density when the coarse pass misses. Bands can be as
+// narrow as ~0.003 in L (e.g. sRGB c=0.145 near h=211°), so the coarse
+// 40-sample pass (step 0.025) can step right over them.
+const LH_SEED_SAMPLES_DENSE = 800;
 
-function findSeedLightness(c: number, h: number, gamut: "srgb" | "p3"): number | null {
+function findSeedLightness(
+	c: number,
+	h: number,
+	gamut: "srgb" | "p3",
+	hint: number | null,
+): number | null {
+	// The band moves continuously with hue, so the previous column's band
+	// midpoint almost always lands inside this column's band — making the
+	// dense fallback below a rare cost (band emergence only).
+	if (hint !== null && isInGamut(hint, c, h, gamut)) return hint;
 	for (let i = 1; i < LH_SEED_SAMPLES; i++) {
 		const l = i / LH_SEED_SAMPLES;
+		if (isInGamut(l, c, h, gamut)) return l;
+	}
+	for (let i = 1; i < LH_SEED_SAMPLES_DENSE; i++) {
+		const l = i / LH_SEED_SAMPLES_DENSE;
 		if (isInGamut(l, c, h, gamut)) return l;
 	}
 	return null;
@@ -203,11 +220,15 @@ function computeLHBoundary(params: GamutBoundaryParams): BoundaryPoint[] {
 
 	const upperEdge: BoundaryPoint[] = [];
 	const lowerEdge: BoundaryPoint[] = [];
+	let hint: number | null = null;
 
 	for (let x = 0; x < width; x++) {
 		const h = (x / (width - 1)) * 360;
-		const seedL = findSeedLightness(c, h, gamut);
-		if (seedL === null) continue;
+		const seedL = findSeedLightness(c, h, gamut, hint);
+		if (seedL === null) {
+			hint = null;
+			continue;
+		}
 
 		const checkFn = (l: number) => isInGamut(l, c, h, gamut);
 		const maxL = binarySearchMaxInGamut(checkFn, seedL, 1);
@@ -219,6 +240,7 @@ function computeLHBoundary(params: GamutBoundaryParams): BoundaryPoint[] {
 		if (minL !== null) {
 			lowerEdge.push({ x, y: (1 - minL) * (height - 1) });
 		}
+		hint = maxL !== null && minL !== null ? (maxL + minL) / 2 : seedL;
 	}
 
 	// Trace the upper edge left-to-right, then the lower edge right-to-left,
@@ -266,12 +288,27 @@ export function paintBoundaryLine(
 		data[idx + 3] = 255;
 	};
 
+	// Connect consecutive points with a vertical span instead of painting
+	// isolated dots: adjacent columns can differ by many pixels of y where the
+	// boundary is steep (e.g. the CH plane near a gamut cusp), which left
+	// visible gaps. Points more than one column apart are NOT connected — that
+	// gap means the band genuinely vanished for the skipped hues.
+	let prev: BoundaryPoint | null = null;
 	for (const point of points) {
 		const px = Math.round(point.x);
 		const py = Math.round(point.y);
-		setPixel(px, py - 1);
-		setPixel(px, py);
-		setPixel(px, py + 1);
+
+		if (prev !== null && Math.abs(point.x - prev.x) <= 1.5) {
+			const py0 = Math.round(prev.y);
+			const step = py >= py0 ? 1 : -1;
+			for (let y = py0; y !== py + step; y += step) {
+				setPixel(px, y);
+			}
+		} else {
+			setPixel(px, py);
+		}
+
+		prev = point;
 	}
 }
 

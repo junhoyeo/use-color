@@ -19,6 +19,23 @@ describe("computeGamutBoundary", () => {
 			}
 		});
 
+		it("finds bands narrower than the coarse seed sampling step (c=0.145, h≈211°)", () => {
+			// At sRGB c=0.145 the in-gamut lightness band near h=211° is only
+			// ~0.003 wide — far narrower than the 40-sample coarse step (0.025).
+			// The hint-plus-dense-fallback seeding must still find it.
+			const width = 360;
+			const points = computeGamutBoundary({
+				width,
+				height: 200,
+				axis: "LH",
+				fixedValue: 0.145,
+				gamut: "srgb",
+			});
+
+			const targetX = (211 / 360) * (width - 1);
+			expect(points.some((p) => Math.abs(p.x - targetX) <= 1)).toBe(true);
+		});
+
 		it("returns an empty polyline for zero chroma", () => {
 			const points = computeGamutBoundary({
 				width: 280,

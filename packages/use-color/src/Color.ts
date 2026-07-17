@@ -31,7 +31,7 @@ import type { Result } from "./types/Result.js";
 import { err, ok } from "./types/Result.js";
 
 /** Input types accepted by color() and tryColor() - for internal use */
-export type ColorInputValue = string | RGBA | OKLCH | HSLA | AnyColor;
+export type ColorInputValue = string | ColorObjectInput | AnyColor;
 
 /** Options for mixing colors */
 export interface MixOptions {
@@ -162,15 +162,22 @@ export class Color {
 	}
 
 	/** Mixes this color with another. */
-	mix(other: ColorInputValue, options: MixOptions = {}): Color {
+	mix(other: Color | ColorInputValue, ratioOrOptions: number | MixOptions = {}): Color {
+		const options: MixOptions =
+			typeof ratioOrOptions === "number" ? { ratio: ratioOrOptions } : ratioOrOptions;
 		const { ratio = 0.5, space = "oklch" } = options;
+
+		if (Number.isNaN(ratio)) {
+			throw new ColorParseError(ColorErrorCode.INVALID_FORMAT, "Mix ratio must not be NaN");
+		}
+
 		const clampedRatio = Math.min(1, Math.max(0, ratio));
 
 		if (clampedRatio === 0) {
 			return new Color({ ...this._oklch });
 		}
 
-		const otherColor = Color.from(other);
+		const otherColor = other instanceof Color ? other : Color.from(other);
 
 		if (clampedRatio === 1) {
 			return new Color({ ...otherColor._oklch });
@@ -377,6 +384,8 @@ export function color(input: ColorInputValue): Color {
  * ```
  */
 export function tryColor<T extends string>(input: AsValidColor<T>): Result<Color, ColorParseError>;
+/** Accepts a dynamic (non-literal) runtime string; validated at runtime instead of compile-time. */
+export function tryColor(input: string): Result<Color, ColorParseError>;
 export function tryColor(input: ColorObjectInput): Result<Color, ColorParseError>;
 export function tryColor(input: ColorInputValue): Result<Color, ColorParseError> {
 	return Color.tryFrom(input);
@@ -420,21 +429,27 @@ function toOklchFromAnyColor(anyColor: AnyColor): OKLCH {
 	}
 }
 
-function toOklchFromInput(input: RGBA | OKLCH | HSLA | AnyColor): OKLCH {
+function toOklchFromInput(input: ColorObjectInput | AnyColor): OKLCH {
 	if ("space" in input) {
 		return toOklchFromAnyColor(input);
 	}
 
 	if ("c" in input && "l" in input && "h" in input) {
-		return input as OKLCH;
+		return { l: input.l, c: input.c, h: input.h, a: input.a ?? 1 };
 	}
 
 	if ("r" in input && "g" in input && "b" in input) {
-		return rgbToOklch(input as RGBA);
+		return rgbToOklch({ r: input.r, g: input.g, b: input.b, a: input.a ?? 1 });
 	}
 
 	if ("h" in input && "s" in input && "l" in input) {
-		const anyColor: HslColor = { space: "hsl", ...(input as HSLA) };
+		const anyColor: HslColor = {
+			space: "hsl",
+			h: input.h,
+			s: input.s,
+			l: input.l,
+			a: input.a ?? 1,
+		};
 		const rgb = convert(anyColor, "rgb");
 		return rgbToOklch({ r: rgb.r, g: rgb.g, b: rgb.b, a: rgb.a });
 	}

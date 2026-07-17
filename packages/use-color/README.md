@@ -119,7 +119,7 @@ const result = color("#e11d48")
   .alpha(0.9)
   .toHex();
 
-// "#ff2d5c"
+// "#ff4b2f"
 ```
 
 ### Output Formats
@@ -139,21 +139,21 @@ c.toRgbaString(); // "rgba(59, 130, 246, 1)"
 c.toRgbModern(); // "rgb(59 130 246)"  (CSS Level 4)
 
 // HSL
-c.toHsl(); // { h: 217, s: 0.91, l: 0.60, a: 1 }
-c.toHslString(); // "hsl(217, 91%, 60%)"
-c.toHslaString(); // "hsla(217, 91%, 60%, 1)"
-c.toHslModern(); // "hsl(217 91% 60%)"
+c.toHsl(); // { h: 217.22, s: 0.91, l: 0.6, a: 1 } (values rounded here)
+c.toHslString(); // "hsl(217.22, 91%, 60%)"
+c.toHslaString(); // "hsla(217.22, 91%, 60%, 1)"
+c.toHslModern(); // "hsl(217.22 91% 60%)"
 
 // OKLCH (perceptually uniform)
-c.toOklch(); // { l: 0.62, c: 0.19, h: 255, a: 1 }
-c.toOklchString(); // "oklch(0.62 0.19 255)"
+c.toOklch(); // { l: 0.623, c: 0.188, h: 259.81, a: 1 } (values rounded here)
+c.toOklchString(); // "oklch(0.623 0.188 259.815)"
 
 // Display P3 (wide gamut)
-c.toP3String(); // "color(display-p3 0.35 0.52 0.93)"
+c.toP3String(); // "color(display-p3 0.3047 0.5035 0.9338)"
 
 // CSS (smart default)
 c.toCss(); // "#3b82f6"
-c.toCss({ format: "oklch" }); // "oklch(0.62 0.19 255)"
+c.toCss({ format: "oklch" }); // "oklch(0.623 0.188 259.815)"
 ```
 
 ### Safe Parsing
@@ -179,9 +179,9 @@ if (result.ok) {
 const c = color("#3b82f6");
 
 c.getAlpha(); // 1
-c.getLightness(); // 0.62 (OKLCH lightness)
-c.getChroma(); // 0.19 (OKLCH chroma)
-c.getHue(); // 255 (OKLCH hue)
+c.getLightness(); // 0.623 (OKLCH lightness, rounded here)
+c.getChroma(); // 0.188 (OKLCH chroma, rounded here)
+c.getHue(); // 259.81 (OKLCH hue, rounded here)
 
 c.isDark(); // false
 c.isLight(); // true
@@ -192,26 +192,26 @@ c.isLight(); // true
 Built-in WCAG 2.1 contrast checking and auto-adjustment.
 
 ```typescript
-import { contrast, isReadable, ensureContrast, luminance } from "use-color";
+import { contrast, isReadable, ensureContrast, luminance, toHex } from "use-color";
 
 const text = "#374151";
 const background = "#ffffff";
 
 // Relative luminance (WCAG formula)
-luminance(text); // 0.18
+luminance(text); // ~0.052
 luminance(background); // 1.0
 
 // Contrast ratio (1-21)
-contrast(text, background); // 7.49
+contrast(text, background); // ~10.31
 
 // Readability checks
 isReadable(text, background); // true (default: AA 4.5:1)
 isReadable(text, background, { level: "AAA" }); // true (7:1)
-isReadable(text, background, { level: "AA", size: "large" }); // true (3:1)
+isReadable(text, background, { level: "AA", isLargeText: true }); // true (3:1)
 
 // Auto-adjust for accessibility
 const adjusted = ensureContrast("#888888", background, 4.5);
-adjusted.toHex(); // "#767676" (meets 4.5:1 ratio)
+toHex(adjusted); // "#767676" (meets 4.5:1 ratio)
 ```
 
 ### APCA (Experimental)
@@ -223,7 +223,7 @@ import { apcaContrast } from "use-color";
 
 // Returns Lc value (-108 to +106)
 apcaContrast("#000000", "#ffffff"); // 106 (maximum contrast)
-apcaContrast("#767676", "#ffffff"); // 63 (good for body text)
+apcaContrast("#767676", "#ffffff"); // 72 (good for body text)
 ```
 
 > **Note:** APCA is still in development and not yet a W3C standard. Use for experimental projects.
@@ -247,16 +247,16 @@ OKLCH is the color space used by [Tailwind CSS v4](https://tailwindcss.com/blog/
 ```typescript
 import { color, isInP3Gamut, clampToP3Gamut } from "use-color";
 
-const vibrant = color("oklch(0.7 0.35 150)");
+const vibrant = color("oklch(0.7 0.25 150)");
 
-// Check gamut
+// Check gamut: outside sRGB, but representable in Display P3
 isInP3Gamut(vibrant); // true (P3 is ~25% larger than sRGB)
 
 // Output for modern displays
-vibrant.toP3String(); // "color(display-p3 0.12 0.87 0.45)"
+vibrant.toP3String(); // "color(display-p3 0.1612 0.7599 0.3015)"
 
 // Fallback for older displays
-vibrant.toHex(); // "#00d96f" (clamped to sRGB)
+vibrant.toHex(); // "#00c248" (clamped to sRGB)
 ```
 
 ## Tree-Shakeable
@@ -289,6 +289,14 @@ import { parseNamed, NAMED_COLORS } from "use-color/names";
 // Display P3 wide gamut (~3KB gzip)
 import { toP3String, isInP3Gamut } from "use-color/p3";
 ```
+
+> **Note:** `use-color/core` excludes the standalone a11y functions and the
+> standalone named-color/P3 parse helpers (`parseNamed`, `parseP3`, etc.).
+> The `Color` class itself still transitively supports parsing named colors
+> (`color('coral')`) and producing Display P3 output (`c.toP3String()`),
+> since that logic lives inside `Color`'s own parsing/formatting pipeline
+> rather than a separately tree-shakeable module. Import from `use-color/names`
+> or `use-color/p3` only if you need the standalone functions.
 
 | Import            | Size (gzip) | Description                 |
 | ----------------- | ----------- | --------------------------- |

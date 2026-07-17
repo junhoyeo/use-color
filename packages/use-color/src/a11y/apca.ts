@@ -45,7 +45,9 @@
  * ```
  */
 
+import type { Color } from "../Color.js";
 import { convert } from "../convert/index.js";
+import { tryParseColor } from "../parse/index.js";
 import type { AnyColor } from "../types/ColorObject.js";
 import type { RGBA } from "../types/color.js";
 
@@ -79,19 +81,26 @@ const APCA_CONSTANTS = {
 /**
  * Input types for APCA calculation.
  */
-export type APCAInput = RGBA | AnyColor;
+export type APCAInput = string | Color | RGBA | AnyColor;
 
 /**
  * Check if a color has the 'space' property (is an AnyColor).
  */
-function hasSpaceProperty(color: APCAInput): color is AnyColor {
+function hasSpaceProperty(color: Color | RGBA | AnyColor): color is AnyColor {
 	return "space" in color;
 }
 
 /**
- * Normalizes any color input to RGBA.
+ * Normalizes any color input (string, Color instance, or plain color object) to RGBA.
  */
 function toRgba(color: APCAInput): RGBA {
+	if (typeof color === "string") {
+		const parsed = tryParseColor(color);
+		if (!parsed.ok) {
+			throw parsed.error;
+		}
+		return toRgba(parsed.value);
+	}
 	if (hasSpaceProperty(color)) {
 		if (color.space === "rgb") {
 			return { r: color.r, g: color.g, b: color.b, a: color.a };
@@ -99,7 +108,14 @@ function toRgba(color: APCAInput): RGBA {
 		const rgb = convert(color, "rgb");
 		return { r: rgb.r, g: rgb.g, b: rgb.b, a: rgb.a };
 	}
-	return color;
+	// Plain RGBA object - checked before the Color duck-type so a plain
+	// object carrying an incidental toRgb property is still treated as data.
+	if ("r" in color && "g" in color && "b" in color) {
+		return color;
+	}
+	// Color instance, detected structurally: no value import of Color needed,
+	// keeping the a11y bundle free of the Color class and formatters.
+	return color.toRgb();
 }
 
 /**

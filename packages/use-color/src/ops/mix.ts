@@ -1,5 +1,7 @@
+import { Color } from "../Color.js";
 import { clampToGamut } from "../convert/gamut.js";
 import { ColorErrorCode, ColorParseError } from "../errors.js";
+import { tryParseColor } from "../parse/index.js";
 import type { AnyColor, OklchColor, RgbColor } from "../types/ColorObject.js";
 import type { OKLCH, RGBA } from "../types/color.js";
 import type { ColorInput } from "./utils.js";
@@ -8,6 +10,24 @@ import { detectColorType, fromOklch, fromRgba, hasSpace, toOklch, toRgba } from 
 export type { ColorInput };
 
 export type MixSpace = "oklch" | "rgb";
+
+/** Anything mix() can accept: a plain color object, a Color instance, or a color string. */
+export type MixInput = ColorInput | Color | string;
+
+/** Unwraps a Color instance or parses a string into a plain color object usable by ops/utils.ts. */
+function normalizeMixInput(input: MixInput): ColorInput {
+	if (input instanceof Color) {
+		return input.toAnyColor("oklch");
+	}
+	if (typeof input === "string") {
+		const parsed = tryParseColor(input);
+		if (!parsed.ok) {
+			throw parsed.error;
+		}
+		return parsed.value;
+	}
+	return input;
+}
 
 /**
  * Chroma below this threshold is treated as achromatic ("hue-less") per
@@ -75,28 +95,53 @@ function mixInRgb(a: RGBA, b: RGBA, ratio: number): RGBA {
 	};
 }
 
+/** Mixes two colors given as Color instances or color strings. Returns a Color instance. */
+export function mix(
+	colorA: Color | string,
+	colorB: MixInput,
+	ratio?: number,
+	space?: MixSpace,
+): Color;
+/** Mixes two plain color objects. Returns a value of the same shape as `colorA`. */
 export function mix<T extends ColorInput>(
 	colorA: T,
-	colorB: ColorInput,
-	ratio: number = 0.5,
+	colorB: MixInput,
+	ratio?: number,
+	space?: MixSpace,
+): T;
+export function mix(
+	colorA: MixInput,
+	colorB: MixInput,
+	ratio = 0.5,
 	space: MixSpace = "oklch",
-): T {
-	const originalType = detectColorType(colorA);
-	const hadSpace = hasSpace(colorA);
-	const clampedRatio = Math.min(1, Math.max(0, ratio));
-
-	if (space === "oklch") {
-		const oklchA = toOklch(colorA);
-		const oklchB = toOklch(colorB);
-		const mixed = mixInOklch(oklchA, oklchB, clampedRatio);
-		const clamped = clampToGamut(mixed);
-		return fromOklch(clamped, originalType, hadSpace) as T;
+): ColorInput | Color {
+	if (Number.isNaN(ratio)) {
+		throw new ColorParseError(ColorErrorCode.INVALID_FORMAT, "mix: ratio must not be NaN");
 	}
 
-	const rgbA = toRgba(colorA);
-	const rgbB = toRgba(colorB);
-	const mixed = mixInRgb(rgbA, rgbB, clampedRatio);
-	return fromRgba(mixed, originalType, hadSpace) as T;
+	const wrapAsColor = colorA instanceof Color || typeof colorA === "string";
+	const normalizedA = normalizeMixInput(colorA);
+	const normalizedB = normalizeMixInput(colorB);
+
+	const originalType = detectColorType(normalizedA);
+	const hadSpace = hasSpace(normalizedA);
+	const clampedRatio = Math.min(1, Math.max(0, ratio));
+
+	let result: ColorInput;
+	if (space === "oklch") {
+		const oklchA = toOklch(normalizedA);
+		const oklchB = toOklch(normalizedB);
+		const mixed = mixInOklch(oklchA, oklchB, clampedRatio);
+		const clamped = clampToGamut(mixed);
+		result = fromOklch(clamped, originalType, hadSpace);
+	} else {
+		const rgbA = toRgba(normalizedA);
+		const rgbB = toRgba(normalizedB);
+		const mixed = mixInRgb(rgbA, rgbB, clampedRatio);
+		result = fromRgba(mixed, originalType, hadSpace);
+	}
+
+	return wrapAsColor ? Color.from(result) : result;
 }
 
 export function mixColors(

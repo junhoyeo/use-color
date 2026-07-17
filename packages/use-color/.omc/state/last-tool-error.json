@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"echo 'import { luminance } from \\\"/Users/junhoyeo/use-color-new/packages/use-color/dist/a11y.js\\\"; console.log(luminance({r:0,g:0,b:0,a:1}));' > /tmp/probe.mjs\\nnpx esbuild /tmp/probe.mjs ...",
+  "error": "Exit code 1\n\n  ../../../../../tmp/probe.new.js  20.7kb\n\n⚡ Done in 4ms\nNEW gzip:     7254 bytes, Color-class present: 0\n\n  ../../../../../tmp/probe.old.js  28.1kb\n\n⚡ Done in 5ms\nOLD gzip:     9319 bytes, Color-class present: 1\n.omc/state/hud-stdin-cache.json already exists, no checkout\n.omc/state/sessions/177ae0cc-3568-425c-92c2-4f6159f806bd/hud-state.json already exists, no checkout\nerror: could not restore untracked files from stash\nThe stash entry is kept in case you need it again.",
+  "timestamp": "2026-07-17T04:28:39.583Z",
+  "retry_count": 1
+}

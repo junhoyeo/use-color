@@ -167,11 +167,18 @@ function generateMesh(
 	sliceL: Vector2,
 	sliceC: Vector2,
 	sliceH: Vector2,
-): Mesh {
+): { mesh: Mesh; offset: Vector3 } {
 	const [coordinates, colors] = getModelData(gamut);
 
 	const geometry = new BufferGeometry().setFromPoints(coordinates);
 	geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
+
+	// Capture the actual centering offset. geometry.center() translates by the
+	// negation of the bounding-box center, which is NOT (0.5, 0.5, 0.5) — the
+	// chroma (Y) axis center is ~0.201, so the marker must use this real offset.
+	geometry.computeBoundingBox();
+	const offset = new Vector3();
+	geometry.boundingBox?.getCenter(offset);
 	geometry.center();
 
 	const triangles = Delaunator.from(coordinates.map((coord) => [coord.x, coord.z])).triangles;
@@ -216,14 +223,18 @@ function generateMesh(
 		);
 	};
 
-	return new Mesh(geometry, material);
+	return { mesh: new Mesh(geometry, material), offset };
 }
 
-function generateMarker(l: number, c: number, h: number): Mesh {
+function markerPosition(l: number, c: number, h: number, offset: Vector3): Vector3 {
+	return new Vector3(l / L_MAX - offset.x, c / (C_MAX * 2) - offset.y, h / 360 - offset.z);
+}
+
+function generateMarker(l: number, c: number, h: number, offset: Vector3): Mesh {
 	const geometry = new SphereGeometry(0.02, 16, 16);
 	const material = new MeshBasicMaterial({ color: 0xffffff });
 	const mesh = new Mesh(geometry, material);
-	mesh.position.set(l / L_MAX - 0.5, c / (C_MAX * 2) - 0.5, h / 360 - 0.5);
+	mesh.position.copy(markerPosition(l, c, h, offset));
 	return mesh;
 }
 
@@ -236,7 +247,6 @@ export interface OklchSpace3DProps {
 
 export default function OklchSpace3D({ l, c, h, gamut }: OklchSpace3DProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
-	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const sceneRef = useRef<{
 		scene: Scene;
 		camera: PerspectiveCamera;
@@ -244,6 +254,7 @@ export default function OklchSpace3D({ l, c, h, gamut }: OklchSpace3DProps) {
 		controls: OrbitControls;
 		mesh: Mesh;
 		marker: Mesh;
+		offset: Vector3;
 		sliceL: Vector2;
 		sliceC: Vector2;
 		sliceH: Vector2;
@@ -251,21 +262,31 @@ export default function OklchSpace3D({ l, c, h, gamut }: OklchSpace3DProps) {
 		started: boolean;
 	} | null>(null);
 
+	// Latest l/c/h without re-triggering the heavy mount effect. The mount
+	// effect reads these once (at mount / on gamut change) to seed the initial
+	// marker and slice; the lightweight effect below keeps them in sync after.
+	const valuesRef = useRef({ l, c, h });
+	valuesRef.current = { l, c, h };
+
+	// Heavy effect: build renderer/scene/camera/gamut mesh ONCE per gamut.
+	// It intentionally does NOT depend on l/c/h so value changes never rebuild
+	// the ~58k-vertex model, its Delaunay triangulation, or the WebGLRenderer.
 	useEffect(() => {
 		const container = containerRef.current;
-		const canvas = canvasRef.current;
-		if (!container || !canvas) return;
+		if (!container) return;
 
 		const width = container.clientWidth;
 		const height = container.clientHeight;
 
 		const scene = new Scene();
 		const camera = new PerspectiveCamera(75, width / height, 0.1, 1000);
-		const renderer = new WebGLRenderer({ alpha: true, canvas, antialias: true });
+		const renderer = new WebGLRenderer({ alpha: true, antialias: true });
 
 		renderer.outputColorSpace = LinearSRGBColorSpace;
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(width, height);
+		renderer.domElement.className = "w-full h-full";
+		container.appendChild(renderer.domElement);
 
 		camera.position.set(0.79, 0, 0.79);
 		camera.lookAt(new Vector3(0, 0, 0));
@@ -277,14 +298,16 @@ export default function OklchSpace3D({ l, c, h, gamut }: OklchSpace3DProps) {
 		controls.minDistance = 0.5;
 		controls.maxDistance = 3;
 
-		const sliceL = new Vector2(0, -(l / L_MAX - 0.5));
-		const sliceC = new Vector2(0, -(c / (C_MAX * 2) - 0.5));
-		const sliceH = new Vector2(0, h / 360 - 0.5);
+		const { l: l0, c: c0, h: h0 } = valuesRef.current;
 
-		const mesh = generateMesh(gamut, sliceL, sliceC, sliceH);
+		const sliceL = new Vector2(0, -(l0 / L_MAX - 0.5));
+		const sliceC = new Vector2(0, -(c0 / (C_MAX * 2) - 0.5));
+		const sliceH = new Vector2(0, h0 / 360 - 0.5);
+
+		const { mesh, offset } = generateMesh(gamut, sliceL, sliceC, sliceH);
 		scene.add(mesh);
 
-		const marker = generateMarker(l, c, h);
+		const marker = generateMarker(l0, c0, h0, offset);
 		scene.add(marker);
 
 		sceneRef.current = {
@@ -294,6 +317,7 @@ export default function OklchSpace3D({ l, c, h, gamut }: OklchSpace3DProps) {
 			controls,
 			mesh,
 			marker,
+			offset,
 			sliceL,
 			sliceC,
 			sliceH,
@@ -312,34 +336,43 @@ export default function OklchSpace3D({ l, c, h, gamut }: OklchSpace3DProps) {
 		const handleResize = () => {
 			if (!container || !sceneRef.current) return;
 			const w = container.clientWidth;
-			const h = container.clientHeight;
-			camera.aspect = w / h;
+			const hgt = container.clientHeight;
+			camera.aspect = w / hgt;
 			camera.updateProjectionMatrix();
-			renderer.setSize(w, h);
+			renderer.setSize(w, hgt);
 		};
 		window.addEventListener("resize", handleResize);
 
 		return () => {
+			window.removeEventListener("resize", handleResize);
 			if (sceneRef.current) {
 				sceneRef.current.started = false;
 				cancelAnimationFrame(sceneRef.current.animationId);
 			}
-			window.removeEventListener("resize", handleResize);
-			renderer.dispose();
 			controls.dispose();
+			mesh.geometry.dispose();
+			(mesh.material as MeshBasicMaterial).dispose();
+			marker.geometry.dispose();
+			(marker.material as MeshBasicMaterial).dispose();
+			renderer.dispose();
+			renderer.forceContextLoss();
+			renderer.domElement.remove();
+			sceneRef.current = null;
 		};
-	}, [gamut, l, c, h]);
+	}, [gamut]);
 
+	// Lightweight effect: on l/c/h change, update only the marker position and
+	// the slice uniforms — no scene, mesh, or renderer rebuild.
 	useEffect(() => {
 		if (!sceneRef.current) return;
 
-		const { sliceL, sliceC, sliceH, marker } = sceneRef.current;
+		const { sliceL, sliceC, sliceH, marker, offset } = sceneRef.current;
 
 		sliceL.y = -(l / L_MAX - 0.5);
 		sliceC.y = -(c / (C_MAX * 2) - 0.5);
 		sliceH.y = h / 360 - 0.5;
 
-		marker.position.set(l / L_MAX - 0.5, c / (C_MAX * 2) - 0.5, h / 360 - 0.5);
+		marker.position.copy(markerPosition(l, c, h, offset));
 	}, [l, c, h]);
 
 	return (
@@ -349,8 +382,6 @@ export default function OklchSpace3D({ l, c, h, gamut }: OklchSpace3DProps) {
 			style={{
 				background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
 			}}
-		>
-			<canvas ref={canvasRef} className="w-full h-full" />
-		</div>
+		/>
 	);
 }

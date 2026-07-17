@@ -75,7 +75,10 @@ export function useOklchDraft(
 	});
 
 	const baseOklchRef = useRef<OklchDraft | null>(baseColor ? colorToOklchDraft(baseColor) : null);
-	const baseColorKey = baseColor?.toHex8() ?? null;
+	// Change-detection key must be lossless: keying on toHex8() collapsed
+	// distinct out-of-gamut OKLCH commits that clamp to the same 8-bit hex,
+	// so the hook skipped re-syncing and Reset restored a stale color.
+	const baseColorKey = baseColor ? JSON.stringify(baseColor.toOklch()) : null;
 	const prevBaseKeyRef = useRef<string | null>(baseColorKey);
 
 	useEffect(() => {

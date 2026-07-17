@@ -32,34 +32,55 @@ const CVD_TYPES = {
 type CVDType = keyof typeof CVD_TYPES;
 
 /**
- * Color blindness simulation matrices (Brettel, Viénot & Mollon, 1997)
- * These matrices transform linear RGB values to simulate different types of CVD.
+ * Protanopia / deuteranopia simulation matrices — Viénot, Brettel & Mollon
+ * (1999), "Digital video colourmaps for checking the legibility of displays by
+ * dichromats", Color Research & Application 24(4). Each is a single 3x3
+ * projection applied in LINEAR RGB (sRGB decoded to linear light).
  *
- * The matrices work on linearized sRGB values and simulate the loss of
- * specific cone types in the human eye.
+ * Exact precomputed values from libDaltonLens (public domain / Unlicense),
+ * Nicolas Burrus — https://github.com/DaltonLens/libDaltonLens
+ * (`dl_vienot_protan_rgbCvd_from_rgb`, `dl_vienot_deutan_rgbCvd_from_rgb`).
+ * Viénot 1999 is not accurate for tritanopia; tritan uses Brettel 1997 below.
  */
-const CVD_MATRICES: Record<Exclude<CVDType, "achromatopsia">, number[][]> = {
-	// Protanopia: L-cone (long wavelength/red) deficiency
-	// Projects colors onto the plane visible to M and S cones only
+const VIENOT_1999_MATRICES: Record<"protanopia" | "deuteranopia", number[][]> = {
 	protanopia: [
-		[0.567, 0.433, 0.0],
-		[0.558, 0.442, 0.0],
-		[0.0, 0.242, 0.758],
+		[0.11238, 0.88762, 0.0],
+		[0.11238, 0.88762, 0.0],
+		[0.00401, -0.00401, 1.0],
 	],
-	// Deuteranopia: M-cone (medium wavelength/green) deficiency
-	// Projects colors onto the plane visible to L and S cones only
 	deuteranopia: [
-		[0.625, 0.375, 0.0],
-		[0.7, 0.3, 0.0],
-		[0.0, 0.3, 0.7],
+		[0.29275, 0.70725, 0.0],
+		[0.29275, 0.70725, 0.0],
+		[-0.02234, 0.02234, 1.0],
 	],
-	// Tritanopia: S-cone (short wavelength/blue) deficiency
-	// Projects colors onto the plane visible to L and M cones only
-	tritanopia: [
-		[0.95, 0.05, 0.0],
-		[0.0, 0.433, 0.567],
-		[0.0, 0.475, 0.525],
+};
+
+/**
+ * Tritanopia simulation — Brettel, Viénot & Mollon (1997), "Computerized
+ * simulation of color appearance for dichromats", JOSA A 14(10). Tritanopia is
+ * not a single linear projection: the gamut splits along a separation plane and
+ * each half-plane uses its own 3x3 matrix, selected per color by the sign of
+ * the dot product with the plane normal. All operate in LINEAR RGB.
+ *
+ * Exact precomputed values from libDaltonLens (public domain / Unlicense),
+ * Nicolas Burrus — https://github.com/DaltonLens/libDaltonLens.
+ */
+const BRETTEL_1997_TRITAN: {
+	plane1: number[][];
+	plane2: number[][];
+	separationNormal: number[];
+} = {
+	plane1: [
+		[1.01277, 0.13548, -0.14826],
+		[-0.01243, 0.86812, 0.14431],
+		[0.07589, 0.805, 0.11911],
 	],
+	plane2: [
+		[0.93678, 0.18979, -0.12657],
+		[0.06154, 0.81526, 0.1232],
+		[-0.37562, 1.12767, 0.24796],
+	],
+	separationNormal: [0.03901, -0.02788, -0.01113],
 };
 
 /**
@@ -93,36 +114,48 @@ function applyMatrix(rgb: [number, number, number], matrix: number[][]): [number
 }
 
 /**
- * Simulate how a color appears to someone with a specific color vision deficiency.
+ * Brettel 1997 tritanopia projection: pick the half-plane matrix by the sign of
+ * the dot product between the linear-RGB color and the separation-plane normal.
+ */
+function simulateTritanopia(linearRgb: [number, number, number]): [number, number, number] {
+	const { plane1, plane2, separationNormal } = BRETTEL_1997_TRITAN;
+	const dot =
+		linearRgb[0] * separationNormal[0] +
+		linearRgb[1] * separationNormal[1] +
+		linearRgb[2] * separationNormal[2];
+	return applyMatrix(linearRgb, dot >= 0 ? plane1 : plane2);
+}
+
+/**
+ * Simulate how a color appears to someone with a specific color vision
+ * deficiency. All simulation happens in LINEAR RGB: decode sRGB -> linear,
+ * transform, then re-encode to sRGB.
  *
- * For red-green deficiencies (protanopia, deuteranopia, tritanopia):
- * Uses Brettel et al. matrices which are widely used in accessibility tools.
- *
- * For achromatopsia (complete color blindness):
- * Uses luminance-weighted grayscale based on human perception weights.
+ * - Protanopia / deuteranopia: Viénot 1999 matrices (VIENOT_1999_MATRICES).
+ * - Tritanopia: Brettel 1997 dual half-plane projection (simulateTritanopia).
+ * - Achromatopsia: Rec. 709 luminance computed in LINEAR light, then re-encoded
+ *   (computing the weighted sum on gamma-encoded values gives the wrong gray).
  */
 function simulateCVD(color: Color, type: CVDType): string {
 	const rgb = color.toRgb();
-
-	if (type === "achromatopsia") {
-		// Complete color blindness - convert to grayscale using perceptual weights
-		// ITU-R BT.709 luminance coefficients (same as sRGB primaries)
-		const gray = Math.round(0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b);
-		return `rgb(${gray}, ${gray}, ${gray})`;
-	}
-
-	// Linearize RGB values for accurate color transformation
 	const linearRgb: [number, number, number] = [
 		srgbToLinear(rgb.r),
 		srgbToLinear(rgb.g),
 		srgbToLinear(rgb.b),
 	];
 
-	// Apply the CVD simulation matrix
-	const matrix = CVD_MATRICES[type];
-	const simulated = applyMatrix(linearRgb, matrix);
+	if (type === "achromatopsia") {
+		// Rec. 709 luminance in linear space, then re-encode to sRGB.
+		const y = 0.2126 * linearRgb[0] + 0.7152 * linearRgb[1] + 0.0722 * linearRgb[2];
+		const gray = linearToSrgb(y);
+		return `rgb(${gray}, ${gray}, ${gray})`;
+	}
 
-	// Convert back to sRGB
+	const simulated =
+		type === "tritanopia"
+			? simulateTritanopia(linearRgb)
+			: applyMatrix(linearRgb, VIENOT_1999_MATRICES[type]);
+
 	const r = linearToSrgb(simulated[0]);
 	const g = linearToSrgb(simulated[1]);
 	const b = linearToSrgb(simulated[2]);

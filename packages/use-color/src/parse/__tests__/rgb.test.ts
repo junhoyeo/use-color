@@ -82,6 +82,42 @@ describe("parseRgbLegacy", () => {
 		});
 	});
 
+	// CSS Color 4 makes rgb()/rgba() exact aliases, so the 3-arg legacy
+	// `rgb(...)` form also accepts a 4th alpha value (previously this
+	// silently dropped the alpha, parsing as fully opaque).
+	it("parses rgb(r, g, b, a) with an explicit alpha (rgb/rgba alias)", () => {
+		expect(parseRgbLegacy("rgb(255, 0, 0, 0.5)")).toEqual({
+			r: 255,
+			g: 0,
+			b: 0,
+			a: 0.5,
+		});
+	});
+
+	it("parses alpha as percentage in rgb(r, g, b, a%)", () => {
+		expect(parseRgbLegacy("rgb(255, 0, 0, 50%)")).toEqual({
+			r: 255,
+			g: 0,
+			b: 0,
+			a: 0.5,
+		});
+	});
+
+	it("clamps out-of-range alpha in rgb(r, g, b, a)", () => {
+		expect(parseRgbLegacy("rgb(255, 0, 0, 5000)")).toEqual({
+			r: 255,
+			g: 0,
+			b: 0,
+			a: 1,
+		});
+		expect(parseRgbLegacy("rgb(255, 0, 0, -5)")).toEqual({
+			r: 255,
+			g: 0,
+			b: 0,
+			a: 0,
+		});
+	});
+
 	it("throws on invalid format", () => {
 		expect(() => parseRgbLegacy("rgb(255 0 0)")).toThrow(ColorParseError);
 		expect(() => parseRgbLegacy("rgba(255, 0, 0, 1)")).toThrow(ColorParseError);
@@ -91,6 +127,25 @@ describe("parseRgbLegacy", () => {
 	it("throws on invalid values", () => {
 		expect(() => parseRgbLegacy("rgb(abc, 0, 0)")).toThrow(ColorParseError);
 		expect(() => parseRgbLegacy("rgb(, 0, 0)")).toThrow(ColorParseError);
+	});
+
+	it("throws on multi-dot numbers instead of silently truncating", () => {
+		// parseFloat("1.2.3") would silently truncate to 1.2; the strict
+		// number token must reject the whole match instead.
+		expect(() => parseRgbLegacy("rgb(1.2.3, 0, 0)")).toThrow(ColorParseError);
+	});
+
+	it("throws on trailing garbage after a numeric value", () => {
+		expect(() => parseRgbLegacy("rgb(255px, 0, 0)")).toThrow(ColorParseError);
+	});
+
+	it("accepts scientific notation", () => {
+		expect(parseRgbLegacy("rgb(2.55e2, 0e0, 0, 5e-1)")).toEqual({
+			r: 255,
+			g: 0,
+			b: 0,
+			a: 0.5,
+		});
 	});
 
 	it("throws on invalid percentage values like abc%", () => {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ColorErrorCode, ColorParseError } from "../../errors.js";
+import { toHex8 } from "../../format/hex.js";
 import { parseHex, parseHex3, parseHex4, parseHex6, parseHex8, tryParseHex } from "../hex.js";
 
 describe("parseHex3", () => {
@@ -321,6 +322,39 @@ describe("tryParseHex", () => {
 				expect(error.message).toBeDefined();
 				expect(error.code).toBeDefined();
 			}
+		});
+	});
+
+	describe("alpha byte round-trip precision", () => {
+		it("parseHex8(toHex8(...)) round-trips every possible alpha byte (0-255) exactly", () => {
+			for (let byte = 0; byte <= 255; byte++) {
+				const hex = `#ff0000${byte.toString(16).padStart(2, "0")}`;
+				const parsed = parseHex8(hex);
+				const formatted = toHex8(parsed);
+				expect(formatted).toBe(hex);
+			}
+		});
+
+		it("parseHex4(toHex8(...)) round-trips every possible alpha nibble (0-15) exactly", () => {
+			for (let nibble = 0; nibble <= 15; nibble++) {
+				const hex = `#f00${nibble.toString(16)}`;
+				const parsed = parseHex4(hex);
+				// 4-digit alpha nibble is expanded to a byte (nibble repeated), so
+				// compare against the expanded 8-digit form rather than the input.
+				const expandedByte = nibble * 16 + nibble;
+				const formatted = toHex8(parsed);
+				expect(formatted).toBe(`#ff0000${expandedByte.toString(16).padStart(2, "0")}`);
+			}
+		});
+
+		it("preserves distinct alpha bytes without collapsing to 2-decimal precision", () => {
+			// Previously alpha was rounded to 2 decimals at parse time, which
+			// collapsed distinct nearby bytes (e.g. 128 and 129) to the same value.
+			const a128 = parseHex8("#ff000080").a;
+			const a129 = parseHex8("#ff000081").a;
+			expect(a128).not.toBe(a129);
+			expect(a128).toBeCloseTo(128 / 255, 10);
+			expect(a129).toBeCloseTo(129 / 255, 10);
 		});
 	});
 });

@@ -18,7 +18,10 @@ function hexToInt(hex: string): number {
 }
 
 function hexToAlpha(hex: string): number {
-	return Math.round((hexToInt(hex) / 255) * 100) / 100;
+	// Store full precision here; rounding happens only at format time
+	// (see format/hex.ts's alphaToHex), so parse -> format round-trips
+	// exactly for every possible alpha byte (0-255).
+	return hexToInt(hex) / 255;
 }
 
 export function parseHex3(str: string): RGBA {

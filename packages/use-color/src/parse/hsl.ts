@@ -29,6 +29,7 @@
 import { ColorErrorCode, ColorParseError } from "../errors.js";
 import type { HSLA } from "../types/color.js";
 import { err, ok, type Result } from "../types/Result.js";
+import { NUM, NUM_OPT_PCT, NUM_PCT } from "./number.js";
 
 /**
  * Normalizes a hue value to the range [0, 360).
@@ -97,37 +98,48 @@ function clamp01(value: number): number {
 }
 
 /**
- * Regex for legacy HSL format: hsl(h, s%, l%)
- * Captures: hue, saturation%, lightness%
+ * Regex for legacy HSL format: hsl(h, s%, l%), with optional alpha: hsl(h, s%, l%, a)
+ * Captures: hue, saturation%, lightness%, optional alpha
+ * (CSS Color 4 makes hsl()/hsla() exact aliases, so the 3-arg legacy form also
+ * accepts a 4th alpha value.)
  */
-const HSL_LEGACY_REGEX = /^hsl\(\s*([+-]?[\d.]+)\s*,\s*([+-]?[\d.]+%)\s*,\s*([+-]?[\d.]+%)\s*\)$/i;
+const HSL_LEGACY_REGEX = new RegExp(
+	`^hsl\\(\\s*(${NUM})\\s*,\\s*(${NUM_PCT})\\s*,\\s*(${NUM_PCT})\\s*(?:,\\s*(${NUM_OPT_PCT})\\s*)?\\)$`,
+	"i",
+);
 
 /**
  * Regex for legacy HSLA format: hsla(h, s%, l%, a)
  * Captures: hue, saturation%, lightness%, alpha
  */
-const HSLA_LEGACY_REGEX =
-	/^hsla\(\s*([+-]?[\d.]+)\s*,\s*([+-]?[\d.]+%)\s*,\s*([+-]?[\d.]+%)\s*,\s*([+-]?[\d.]+%?)\s*\)$/i;
+const HSLA_LEGACY_REGEX = new RegExp(
+	`^hsla\\(\\s*(${NUM})\\s*,\\s*(${NUM_PCT})\\s*,\\s*(${NUM_PCT})\\s*,\\s*(${NUM_OPT_PCT})\\s*\\)$`,
+	"i",
+);
 
 /**
  * Regex for modern CSS4 HSL format: hsl(h s% l%) or hsl(h s% l% / a)
  * Captures: hue, saturation%, lightness%, optional alpha
  */
-const HSL_MODERN_REGEX =
-	/^hsl\(\s*([+-]?[\d.]+)\s+([+-]?[\d.]+%)\s+([+-]?[\d.]+%)(?:\s*\/\s*([+-]?[\d.]+%?))?\s*\)$/i;
+const HSL_MODERN_REGEX = new RegExp(
+	`^hsl\\(\\s*(${NUM})\\s+(${NUM_PCT})\\s+(${NUM_PCT})(?:\\s*\\/\\s*(${NUM_OPT_PCT}))?\\s*\\)$`,
+	"i",
+);
 
 /**
  * Regex for modern CSS4 HSLA format: hsla(h s% l% / a)
  * Note: In CSS4, hsla() is an alias for hsl() with space syntax
  */
-const HSLA_MODERN_REGEX =
-	/^hsla\(\s*([+-]?[\d.]+)\s+([+-]?[\d.]+%)\s+([+-]?[\d.]+%)(?:\s*\/\s*([+-]?[\d.]+%?))?\s*\)$/i;
+const HSLA_MODERN_REGEX = new RegExp(
+	`^hsla\\(\\s*(${NUM})\\s+(${NUM_PCT})\\s+(${NUM_PCT})(?:\\s*\\/\\s*(${NUM_OPT_PCT}))?\\s*\\)$`,
+	"i",
+);
 
 /**
  * Parses a legacy HSL string: `hsl(h, s%, l%)`
  *
  * @param str - The HSL string to parse
- * @returns HSLA object with alpha = 1
+ * @returns HSLA object with alpha = 1 (or the parsed 4th value, if present)
  * @throws ColorParseError if the string is not valid legacy HSL format
  *
  * @example
@@ -137,6 +149,9 @@ const HSLA_MODERN_REGEX =
  *
  * parseHslLegacy('hsl(180, 50%, 25%)');
  * // { h: 180, s: 0.5, l: 0.25, a: 1 }
+ *
+ * parseHslLegacy('hsl(120, 50%, 50%, 0.5)');
+ * // { h: 120, s: 0.5, l: 0.5, a: 0.5 }
  * ```
  */
 export function parseHslLegacy(str: string): HSLA {
@@ -145,17 +160,24 @@ export function parseHslLegacy(str: string): HSLA {
 	if (!match) {
 		throw new ColorParseError(
 			ColorErrorCode.INVALID_HSL,
-			`Invalid legacy HSL format: "${str}". Expected format: hsl(h, s%, l%)`,
+			`Invalid legacy HSL format: "${str}". Expected format: hsl(h, s%, l%) or hsl(h, s%, l%, a)`,
 		);
 	}
 
-	const [, hueStr, satStr, lightStr] = match as [string, string, string, string];
+	const [, hueStr, satStr, lightStr, alphaStr] = match as [
+		string,
+		string,
+		string,
+		string,
+		string | undefined,
+	];
 
 	const hue = parseFloat(hueStr);
 	const sat = parsePercentage(satStr);
 	const light = parsePercentage(lightStr);
+	const alpha = alphaStr !== undefined ? parseAlpha(alphaStr) : 1;
 
-	if (Number.isNaN(hue) || Number.isNaN(sat) || Number.isNaN(light)) {
+	if (Number.isNaN(hue) || Number.isNaN(sat) || Number.isNaN(light) || Number.isNaN(alpha)) {
 		throw new ColorParseError(ColorErrorCode.INVALID_HSL, `Invalid HSL values in: "${str}"`);
 	}
 
@@ -163,7 +185,7 @@ export function parseHslLegacy(str: string): HSLA {
 		h: normalizeHue(hue),
 		s: clamp01(sat),
 		l: clamp01(light),
-		a: 1,
+		a: clamp01(alpha),
 	};
 }
 

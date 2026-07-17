@@ -4,6 +4,7 @@ import type {
 	Digit,
 	NumberString,
 	RgbaFunctionString,
+	RgbFunctionAlphaString,
 	RgbFunctionString,
 	RgbModernString,
 	RgbString,
@@ -189,5 +190,27 @@ describe("Rgb types", () => {
 		expectTypeOf<RgbString<"rgba(255, 255, 255, 1)">>().toEqualTypeOf<"rgba(255, 255, 255, 1)">();
 		expectTypeOf<RgbString<"rgb(0 0 0)">>().toEqualTypeOf<"rgb(0 0 0)">();
 		expectTypeOf<RgbString<"rgb(255 255 255 / 1)">>().toEqualTypeOf<"rgb(255 255 255 / 1)">();
+	});
+
+	// CSS Color 4 makes rgb()/rgba() exact aliases, so the 3-arg legacy `rgb(...)`
+	// form also accepts a 4th alpha value: rgb(255, 0, 0, 0.5)
+	it("RgbFunctionAlphaString validates legacy rgb() with a 4th alpha value", () => {
+		expectTypeOf<
+			RgbFunctionAlphaString<"rgb(255, 0, 0, 0.5)">
+		>().toEqualTypeOf<"rgb(255, 0, 0, 0.5)">();
+		expectTypeOf<RgbFunctionAlphaString<"rgb(255,0,0,0.5)">>().toEqualTypeOf<"rgb(255,0,0,0.5)">();
+		expectTypeOf<
+			RgbFunctionAlphaString<"rgb(100%, 0%, 0%, 50%)">
+		>().toEqualTypeOf<"rgb(100%, 0%, 0%, 50%)">();
+		expectTypeOf<RgbFunctionAlphaString<"rgb(255, 0, 0)">>().toEqualTypeOf<never>();
+		expectTypeOf<RgbFunctionAlphaString<"rgba(255, 0, 0, 0.5)">>().toEqualTypeOf<never>();
+	});
+
+	it("RgbString accepts legacy rgb() with a 4th alpha value, but rgba() 3-arg alias remains rejected", () => {
+		expectTypeOf<RgbString<"rgb(255, 0, 0, 0.5)">>().toEqualTypeOf<"rgb(255, 0, 0, 0.5)">();
+
+		// 3-arg rgba() without alpha is intentionally deferred/out of scope, not accepted here
+		expectTypeOf<RgbaFunctionString<"rgba(255, 0, 0)">>().toEqualTypeOf<never>();
+		expectTypeOf<RgbString<"rgba(255, 0, 0)">>().toEqualTypeOf<never>();
 	});
 });

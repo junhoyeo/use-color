@@ -26,6 +26,7 @@
 import { ColorErrorCode, ColorParseError } from "../errors.js";
 import type { RGBA } from "../types/color.js";
 import { err, ok, type Result } from "../types/Result.js";
+import { NUM_OPT_PCT } from "./number.js";
 
 /**
  * Clamps a value to the RGB range (0-255).
@@ -72,12 +73,22 @@ const parseColorValue = (value: string, isAlpha = false): number => {
  * Regular expression patterns for RGB string matching.
  */
 const RGB_PATTERNS = {
-	// Legacy: rgb(255, 0, 0) or rgb(255,0,0)
-	legacy: /^rgb\(\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]+)\s*\)$/i,
+	// Legacy: rgb(255, 0, 0) or rgb(255,0,0), with optional alpha: rgb(255, 0, 0, 0.5)
+	// (CSS Color 4 makes rgb()/rgba() exact aliases, so the 3-arg legacy form also accepts a 4th alpha value)
+	legacy: new RegExp(
+		`^rgb\\(\\s*(${NUM_OPT_PCT})\\s*,\\s*(${NUM_OPT_PCT})\\s*,\\s*(${NUM_OPT_PCT})\\s*(?:,\\s*(${NUM_OPT_PCT})\\s*)?\\)$`,
+		"i",
+	),
 	// Legacy: rgba(255, 0, 0, 0.5) or rgba(255,0,0,0.5)
-	legacyAlpha: /^rgba\(\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^,]+)\s*,\s*([^)]+)\s*\)$/i,
+	legacyAlpha: new RegExp(
+		`^rgba\\(\\s*(${NUM_OPT_PCT})\\s*,\\s*(${NUM_OPT_PCT})\\s*,\\s*(${NUM_OPT_PCT})\\s*,\\s*(${NUM_OPT_PCT})\\s*\\)$`,
+		"i",
+	),
 	// Modern: rgb(255 0 0) or rgb(255 0 0 / 0.5) - values must be numbers or percentages (no commas)
-	modern: /^rgb\(\s*(-?[\d.]+%?)\s+(-?[\d.]+%?)\s+(-?[\d.]+%?)(?:\s*\/\s*(-?[\d.]+%?))?\s*\)$/i,
+	modern: new RegExp(
+		`^rgb\\(\\s*(${NUM_OPT_PCT})\\s+(${NUM_OPT_PCT})\\s+(${NUM_OPT_PCT})(?:\\s*\\/\\s*(${NUM_OPT_PCT}))?\\s*\\)$`,
+		"i",
+	),
 	// Detect if string looks like an RGB function
 	isRgb: /^rgba?\(/i,
 } as const;
@@ -91,8 +102,9 @@ const RGB_PATTERNS = {
  *
  * @example
  * ```typescript
- * parseRgbLegacy('rgb(255, 0, 0)');     // { r: 255, g: 0, b: 0, a: 1 }
- * parseRgbLegacy('rgb(100%, 0%, 0%)'); // { r: 255, g: 0, b: 0, a: 1 }
+ * parseRgbLegacy('rgb(255, 0, 0)');       // { r: 255, g: 0, b: 0, a: 1 }
+ * parseRgbLegacy('rgb(100%, 0%, 0%)');   // { r: 255, g: 0, b: 0, a: 1 }
+ * parseRgbLegacy('rgb(255, 0, 0, 0.5)'); // { r: 255, g: 0, b: 0, a: 0.5 }
  * ```
  */
 export function parseRgbLegacy(str: string): RGBA {
@@ -101,16 +113,17 @@ export function parseRgbLegacy(str: string): RGBA {
 	if (!match) {
 		throw new ColorParseError(
 			ColorErrorCode.INVALID_RGB,
-			`Invalid legacy RGB format: "${str}". Expected format: rgb(r, g, b)`,
+			`Invalid legacy RGB format: "${str}". Expected format: rgb(r, g, b) or rgb(r, g, b, a)`,
 		);
 	}
 
-	const [, rStr, gStr, bStr] = match;
+	const [, rStr, gStr, bStr, aStr] = match;
 	const r = parseColorValue(rStr!);
 	const g = parseColorValue(gStr!);
 	const b = parseColorValue(bStr!);
+	const a = aStr !== undefined ? parseColorValue(aStr, true) : 1;
 
-	if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
+	if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b) || Number.isNaN(a)) {
 		throw new ColorParseError(
 			ColorErrorCode.INVALID_RGB,
 			`Invalid RGB values in: "${str}". Values must be numbers or percentages.`,
@@ -121,7 +134,7 @@ export function parseRgbLegacy(str: string): RGBA {
 		r: clampRgb(r),
 		g: clampRgb(g),
 		b: clampRgb(b),
-		a: 1,
+		a: clampAlpha(a),
 	};
 }
 

@@ -9,6 +9,7 @@ import {
 	isInGamut,
 	isInP3Gamut,
 	luminance,
+	WCAG_THRESHOLDS,
 } from "use-color";
 import { Card } from "./ui/card";
 
@@ -40,7 +41,12 @@ export function Analysis({ color, inputValue }: AnalysisProps) {
 	const apcaLc = Math.round(
 		Math.abs(apcaContrast(color.toRgb(), { r: 255, g: 255, b: 255, a: 1 })),
 	);
-	const isWCAGAA = contrastWhite >= 4.5 || contrastBlack >= 4.5;
+	// WCAG 2.x AA: judge the best achievable contrast (color paired with white or
+	// black) against 4.5:1 for normal text and 3:1 for large text (>=18pt, or
+	// >=14pt bold). WCAG_THRESHOLDS.AA = 4.5, WCAG_THRESHOLDS.AA_LARGE = 3.
+	const bestContrast = Math.max(contrastWhite, contrastBlack);
+	const isWCAGAANormal = bestContrast >= WCAG_THRESHOLDS.AA;
+	const isWCAGAALarge = bestContrast >= WCAG_THRESHOLDS.AA_LARGE;
 	const inSRgb = isInGamut(color.toOklch());
 	const inP3 = isInP3Gamut(color.toOklch());
 
@@ -87,10 +93,18 @@ export function Analysis({ color, inputValue }: AnalysisProps) {
 				<DataRow
 					label="WCAG AA"
 					value={
-						<div className="flex items-center gap-1">
-							<StatusIcon valid={isWCAGAA} />
-							<span className={isWCAGAA ? "text-[var(--success)]" : "text-[var(--error)]"}>
-								{isWCAGAA ? "Pass" : "Fail"}
+						<div className="flex items-center gap-3">
+							<span className="flex items-center gap-1">
+								<StatusIcon valid={isWCAGAANormal} />
+								<span className={isWCAGAANormal ? "text-[var(--success)]" : "text-[var(--error)]"}>
+									Normal
+								</span>
+							</span>
+							<span className="flex items-center gap-1">
+								<StatusIcon valid={isWCAGAALarge} />
+								<span className={isWCAGAALarge ? "text-[var(--success)]" : "text-[var(--error)]"}>
+									Large
+								</span>
 							</span>
 						</div>
 					}

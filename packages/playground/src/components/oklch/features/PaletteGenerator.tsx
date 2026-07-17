@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { type Color, color, contrast } from "use-color";
+import { type Color, clampToGamut, color, contrast } from "use-color";
 
 export interface PaletteGeneratorProps {
 	baseColor: Color;
@@ -38,24 +38,30 @@ export function PaletteGenerator({ baseColor, onColorSelect }: PaletteGeneratorP
 		for (let i = 0; i < steps; i++) {
 			const t = i / (steps - 1);
 
+			// Gamut-map every step into sRGB so the displayed swatch (from toHex(),
+			// which clamps) and the exported oklch() CSS (from toOklchString())
+			// describe the same displayable color instead of diverging on
+			// out-of-gamut values.
 			switch (paletteType) {
 				case "lightness": {
 					// L: 0.95 → 0.15 (light to dark, like Tailwind 100-900)
 					const l = 0.95 - t * 0.8;
-					colors.push(color({ l, c: oklch.c, h: oklch.h, a: oklch.a }));
+					colors.push(color(clampToGamut({ l, c: oklch.c, h: oklch.h, a: oklch.a })));
 					break;
 				}
 				case "chroma": {
 					// C: 0 → maxChroma (capped at 0.4 for sRGB gamut safety)
 					const maxChroma = Math.min(oklch.c * 1.5, 0.4);
 					const c = t * maxChroma;
-					colors.push(color({ l: oklch.l, c, h: oklch.h, a: oklch.a }));
+					colors.push(color(clampToGamut({ l: oklch.l, c, h: oklch.h, a: oklch.a })));
 					break;
 				}
 				case "hue": {
-					// H: baseHue → baseHue + 360° (full rotation)
-					const h = (oklch.h + t * 360) % 360;
-					colors.push(color({ l: oklch.l, c: oklch.c, h, a: oklch.a }));
+					// H: baseHue → baseHue + 360°·(steps-1)/steps. Stopping short of a
+					// full turn keeps the first and last swatches distinct (a full 360°
+					// is congruent to 0° and would duplicate the base hue).
+					const h = (oklch.h + (i / steps) * 360) % 360;
+					colors.push(color(clampToGamut({ l: oklch.l, c: oklch.c, h, a: oklch.a })));
 					break;
 				}
 			}

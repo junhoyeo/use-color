@@ -65,8 +65,10 @@ export function OklchVisualizerSection({ color, onColorChange }: OklchVisualizer
 
 	const { draft, setDraft, previewColor, commit, reset, isDirty } = useOklchDraft(color, {
 		onCommit: (newColor) => {
-			const alpha = newColor.getAlpha();
-			onColorChange(alpha < 1 ? newColor.toHex8() : newColor.toHex());
+			// Commit the OKLCH string (color() parses it) rather than converting to
+			// sRGB hex, which would gamut-crush wide-gamut colors and discard the
+			// OKLCH precision the user just dialed in. toOklchString() keeps alpha.
+			onColorChange(newColor.toOklchString());
 			setAnnouncement(`Color applied: ${formatAnnouncement(draft.l, draft.c, draft.h)}`);
 		},
 	});

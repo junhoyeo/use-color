@@ -1,24 +1,31 @@
 "use client";
 
 import { useMemo } from "react";
-import { apcaContrast, type Color, color } from "use-color";
+import { APCA_THRESHOLDS, apcaContrast, type Color, color } from "use-color";
 
 export interface APCAVisualizationProps {
 	color: Color;
 }
 
 /**
- * APCA Lc value thresholds for different use cases.
- * APCA is font-size dependent; these are simplified guidelines.
- * @see https://www.myndex.com/APCA/ for detailed font-size charts
+ * APCA "bronze" Lc pass tiers (|Lc| >= 90 / 75 / 60 / 45 / 30 / 15). APCA is
+ * font-size dependent; these are the simplified general guidelines.
+ *
+ * The 90/75/60/45/30 thresholds are sourced from the use-color library's
+ * APCA_THRESHOLDS (PREFERRED_BODY / BODY_TEXT / LARGE_TEXT / HEADLINE /
+ * NON_TEXT). The lowest tier (15, spot/decorative) is not part of
+ * APCA_THRESHOLDS, so it is defined locally.
+ * @see https://www.myndex.com/APCA/ for the font-size-vs-Lc lookup tables
  */
+const APCA_MIN_DECORATIVE = 15;
+
 const APCA_LEVELS = [
-	{ min: 90, label: "Fluent Text", size: "12px+" },
-	{ min: 75, label: "Body Text", size: "14px+" },
-	{ min: 60, label: "Large Text", size: "18px+" },
-	{ min: 45, label: "Headlines", size: "24px+" },
-	{ min: 30, label: "Large Headlines", size: "36px+" },
-	{ min: 15, label: "Non-text/Decoration", size: "N/A" },
+	{ min: APCA_THRESHOLDS.PREFERRED_BODY, label: "Fluent Text", size: "12px+" },
+	{ min: APCA_THRESHOLDS.BODY_TEXT, label: "Body Text", size: "14px+" },
+	{ min: APCA_THRESHOLDS.LARGE_TEXT, label: "Large Text", size: "18px+" },
+	{ min: APCA_THRESHOLDS.HEADLINE, label: "Headlines", size: "24px+" },
+	{ min: APCA_THRESHOLDS.NON_TEXT, label: "Large Headlines", size: "36px+" },
+	{ min: APCA_MIN_DECORATIVE, label: "Non-text/Decoration", size: "N/A" },
 ] as const;
 
 export function APCAVisualization({ color: inputColor }: APCAVisualizationProps) {

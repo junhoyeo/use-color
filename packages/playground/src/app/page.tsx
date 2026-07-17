@@ -33,17 +33,7 @@ export default function HomePage() {
 	return (
 		<div className="min-h-screen bg-[var(--bg)]">
 			<div className="max-w-7xl mx-auto px-4 py-6">
-				<Hero
-					inputValue={inputValue}
-					currentColor={currentColor}
-					onInputChange={updateColor}
-					onRandomColor={() => {
-						const randomHex = `#${Math.floor(Math.random() * 0xffffff)
-							.toString(16)
-							.padStart(6, "0")}`;
-						updateColor(randomHex);
-					}}
-				/>
+				<Hero inputValue={inputValue} currentColor={currentColor} onInputChange={updateColor} />
 
 				<OklchVisualizerSection color={currentColor} onColorChange={updateColor} />
 

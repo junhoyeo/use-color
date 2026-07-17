@@ -10,7 +10,6 @@ interface HeroProps {
 	inputValue: string;
 	currentColor: Color | null;
 	onInputChange: (value: string) => void;
-	onRandomColor: () => void;
 }
 
 const RANDOM_COLORS = [
@@ -26,7 +25,7 @@ const RANDOM_COLORS = [
 	"#84cc16",
 ];
 
-export function Hero({ inputValue, currentColor, onInputChange, onRandomColor }: HeroProps) {
+export function Hero({ inputValue, currentColor, onInputChange }: HeroProps) {
 	const handleRandom = () => {
 		const randomColor = RANDOM_COLORS[Math.floor(Math.random() * RANDOM_COLORS.length)];
 		onInputChange(randomColor);

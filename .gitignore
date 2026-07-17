@@ -17,3 +17,6 @@ ai-todo.md
 TODO.local.md
 notepad.md
 .vercel
+
+# oh-my-claudecode session state (machine-local, never committed)
+.omc/

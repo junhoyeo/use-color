@@ -1,7 +1,8 @@
 "use client";
 
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
-import type { CanvasColorSpace } from "./use-canvas-surface";
+
+export type CanvasColorSpace = "srgb" | "display-p3";
 
 export interface CanvasSurfaceProps {
 	width: number;

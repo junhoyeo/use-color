@@ -99,6 +99,47 @@ describe("mix", () => {
 			expect(result.c).toBe(0);
 		});
 	});
+
+	describe("hue interpolation with achromatic colors (1.8 fix)", () => {
+		it("mix(red, white) keeps hue within ~1deg of red's hue at any ratio", () => {
+			// Chroma kept modest (matches the c=0.15 convention used elsewhere in
+			// this file) so the mixed color stays in sRGB gamut - otherwise
+			// clampToGamut's chroma reduction can shift the hue slightly, which
+			// would be an artifact of gamut mapping, not of hue interpolation.
+			const red: OKLCH = { l: 0.6, c: 0.15, h: 29, a: 1 };
+			const white: OKLCH = { l: 1, c: 0, h: 0, a: 1 };
+			for (const ratio of [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1]) {
+				const result = mix(red, white, ratio) as OKLCH;
+				expect(Math.abs(result.h - red.h)).toBeLessThan(1);
+			}
+		});
+
+		it("mix(white, red) keeps hue within ~1deg of red's hue at any ratio", () => {
+			const red: OKLCH = { l: 0.6, c: 0.15, h: 29, a: 1 };
+			const white: OKLCH = { l: 1, c: 0, h: 0, a: 1 };
+			for (const ratio of [0, 0.25, 0.5, 0.75, 1]) {
+				const result = mix(white, red, ratio) as OKLCH;
+				expect(Math.abs(result.h - red.h)).toBeLessThan(1);
+			}
+		});
+
+		it("mix(gray, gray) stays achromatic", () => {
+			const gray1: OKLCH = { l: 0.3, c: 0, h: 123, a: 1 };
+			const gray2: OKLCH = { l: 0.7, c: 0, h: 77, a: 1 };
+			const result = mix(gray1, gray2, 0.5) as OKLCH;
+			expect(result.c).toBe(0);
+			expect(result.h).toBe(0);
+		});
+
+		it("mix(chromatic, gray) uses the chromatic side's hue throughout", () => {
+			const blue: OKLCH = { l: 0.5, c: 0.2, h: 260, a: 1 };
+			const gray: OKLCH = { l: 0.5, c: 0, h: 0, a: 1 };
+			for (const ratio of [0.1, 0.5, 0.9]) {
+				const result = mix(blue, gray, ratio) as OKLCH;
+				expect(result.h).toBeCloseTo(260, 5);
+			}
+		});
+	});
 });
 
 describe("mixColors", () => {
@@ -174,6 +215,69 @@ describe("mixColors", () => {
 			const a0: OklchColor = { space: "oklch", l: 0.5, c: 0.1, h: 30, a: 0 };
 			const result = mixColors([a1, a0]) as OklchColor;
 			expect(result.a).toBeCloseTo(0.5, 5);
+		});
+	});
+
+	describe("weight validation (1.9 fix)", () => {
+		const red: OklchColor = { space: "oklch", l: 0.6, c: 0.2, h: 30, a: 1 };
+		const blue: OklchColor = { space: "oklch", l: 0.4, c: 0.2, h: 260, a: 1 };
+
+		it("throws when weights.length does not match colors.length (too few)", () => {
+			expect(() => mixColors([red, blue], [1])).toThrow(
+				/weights\.length.*must match colors\.length/,
+			);
+		});
+
+		it("throws when weights.length does not match colors.length (too many)", () => {
+			expect(() => mixColors([red, blue], [1, 1, 1])).toThrow(
+				/weights\.length.*must match colors\.length/,
+			);
+		});
+
+		it("throws when weights sum to zero", () => {
+			expect(() => mixColors([red, blue], [0, 0])).toThrow("must not sum to zero");
+		});
+
+		it("throws when a weight is negative", () => {
+			expect(() => mixColors([red, blue], [1, -1])).toThrow("must not be negative");
+		});
+
+		it("throws when a weight is NaN", () => {
+			expect(() => mixColors([red, blue], [1, Number.NaN])).toThrow("must be finite");
+		});
+
+		it("throws when a weight is Infinity", () => {
+			expect(() => mixColors([red, blue], [Number.POSITIVE_INFINITY, 1])).toThrow("must be finite");
+		});
+
+		it("throws when finite weights overflow when summed", () => {
+			expect(() => mixColors([red, blue], [Number.MAX_VALUE, Number.MAX_VALUE])).toThrow(
+				"overflows to Infinity",
+			);
+		});
+
+		it("ignores the arbitrary stored hue of achromatic entries (CSS Color 4 §12.3)", () => {
+			// Gray carries h=180 but c=0 — hue-less; the average must keep h≈0
+			// from the chromatic entry instead of drifting toward 90.
+			const chromatic = { space: "oklch", l: 0.6, c: 0.2, h: 0, a: 1 } as const;
+			const gray = { space: "oklch", l: 0.8, c: 0, h: 180, a: 1 } as const;
+			const result = mixColors([chromatic, gray]) as OklchColor;
+			expect(Math.min(result.h, 360 - result.h)).toBeLessThan(1);
+		});
+
+		it("returns hue 0 when every entry is achromatic", () => {
+			const g1 = { space: "oklch", l: 0.3, c: 0, h: 45, a: 1 } as const;
+			const g2 = { space: "oklch", l: 0.7, c: 0, h: 270, a: 1 } as const;
+			const result = mixColors([g1, g2]) as OklchColor;
+			expect(result.h).toBe(0);
+		});
+
+		it("does not throw for valid weights, and never produces NaN channels", () => {
+			const result = mixColors([red, blue], [2, 1]) as OklchColor;
+			expect(Number.isNaN(result.l)).toBe(false);
+			expect(Number.isNaN(result.c)).toBe(false);
+			expect(Number.isNaN(result.h)).toBe(false);
+			expect(Number.isNaN(result.a)).toBe(false);
 		});
 	});
 });

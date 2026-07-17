@@ -46,7 +46,6 @@
  */
 
 import { convert } from "../convert/index.js";
-import { srgbToLinear } from "../convert/linear.js";
 import type { AnyColor } from "../types/ColorObject.js";
 import type { RGBA } from "../types/color.js";
 
@@ -104,13 +103,25 @@ function toRgba(color: APCAInput): RGBA {
 }
 
 /**
+ * APCA transfer function exponent.
+ * SAPC 0.0.98G specifies a simple 2.4 power curve for gamma expansion,
+ * NOT the piecewise sRGB transfer function (linear segment + power curve)
+ * used elsewhere in this library (e.g. {@link srgbToLinear}). Using the
+ * piecewise curve here deviates from the reference implementation by up
+ * to ~3 Lc.
+ */
+const APCA_MAIN_TRC = 2.4;
+
+/**
  * Calculates APCA Y (luminance) from RGBA.
- * This is similar to but not identical to WCAG relative luminance.
+ * This is similar to but not identical to WCAG relative luminance:
+ * APCA uses a plain `(c/255)^2.4` power curve for gamma expansion,
+ * while WCAG relative luminance uses the piecewise sRGB transfer function.
  */
 function calcAPCALuminance(rgba: RGBA): number {
-	const r = srgbToLinear(rgba.r);
-	const g = srgbToLinear(rgba.g);
-	const b = srgbToLinear(rgba.b);
+	const r = (rgba.r / 255) ** APCA_MAIN_TRC;
+	const g = (rgba.g / 255) ** APCA_MAIN_TRC;
+	const b = (rgba.b / 255) ** APCA_MAIN_TRC;
 
 	return APCA_CONSTANTS.sRco * r + APCA_CONSTANTS.sGco * g + APCA_CONSTANTS.sBco * b;
 }

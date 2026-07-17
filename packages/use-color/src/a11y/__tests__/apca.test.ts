@@ -107,6 +107,48 @@ describe("apcaContrast", () => {
 	});
 });
 
+describe("APCA reference values (0.0.98G power-curve transfer function)", () => {
+	// Canonical Lc values from the SAPC-APCA 0.0.98G reference implementation.
+	// These validate that the luminance transfer function uses the simple
+	// 2.4 power curve `(c/255)^2.4`, not the piecewise sRGB curve.
+	it("#888888 text on #ffffff bg ~= 63.06", () => {
+		const lc = apcaContrast(
+			{ r: 0x88, g: 0x88, b: 0x88, a: 1 },
+			{ r: 0xff, g: 0xff, b: 0xff, a: 1 },
+		);
+		expect(lc).toBeCloseTo(63.06, 1);
+	});
+
+	it("#ffffff text on #888888 bg ~= -68.54", () => {
+		const lc = apcaContrast(
+			{ r: 0xff, g: 0xff, b: 0xff, a: 1 },
+			{ r: 0x88, g: 0x88, b: 0x88, a: 1 },
+		);
+		expect(lc).toBeCloseTo(-68.54, 1);
+	});
+
+	it("#000000 text on #aaaaaa bg ~= 58.14", () => {
+		const lc = apcaContrast({ r: 0, g: 0, b: 0, a: 1 }, { r: 0xaa, g: 0xaa, b: 0xaa, a: 1 });
+		expect(lc).toBeCloseTo(58.14, 1);
+	});
+
+	it("#112233 text on #ddeeff bg ~= 91.66", () => {
+		const lc = apcaContrast(
+			{ r: 0x11, g: 0x22, b: 0x33, a: 1 },
+			{ r: 0xdd, g: 0xee, b: 0xff, a: 1 },
+		);
+		expect(lc).toBeCloseTo(91.66, 1);
+	});
+
+	it("#223344 text on #112233 bg is below the low-clip threshold, clips to 0", () => {
+		const lc = apcaContrast(
+			{ r: 0x22, g: 0x33, b: 0x44, a: 1 },
+			{ r: 0x11, g: 0x22, b: 0x33, a: 1 },
+		);
+		expect(lc).toBe(0);
+	});
+});
+
 describe("APCA_THRESHOLDS", () => {
 	it("has correct recommended values", () => {
 		expect(APCA_THRESHOLDS.BODY_TEXT).toBe(75);

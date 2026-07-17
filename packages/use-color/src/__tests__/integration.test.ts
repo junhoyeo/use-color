@@ -544,7 +544,9 @@ describe("P3 color space input", () => {
 	it("accepts P3Color with space discriminant", () => {
 		const p3Color = { space: "p3" as const, r: 1, g: 0.5, b: 0.2, a: 1 };
 		const c = color(p3Color);
-		expect(c.toHex()).toBe("#ff8036");
+		// Gamut-mapped sRGB fallback for P3 (1, 0.5, 0.2) — value recomputed
+		// after the OKLab matrix correction and spec-exact 13.2 mapping.
+		expect(c.toHex()).toBe("#ff7d2c");
 		expect(c.getAlpha()).toBe(1);
 	});
 

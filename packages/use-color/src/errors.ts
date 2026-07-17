@@ -17,10 +17,17 @@
  * ```
  */
 
-// V8-specific extension for better stack traces
-declare global {
-	interface ErrorConstructor {
-		captureStackTrace?(targetObject: object, constructorOpt?: Function): void;
+// V8-specific extension for better stack traces. Typed structurally instead of
+// augmenting ErrorConstructor globally: a global augmentation conflicts with
+// @types/node's required signature (TS2386) in consuming projects.
+type V8ErrorConstructor = {
+	captureStackTrace?(targetObject: object, constructorOpt?: unknown): void;
+};
+
+function captureStackTrace(target: Error, ctor: unknown): void {
+	const v8 = Error as V8ErrorConstructor;
+	if (typeof v8.captureStackTrace === "function") {
+		v8.captureStackTrace(target, ctor);
 	}
 }
 
@@ -104,9 +111,7 @@ export class ColorParseError extends Error {
 		this.code = code;
 
 		// Maintains proper stack trace in V8 environments (Node.js, Chrome)
-		if (typeof Error.captureStackTrace === "function") {
-			Error.captureStackTrace(this, ColorParseError);
-		}
+		captureStackTrace(this, ColorParseError);
 	}
 }
 
@@ -165,8 +170,6 @@ export class ColorOutOfGamutError extends ColorParseError {
 		this.targetGamut = targetGamut;
 
 		// Maintains proper stack trace in V8 environments (Node.js, Chrome)
-		if (typeof Error.captureStackTrace === "function") {
-			Error.captureStackTrace(this, ColorOutOfGamutError);
-		}
+		captureStackTrace(this, ColorOutOfGamutError);
 	}
 }

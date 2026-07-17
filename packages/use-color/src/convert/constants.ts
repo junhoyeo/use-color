@@ -106,7 +106,7 @@ export const XYZ_TO_SRGB: Matrix3x3 = [
  * @see https://bottosson.github.io/posts/oklab/
  */
 export const OKLAB_M1: Matrix3x3 = [
-	[0.818902243796703, 0.3619062600528904, -0.1288737815209879],
+	[0.819022437996703, 0.3619062600528904, -0.1288737815209879],
 	[0.0329836539323885, 0.9292868615863434, 0.0361446663506424],
 	[0.0481771893596242, 0.2642395317527308, 0.6335478284694309],
 ] as const;
@@ -127,7 +127,7 @@ export const OKLAB_M1: Matrix3x3 = [
  */
 export const OKLAB_M2: Matrix3x3 = [
 	[0.210454268309314, 0.7936177747023054, -0.0040720430116193],
-	[1.977998532410121, -2.4285922420485799, 0.450593709617411],
+	[1.9779985324311684, -2.4285922420485799, 0.450593709617411],
 	[0.0259040424655478, 0.7827717124575296, -0.8086757549230774],
 ] as const;
 
@@ -138,15 +138,12 @@ export const OKLAB_M2: Matrix3x3 = [
  * Apply after cubing the LMS' values from M2 inverse.
  *
  * This is the CSS Color 4 spec's own `LMStoXYZ` matrix (see the spec's
- * sample color conversion code), NOT the exact numerical inverse of
- * OKLAB_M1. The two are deliberately different: the spec's matrix is
- * chosen so that achromatic LMS (equal L, M, S) maps back to exactly the
- * D65 white point, at the cost of `OKLAB_M1 * OKLAB_M1_INV` being the
- * identity matrix only to ~1e-4, not to machine precision. Using the
- * "exact inverse of OKLAB_M1" instead (as a prior revision of this file
- * did) breaks the white-point round-trip: achromatic OKLCH colors would
- * come back with slightly unequal linear R/G/B (~5e-4 relative), which
- * is large enough to flip 8-bit rounding by 1 for grays.
+ * sample color conversion code). It is the numerical inverse of OKLAB_M1
+ * to machine precision: `OKLAB_M1 * OKLAB_M1_INV` deviates from the
+ * identity by at most ~2e-16. (A prior revision of this file carried a
+ * digit-transposed OKLAB_M1[0][0], which made the pair look like a
+ * deliberate ~1e-4 non-inverse trade-off; with the spec value restored,
+ * both directions agree and D65 white maps to exactly equal LMS.)
  *
  * Usage: [X, Y, Z] = OKLAB_M1_INV × [L, M, S]
  *
@@ -193,9 +190,9 @@ export const OKLAB_M2_INV: Matrix3x3 = [
  * @see https://bottosson.github.io/posts/oklab/
  */
 export const LRGB_TO_LMS: Matrix3x3 = [
-	[0.4121719024885579, 0.5362895576981301, 0.05142430052352485],
-	[0.21190349581782514, 0.6806995506452345, 0.10739695353694055],
-	[0.08830245919005639, 0.2817188391361215, 0.6299787016738222],
+	[0.41222146947076305, 0.5363325372617349, 0.051445993267502196],
+	[0.21190349581782517, 0.6806995506452345, 0.10739695353694056],
+	[0.08830245919005639, 0.2817188391361215, 0.6299787016738223],
 ] as const;
 
 /**
@@ -206,10 +203,10 @@ export const LRGB_TO_LMS: Matrix3x3 = [
  *
  * Computed as the exact matrix product XYZ_TO_SRGB × OKLAB_M1_INV, so
  * this "direct" LMS->sRGB shortcut agrees with the XYZ-mediated path
- * (OKLAB_M1_INV then XYZ_TO_SRGB) to machine precision. Deliberately NOT
- * the inverse of LRGB_TO_LMS (see OKLAB_M1_INV) - it must stay paired
- * with OKLAB_M1_INV's white-point-consistent values so achromatic colors
- * round-trip to exactly equal R/G/B.
+ * (OKLAB_M1_INV then XYZ_TO_SRGB) to machine precision. Since OKLAB_M1
+ * and OKLAB_M1_INV are mutual inverses (see OKLAB_M1_INV), this is also
+ * the inverse of LRGB_TO_LMS up to float rounding, and achromatic colors
+ * round-trip to equal linear R/G/B.
  *
  * Usage: [R, G, B] = LMS_TO_LRGB × [L, M, S]
  *

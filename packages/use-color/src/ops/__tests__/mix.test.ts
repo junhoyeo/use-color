@@ -243,7 +243,33 @@ describe("mixColors", () => {
 		});
 
 		it("throws when a weight is NaN", () => {
-			expect(() => mixColors([red, blue], [1, Number.NaN])).toThrow("must not contain NaN");
+			expect(() => mixColors([red, blue], [1, Number.NaN])).toThrow("must be finite");
+		});
+
+		it("throws when a weight is Infinity", () => {
+			expect(() => mixColors([red, blue], [Number.POSITIVE_INFINITY, 1])).toThrow("must be finite");
+		});
+
+		it("throws when finite weights overflow when summed", () => {
+			expect(() => mixColors([red, blue], [Number.MAX_VALUE, Number.MAX_VALUE])).toThrow(
+				"overflows to Infinity",
+			);
+		});
+
+		it("ignores the arbitrary stored hue of achromatic entries (CSS Color 4 §12.3)", () => {
+			// Gray carries h=180 but c=0 — hue-less; the average must keep h≈0
+			// from the chromatic entry instead of drifting toward 90.
+			const chromatic = { space: "oklch", l: 0.6, c: 0.2, h: 0, a: 1 } as const;
+			const gray = { space: "oklch", l: 0.8, c: 0, h: 180, a: 1 } as const;
+			const result = mixColors([chromatic, gray]) as OklchColor;
+			expect(Math.min(result.h, 360 - result.h)).toBeLessThan(1);
+		});
+
+		it("returns hue 0 when every entry is achromatic", () => {
+			const g1 = { space: "oklch", l: 0.3, c: 0, h: 45, a: 1 } as const;
+			const g2 = { space: "oklch", l: 0.7, c: 0, h: 270, a: 1 } as const;
+			const result = mixColors([g1, g2]) as OklchColor;
+			expect(result.h).toBe(0);
 		});
 
 		it("does not throw for valid weights, and never produces NaN channels", () => {

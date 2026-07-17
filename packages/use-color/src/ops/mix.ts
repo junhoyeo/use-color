@@ -119,10 +119,10 @@ export function mixColors(
 			);
 		}
 		for (const weight of weights) {
-			if (Number.isNaN(weight)) {
+			if (!Number.isFinite(weight)) {
 				throw new ColorParseError(
 					ColorErrorCode.INVALID_FORMAT,
-					"mixColors: weights must not contain NaN",
+					"mixColors: weights must be finite numbers",
 				);
 			}
 			if (weight < 0) {
@@ -137,6 +137,15 @@ export function mixColors(
 			throw new ColorParseError(
 				ColorErrorCode.INVALID_FORMAT,
 				"mixColors: weights must not sum to zero",
+			);
+		}
+		// Individually-finite weights can still overflow when summed
+		// (e.g. [MAX_VALUE, MAX_VALUE]), which would zero every normalized
+		// weight via division by Infinity.
+		if (!Number.isFinite(weightSum)) {
+			throw new ColorParseError(
+				ColorErrorCode.INVALID_FORMAT,
+				"mixColors: weights sum overflows to Infinity",
 			);
 		}
 	}
@@ -162,7 +171,8 @@ export function mixColors(
 			c = 0,
 			a = 0;
 		let sinH = 0,
-			cosH = 0;
+			cosH = 0,
+			hueWeight = 0;
 
 		for (let i = 0; i < colors.length; i++) {
 			const oklch = toOklch(colors[i]!);
@@ -170,12 +180,18 @@ export function mixColors(
 			l += oklch.l * w;
 			c += oklch.c * w;
 			a += oklch.a * w;
-			const hRad = oklch.h * (Math.PI / 180);
-			sinH += Math.sin(hRad) * w;
-			cosH += Math.cos(hRad) * w;
+			// Achromatic entries (c ~= 0) are hue-less per CSS Color 4 §12.3:
+			// their stored hue is arbitrary and must not drag the circular
+			// average. Only hue-carrying entries contribute.
+			if (oklch.c >= HUE_EPSILON) {
+				const hRad = oklch.h * (Math.PI / 180);
+				sinH += Math.sin(hRad) * w;
+				cosH += Math.cos(hRad) * w;
+				hueWeight += w;
+			}
 		}
 
-		const h = normalizeHue(Math.atan2(sinH, cosH) * (180 / Math.PI));
+		const h = hueWeight > 0 ? normalizeHue(Math.atan2(sinH, cosH) * (180 / Math.PI)) : 0;
 		const result = clampToGamut({ l, c, h, a });
 		return { space: "oklch" as const, ...result };
 	}

@@ -19,17 +19,19 @@ import { oklabToOklch, oklchToOklab, xyzToOklab } from "./oklab.js";
 import { linearRgbToXyz } from "./xyz.js";
 
 /**
- * Duck-types a Color instance (vs. a plain OKLCH object) without needing a
- * runtime `instanceof Color` check, which would require a value import and
- * reintroduce the cycle described above.
+ * Accepts either a plain OKLCH object or a Color instance and returns plain
+ * OKLCH. The plain l/c/h shape is checked FIRST: a plain OKLCH object that
+ * happens to also carry a `toOklch` method must still be treated as data
+ * (Color instances expose no l/c/h data properties, so they never match the
+ * first branch). Duck-typing instead of `instanceof Color` avoids a runtime
+ * value import of Color, which would create a genuine module cycle
+ * (convert/index -> Color -> convert/index).
  */
-function isColorInstance(input: OKLCH | Color): input is Color {
-	return typeof (input as { toOklch?: unknown }).toOklch === "function";
-}
-
-/** Accepts either a plain OKLCH object or a Color instance and returns plain OKLCH. */
 function unwrapOklch(input: OKLCH | Color): OKLCH {
-	return isColorInstance(input) ? input.toOklch() : input;
+	if ("l" in input && "c" in input && "h" in input) {
+		return input;
+	}
+	return (input as Color).toOklch();
 }
 
 /**

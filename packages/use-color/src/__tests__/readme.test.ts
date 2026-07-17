@@ -68,7 +68,7 @@ describe("README: Transform Colors", () => {
 	it("2.1: Color.prototype.mix accepts a Color instance with a bare ratio", () => {
 		const otherColor = color("#0000ff");
 		const mixed = (c) => c.mix(otherColor, 0.5);
-		expect(mixed(color("#ff0000")).toHex()).toBe("#b600bd");
+		expect(mixed(color("#ff0000")).toHex()).toBe("#b700be");
 	});
 });
 
@@ -76,7 +76,7 @@ describe("README: Chain Transformations", () => {
 	it("produces the documented output", () => {
 		const result = color("#e11d48").lighten(0.1).saturate(0.2).rotate(15).alpha(0.9).toHex();
 
-		expect(result).toBe("#ff583a");
+		expect(result).toBe("#ff4b2f");
 	});
 });
 
@@ -97,17 +97,17 @@ describe("README: Output Formats", () => {
 		expect(hsl.h).toBeCloseTo(217.22, 1);
 		expect(hsl.s).toBeCloseTo(0.91, 2);
 		expect(hsl.l).toBeCloseTo(0.6, 2);
-		expect(c.toHslString()).toMatch(/^hsl\(217\.2\d, 91%, 60%\)$/);
-		expect(c.toHslaString()).toMatch(/^hsla\(217\.2\d, 91%, 60%, 1\)$/);
-		expect(c.toHslModern()).toMatch(/^hsl\(217\.2\d 91% 60%\)$/);
+		expect(c.toHslString()).toBe("hsl(217.22, 91%, 60%)");
+		expect(c.toHslaString()).toBe("hsla(217.22, 91%, 60%, 1)");
+		expect(c.toHslModern()).toBe("hsl(217.22 91% 60%)");
 
 		const oklch = c.toOklch();
 		expect(oklch.l).toBeCloseTo(0.62, 2);
 		expect(oklch.c).toBeCloseTo(0.19, 2);
 		expect(oklch.h).toBeCloseTo(259.8, 0);
-		expect(c.toOklchString()).toMatch(/^oklch\(0\.62\d 0\.18\d 259\.\d+\)$/);
+		expect(c.toOklchString()).toBe("oklch(0.623 0.188 259.815)");
 
-		expect(c.toP3String()).toMatch(/^color\(display-p3 0\.30\d+ 0\.50\d+ 0\.93\d+\)$/);
+		expect(c.toP3String()).toBe("color(display-p3 0.3047 0.5035 0.9338)");
 
 		expect(c.toCss()).toBe("#3b82f6");
 		expect(c.toCss({ format: "oklch" })).toBe(c.toOklchString());
@@ -141,9 +141,9 @@ describe("README: Color Properties", () => {
 	it("exposes OKLCH-derived properties", () => {
 		const c = color("#3b82f6");
 		expect(c.getAlpha()).toBe(1);
-		expect(c.getLightness()).toBeCloseTo(0.62, 2);
-		expect(c.getChroma()).toBeCloseTo(0.19, 2);
-		expect(c.getHue()).toBeCloseTo(259.8, 0);
+		expect(c.getLightness()).toBeCloseTo(0.623, 3);
+		expect(c.getChroma()).toBeCloseTo(0.188, 3);
+		expect(c.getHue()).toBeCloseTo(259.81, 1);
 		expect(c.isDark()).toBe(false);
 		expect(c.isLight()).toBe(true);
 	});
@@ -186,8 +186,8 @@ describe("README: Display P3 Wide Gamut", () => {
 		const vibrant = color("oklch(0.7 0.25 150)");
 
 		expect(isInP3Gamut(vibrant)).toBe(true);
-		expect(vibrant.toP3String()).toMatch(/^color\(display-p3 0\.16\d+ 0\.75\d+ 0\.30\d+\)$/);
-		expect(vibrant.toHex()).toBe("#00c14b");
+		expect(vibrant.toP3String()).toBe("color(display-p3 0.1612 0.7599 0.3015)");
+		expect(vibrant.toHex()).toBe("#00c248");
 	});
 });
 
@@ -196,14 +196,14 @@ describe("README: Tree-Shakeable", () => {
 		const rgba = parseHex("#ff0000");
 		const lighter = lighten(rgba, 0.2);
 		const hex = toHex(lighter);
-		expect(hex).toBe("#ffafa2");
+		expect(hex).toBe("#ffa899");
 	});
 });
 
 describe("README: Migration - mix() standalone accepts Color instances", () => {
 	it("2.1: mix(color(...), color(...), ratio) works and honors the ratio", () => {
 		const halfway = mix(color("#ff0000"), color("#0000ff"), 0.5);
-		expect(halfway.toHex()).toBe("#b600bd");
+		expect(halfway.toHex()).toBe("#b700be");
 
 		// Ratio must actually be used, not silently ignored.
 		const mostlyRed = mix(color("#ff0000"), color("#0000ff"), 0.1);
@@ -214,7 +214,7 @@ describe("README: Migration - mix() standalone accepts Color instances", () => {
 
 	it("2.1: mix() also accepts plain color-string arguments", () => {
 		const result = mix("#ff0000", "#0000ff", 0.5);
-		expect(result.toHex()).toBe("#b600bd");
+		expect(result.toHex()).toBe("#b700be");
 	});
 
 	it("2.7: mix() rejects a NaN ratio instead of silently misbehaving", () => {

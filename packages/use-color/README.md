@@ -119,7 +119,7 @@ const result = color("#e11d48")
   .alpha(0.9)
   .toHex();
 
-// "#ff583a"
+// "#ff4b2f"
 ```
 
 ### Output Formats
@@ -139,21 +139,21 @@ c.toRgbaString(); // "rgba(59, 130, 246, 1)"
 c.toRgbModern(); // "rgb(59 130 246)"  (CSS Level 4)
 
 // HSL
-c.toHsl(); // { h: 217, s: 0.91, l: 0.60, a: 1 }
-c.toHslString(); // "hsl(217, 91%, 60%)"
-c.toHslaString(); // "hsla(217, 91%, 60%, 1)"
-c.toHslModern(); // "hsl(217 91% 60%)"
+c.toHsl(); // { h: 217.22, s: 0.91, l: 0.6, a: 1 } (values rounded here)
+c.toHslString(); // "hsl(217.22, 91%, 60%)"
+c.toHslaString(); // "hsla(217.22, 91%, 60%, 1)"
+c.toHslModern(); // "hsl(217.22 91% 60%)"
 
 // OKLCH (perceptually uniform)
-c.toOklch(); // { l: 0.62, c: 0.19, h: 255, a: 1 }
-c.toOklchString(); // "oklch(0.62 0.19 255)"
+c.toOklch(); // { l: 0.623, c: 0.188, h: 259.81, a: 1 } (values rounded here)
+c.toOklchString(); // "oklch(0.623 0.188 259.815)"
 
 // Display P3 (wide gamut)
-c.toP3String(); // "color(display-p3 0.35 0.52 0.93)"
+c.toP3String(); // "color(display-p3 0.3047 0.5035 0.9338)"
 
 // CSS (smart default)
 c.toCss(); // "#3b82f6"
-c.toCss({ format: "oklch" }); // "oklch(0.62 0.19 255)"
+c.toCss({ format: "oklch" }); // "oklch(0.623 0.188 259.815)"
 ```
 
 ### Safe Parsing
@@ -179,9 +179,9 @@ if (result.ok) {
 const c = color("#3b82f6");
 
 c.getAlpha(); // 1
-c.getLightness(); // 0.62 (OKLCH lightness)
-c.getChroma(); // 0.19 (OKLCH chroma)
-c.getHue(); // 255 (OKLCH hue)
+c.getLightness(); // 0.623 (OKLCH lightness, rounded here)
+c.getChroma(); // 0.188 (OKLCH chroma, rounded here)
+c.getHue(); // 259.81 (OKLCH hue, rounded here)
 
 c.isDark(); // false
 c.isLight(); // true
@@ -256,7 +256,7 @@ isInP3Gamut(vibrant); // true (P3 is ~25% larger than sRGB)
 vibrant.toP3String(); // "color(display-p3 0.1612 0.7599 0.3015)"
 
 // Fallback for older displays
-vibrant.toHex(); // "#00c14b" (clamped to sRGB)
+vibrant.toHex(); // "#00c248" (clamped to sRGB)
 ```
 
 ## Tree-Shakeable

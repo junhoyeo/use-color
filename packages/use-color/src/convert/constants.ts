@@ -38,17 +38,19 @@ export type Matrix3x3 = readonly [
  * It is the standard white point for sRGB, Display P3, and most
  * web-related color spaces.
  *
- * Values are normalized with Y = 1.0.
+ * Values are normalized with Y = 1.0, and correspond exactly to what
+ * `SRGB_TO_XYZ` (and `P3_TO_XYZ`) produce for linear-light white (1, 1, 1),
+ * so this constant stays consistent with the matrices below.
  *
  * @see https://en.wikipedia.org/wiki/Illuminant_D65
  */
 export const D65 = {
 	/** X chromaticity coordinate */
-	x: 0.95047,
+	x: 0.9504559270516717,
 	/** Y chromaticity coordinate (reference white luminance) */
 	y: 1.0,
 	/** Z chromaticity coordinate */
-	z: 1.08883,
+	z: 1.0890577507598784,
 } as const;
 
 /**
@@ -83,9 +85,9 @@ export const SRGB_TO_XYZ: Matrix3x3 = [
  * @see https://www.w3.org/TR/css-color-4/#color-conversion-code
  */
 export const XYZ_TO_SRGB: Matrix3x3 = [
-	[3.2404541621141054, -1.5371385940306089, -0.49853140955601579],
-	[-0.96926603050518312, 1.8760108454466942, 0.041556017530349834],
-	[0.055643430959114726, -0.20397695888897652, 1.0572251882231791],
+	[3.2409699419045226, -1.537383177570094, -0.4986107602930034],
+	[-0.9692436362808796, 1.8759675015077202, 0.04155505740717559],
+	[0.05563007969699366, -0.20397695888897652, 1.0569715142428786],
 ] as const;
 
 /**
@@ -104,9 +106,9 @@ export const XYZ_TO_SRGB: Matrix3x3 = [
  * @see https://bottosson.github.io/posts/oklab/
  */
 export const OKLAB_M1: Matrix3x3 = [
-	[0.8189330101, 0.3618667424, -0.1288597137],
-	[0.0329845436, 0.9293118715, 0.0361456387],
-	[0.0482003018, 0.2643662691, 0.633851707],
+	[0.819022437996703, 0.3619062600528904, -0.1288737815209879],
+	[0.0329836539323885, 0.9292868615863434, 0.0361446663506424],
+	[0.0481771893596242, 0.2642395317527308, 0.6335478284694309],
 ] as const;
 
 /**
@@ -124,9 +126,9 @@ export const OKLAB_M1: Matrix3x3 = [
  * @see https://bottosson.github.io/posts/oklab/
  */
 export const OKLAB_M2: Matrix3x3 = [
-	[0.2104542553, 0.793617785, -0.0040720468],
-	[1.9779984951, -2.428592205, 0.4505937099],
-	[0.0259040371, 0.7827717662, -0.808675766],
+	[0.210454268309314, 0.7936177747023054, -0.0040720430116193],
+	[1.9779985324311684, -2.4285922420485799, 0.450593709617411],
+	[0.0259040424655478, 0.7827717124575296, -0.8086757549230774],
 ] as const;
 
 /**
@@ -135,14 +137,23 @@ export const OKLAB_M2: Matrix3x3 = [
  * Used when converting from Oklab back to XYZ.
  * Apply after cubing the LMS' values from M2 inverse.
  *
+ * This is the CSS Color 4 spec's own `LMStoXYZ` matrix (see the spec's
+ * sample color conversion code). It is the numerical inverse of OKLAB_M1
+ * to machine precision: `OKLAB_M1 * OKLAB_M1_INV` deviates from the
+ * identity by at most ~2e-16. (A prior revision of this file carried a
+ * digit-transposed OKLAB_M1[0][0], which made the pair look like a
+ * deliberate ~1e-4 non-inverse trade-off; with the spec value restored,
+ * both directions agree and D65 white maps to exactly equal LMS.)
+ *
  * Usage: [X, Y, Z] = OKLAB_M1_INV × [L, M, S]
  *
+ * @see https://www.w3.org/TR/css-color-4/#color-conversion-code
  * @see https://bottosson.github.io/posts/oklab/
  */
 export const OKLAB_M1_INV: Matrix3x3 = [
-	[1.2270138511035211, -0.5577999806518222, 0.2812561489664678],
-	[-0.0405801784232806, 1.1122568696168302, -0.0716766786656012],
-	[-0.0763812845057069, -0.4214819784180127, 1.5861632204407947],
+	[1.2268798758459243, -0.5578149944602171, 0.2813910456659647],
+	[-0.0405757452148008, 1.112286803280317, -0.0717110580655164],
+	[-0.0763729366746601, -0.4214933324022432, 1.5869240198367816],
 ] as const;
 
 /**
@@ -156,9 +167,9 @@ export const OKLAB_M1_INV: Matrix3x3 = [
  * @see https://bottosson.github.io/posts/oklab/
  */
 export const OKLAB_M2_INV: Matrix3x3 = [
-	[1.0, 0.3963377774, 0.2158037573],
-	[1.0, -0.1055613458, -0.0638541728],
-	[1.0, -0.0894841775, -1.291485548],
+	[1.0, 0.3963377773761749, 0.2158037573099136],
+	[1.0, -0.1055613458156586, -0.0638541728258133],
+	[1.0, -0.0894841775298119, -1.2914855480194092],
 ] as const;
 
 /**
@@ -166,16 +177,22 @@ export const OKLAB_M2_INV: Matrix3x3 = [
  *
  * This is a composite matrix optimized for converting directly
  * from linear sRGB to LMS cone responses, bypassing XYZ.
- * From Björn Ottosson's reference implementation.
+ *
+ * Computed as the exact matrix product OKLAB_M1 × SRGB_TO_XYZ (rather than
+ * reusing Björn Ottosson's independently-published composite constants),
+ * so that this "direct" sRGB->LMS shortcut agrees with the XYZ-mediated
+ * path (SRGB_TO_XYZ then OKLAB_M1) to machine precision. The two
+ * parameterizations previously differed by ~5e-5, which was large enough
+ * to break gamut-boundary round-trips.
  *
  * Usage: [L, M, S] = LRGB_TO_LMS × [R, G, B]
  *
  * @see https://bottosson.github.io/posts/oklab/
  */
 export const LRGB_TO_LMS: Matrix3x3 = [
-	[0.4122214708, 0.5363325363, 0.0514459929],
-	[0.2119034982, 0.6806995451, 0.1073969566],
-	[0.0883024619, 0.2817188376, 0.6299787005],
+	[0.41222146947076305, 0.5363325372617349, 0.051445993267502196],
+	[0.21190349581782517, 0.6806995506452345, 0.10739695353694056],
+	[0.08830245919005639, 0.2817188391361215, 0.6299787016738223],
 ] as const;
 
 /**
@@ -183,16 +200,22 @@ export const LRGB_TO_LMS: Matrix3x3 = [
  *
  * This is a composite matrix optimized for converting directly
  * from LMS cone responses to linear sRGB, bypassing XYZ.
- * From Björn Ottosson's reference implementation.
+ *
+ * Computed as the exact matrix product XYZ_TO_SRGB × OKLAB_M1_INV, so
+ * this "direct" LMS->sRGB shortcut agrees with the XYZ-mediated path
+ * (OKLAB_M1_INV then XYZ_TO_SRGB) to machine precision. Since OKLAB_M1
+ * and OKLAB_M1_INV are mutual inverses (see OKLAB_M1_INV), this is also
+ * the inverse of LRGB_TO_LMS up to float rounding, and achromatic colors
+ * round-trip to equal linear R/G/B.
  *
  * Usage: [R, G, B] = LMS_TO_LRGB × [L, M, S]
  *
  * @see https://bottosson.github.io/posts/oklab/
  */
 export const LMS_TO_LRGB: Matrix3x3 = [
-	[4.0767416621, -3.3077115913, 0.2309699292],
-	[-1.2684380046, 2.6097574011, -0.3413193965],
-	[-0.0041960863, -0.7034186147, 1.707614701],
+	[4.07674163607596, -3.307711539258063, 0.2309699031821048],
+	[-1.2684379732850315, 2.609757349287688, -0.3413193760026572],
+	[-0.004196076138675493, -0.7034186179359363, 1.7076146940746117],
 ] as const;
 
 /**

@@ -9,8 +9,8 @@
  */
 
 import type { OKLCH } from "../types/color.js";
-import { LMS_TO_LRGB, OKLAB_M2_INV, XYZ_TO_P3 } from "./constants.js";
-import { oklchToOklab } from "./oklab.js";
+import { LMS_TO_LRGB, OKLAB_M2_INV, P3_TO_XYZ, XYZ_TO_P3 } from "./constants.js";
+import { oklabToOklch, oklchToOklab, xyzToOklab } from "./oklab.js";
 import { linearRgbToXyz } from "./xyz.js";
 
 /**
@@ -18,6 +18,31 @@ import { linearRgbToXyz } from "./xyz.js";
  * CSS Color 4 recommends 0.02 as the perceptual threshold.
  */
 export const DEFAULT_JND = 0.02;
+
+/**
+ * Chroma interval at which the binary search stops iterating.
+ * This is intentionally far tighter than the JND: the JND is a perceptual
+ * "close enough" early-exit, while this epsilon is the numerical precision
+ * of the search itself (CSS Color 4 §13.2 uses 0.0001 on a 0-1-ish JND
+ * scale; we use an even tighter bound since chroma is unbounded).
+ */
+const CHROMA_EPSILON = 0.00001;
+
+/**
+ * Computes the perceptual distance (deltaEOK) between two OKLCH colors,
+ * measured as Euclidean distance in Oklab space.
+ * @see https://www.w3.org/TR/css-color-4/#color-difference-OK
+ */
+function deltaEOK(a: OKLCH, b: OKLCH): number {
+	const labA = oklchToOklab(a);
+	const labB = oklchToOklab(b);
+
+	return Math.sqrt((labA.L - labB.L) ** 2 + (labA.a - labB.a) ** 2 + (labA.b - labB.b) ** 2);
+}
+
+function clamp01(value: number): number {
+	return Math.min(1, Math.max(0, value));
+}
 
 function oklchToLinearRgb(oklch: OKLCH): { r: number; g: number; b: number } {
 	const lab = oklchToOklab(oklch);
@@ -40,7 +65,60 @@ function oklchToLinearRgb(oklch: OKLCH): { r: number; g: number; b: number } {
 	return { r, g, b };
 }
 
-const EPSILON = 0.000001;
+/**
+ * Clips linear sRGB to [0, 1] per channel and converts the result back to
+ * OKLCH. Used as the "clipped candidate" in the CSS Color 4 gamut mapping
+ * algorithm's JND early-exit.
+ */
+function clipToOklch(linear: { r: number; g: number; b: number }, alpha: number): OKLCH {
+	const clamped = {
+		r: clamp01(linear.r),
+		g: clamp01(linear.g),
+		b: clamp01(linear.b),
+	};
+	const xyz = linearRgbToXyz(clamped);
+	const lab = xyzToOklab(xyz);
+	const oklch = oklabToOklch(lab);
+	return { ...oklch, a: alpha };
+}
+
+/**
+ * Clips linear Display P3 to [0, 1] per channel and converts the result
+ * back to OKLCH. P3 counterpart of {@link clipToOklch}.
+ */
+function clipToOklchP3(linear: { r: number; g: number; b: number }, alpha: number): OKLCH {
+	const clamped = {
+		r: clamp01(linear.r),
+		g: clamp01(linear.g),
+		b: clamp01(linear.b),
+	};
+	const xyz = {
+		x: P3_TO_XYZ[0][0] * clamped.r + P3_TO_XYZ[0][1] * clamped.g + P3_TO_XYZ[0][2] * clamped.b,
+		y: P3_TO_XYZ[1][0] * clamped.r + P3_TO_XYZ[1][1] * clamped.g + P3_TO_XYZ[1][2] * clamped.b,
+		z: P3_TO_XYZ[2][0] * clamped.r + P3_TO_XYZ[2][1] * clamped.g + P3_TO_XYZ[2][2] * clamped.b,
+	};
+	const lab = xyzToOklab(xyz);
+	const oklch = oklabToOklch(lab);
+	return { ...oklch, a: alpha };
+}
+
+/**
+ * Numerical tolerance for gamut boundary checks.
+ *
+ * The JND early-exit path in {@link clampToGamut}/{@link clampToP3Gamut}
+ * hard-clips a candidate's linear RGB to [0, 1], converts it to OKLCH, and
+ * returns that; re-deriving linear RGB from the returned OKLCH must land
+ * back inside [0, 1] within this tolerance or `isInGamut`/`isInP3Gamut`
+ * would reject the very colors the mapper just produced. With the spec's
+ * mutually-inverse OKLab matrices the worst observed round-trip overshoot
+ * across a dense boundary sweep is ~4e-13, so 1e-9 leaves >3 orders of
+ * magnitude of headroom while being ~7 orders below one 8-bit step
+ * (~0.0039). (An earlier revision used 0.001 to paper over a ~3e-4
+ * asymmetry that was actually caused by a digit-transposed OKLAB_M1 entry;
+ * that tolerance was large enough to accept physically out-of-gamut
+ * colors, e.g. linear P3 red of -0.00055.)
+ */
+const EPSILON = 1e-9;
 
 /**
  * Checks if OKLCH color is within sRGB gamut.
@@ -49,7 +127,7 @@ const EPSILON = 0.000001;
  */
 export function isInGamut(oklch: OKLCH): boolean {
 	if (oklch.c <= 0) {
-		return oklch.l >= 0 && oklch.l <= 1;
+		return oklch.l >= -EPSILON && oklch.l <= 1 + EPSILON;
 	}
 
 	const { r, g, b } = oklchToLinearRgb(oklch);
@@ -66,13 +144,41 @@ export function isInGamut(oklch: OKLCH): boolean {
 
 /**
  * Clamps OKLCH color to sRGB gamut via chroma reduction.
- * Uses CSS Color 4 binary search algorithm.
+ * Implements the CSS Color 4 §13.2 gamut mapping algorithm: binary search
+ * on chroma, narrowing the interval to within {@link CHROMA_EPSILON}, with
+ * an early exit whenever clipping the current candidate's linear RGB to
+ * [0, 1] produces a color within `jnd` (deltaEOK) of the candidate.
  * @param oklch - The OKLCH color to clamp
  * @param jnd - Just Noticeable Difference threshold (default: 0.02)
  * @returns OKLCH color guaranteed to be in sRGB gamut
  */
 export function clampToGamut(oklch: OKLCH, jnd: number = DEFAULT_JND): OKLCH {
-	if (isInGamut(oklch)) {
+	return gamutMapChroma(oklch, jnd, isInGamut, (candidate) =>
+		clipToOklch(oklchToLinearRgb(candidate), oklch.a),
+	);
+}
+
+/**
+ * CSS Color 4 §13.2 chroma-reduction binary search, shared by the sRGB and
+ * Display P3 mappers. Follows the spec's reference algorithm exactly:
+ * - `minInGamut` tracks whether `min` still marks a known in-gamut chroma;
+ *   once a clipped candidate lands within the JND, the search keeps raising
+ *   `min` WITHOUT treating it as in-gamut, converging on the highest chroma
+ *   whose clip is just barely un-noticeable (rather than returning the
+ *   first — prematurely desaturated — candidate that happens to clip within
+ *   the JND).
+ * - The early exit only fires when the clip distance is within
+ *   {@link CHROMA_EPSILON} of the JND itself (`jnd - e < epsilon`).
+ * - The final result is the CLIPPED last candidate, guaranteeing the
+ *   returned color is inside the destination gamut.
+ */
+function gamutMapChroma(
+	oklch: OKLCH,
+	jnd: number,
+	inGamutFn: (candidate: OKLCH) => boolean,
+	clipFn: (candidate: OKLCH) => OKLCH,
+): OKLCH {
+	if (inGamutFn(oklch)) {
 		return oklch;
 	}
 
@@ -83,21 +189,35 @@ export function clampToGamut(oklch: OKLCH, jnd: number = DEFAULT_JND): OKLCH {
 		return { l: 1, c: 0, h: oklch.h, a: oklch.a };
 	}
 
-	let low = 0;
-	let high = oklch.c;
+	let min = 0;
+	let max = oklch.c;
+	let minInGamut = true;
+	let current: OKLCH = { ...oklch };
 
-	while (high - low > jnd) {
-		const mid = (low + high) / 2;
-		const testColor: OKLCH = { ...oklch, c: mid };
+	while (max - min > CHROMA_EPSILON) {
+		const chroma = (min + max) / 2;
+		current = { ...oklch, c: chroma };
 
-		if (isInGamut(testColor)) {
-			low = mid;
+		if (minInGamut && inGamutFn(current)) {
+			min = chroma;
+			continue;
+		}
+
+		const clipped = clipFn(current);
+		const e = deltaEOK(clipped, current);
+
+		if (e < jnd) {
+			if (jnd - e < CHROMA_EPSILON) {
+				return clipped;
+			}
+			minInGamut = false;
+			min = chroma;
 		} else {
-			high = mid;
+			max = chroma;
 		}
 	}
 
-	return { ...oklch, c: low };
+	return clipFn(current);
 }
 
 export interface GamutMapOptions {
@@ -129,7 +249,7 @@ function oklchToLinearP3(oklch: OKLCH): { r: number; g: number; b: number } {
 
 export function isInP3Gamut(oklch: OKLCH): boolean {
 	if (oklch.c <= 0) {
-		return oklch.l >= 0 && oklch.l <= 1;
+		return oklch.l >= -EPSILON && oklch.l <= 1 + EPSILON;
 	}
 
 	const { r, g, b } = oklchToLinearP3(oklch);
@@ -144,31 +264,17 @@ export function isInP3Gamut(oklch: OKLCH): boolean {
 	);
 }
 
+/**
+ * Clamps OKLCH color to Display P3 gamut via chroma reduction.
+ * P3 counterpart of {@link clampToGamut}; uses the same tight binary search
+ * plus deltaEOK/JND early-exit, clipping against the P3 gamut instead of
+ * sRGB.
+ * @param oklch - The OKLCH color to clamp
+ * @param jnd - Just Noticeable Difference threshold (default: 0.02)
+ * @returns OKLCH color guaranteed to be in Display P3 gamut
+ */
 export function clampToP3Gamut(oklch: OKLCH, jnd: number = DEFAULT_JND): OKLCH {
-	if (isInP3Gamut(oklch)) {
-		return oklch;
-	}
-
-	if (oklch.l <= 0) {
-		return { l: 0, c: 0, h: oklch.h, a: oklch.a };
-	}
-	if (oklch.l >= 1) {
-		return { l: 1, c: 0, h: oklch.h, a: oklch.a };
-	}
-
-	let low = 0;
-	let high = oklch.c;
-
-	while (high - low > jnd) {
-		const mid = (low + high) / 2;
-		const testColor: OKLCH = { ...oklch, c: mid };
-
-		if (isInP3Gamut(testColor)) {
-			low = mid;
-		} else {
-			high = mid;
-		}
-	}
-
-	return { ...oklch, c: low };
+	return gamutMapChroma(oklch, jnd, isInP3Gamut, (candidate) =>
+		clipToOklchP3(oklchToLinearP3(candidate), oklch.a),
+	);
 }

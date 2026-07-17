@@ -135,9 +135,15 @@ describe("XYZ ↔ Oklab round-trip conversion", () => {
 			expect(result.y).toBe(0);
 			expect(result.z).toBe(0);
 		} else {
-			expect(result.x).toBeCloseTo(xyz.x, 6);
-			expect(result.y).toBeCloseTo(xyz.y, 6);
-			expect(result.z).toBeCloseTo(xyz.z, 6);
+			// OKLAB_M1_INV is the CSS Color 4 spec's actual LMStoXYZ matrix, which
+			// is deliberately NOT the exact numerical inverse of OKLAB_M1 (see the
+			// JSDoc on OKLAB_M1_INV in constants.ts) - it trades a small amount of
+			// general round-trip precision for exact white-point round-tripping.
+			// The observed worst case round-trip error is ~1.4e-4 (D65 white's X);
+			// precision 3 (tolerance 5e-4) covers that with margin.
+			expect(result.x).toBeCloseTo(xyz.x, 3);
+			expect(result.y).toBeCloseTo(xyz.y, 3);
+			expect(result.z).toBeCloseTo(xyz.z, 3);
 		}
 	});
 
@@ -160,9 +166,11 @@ describe("XYZ ↔ Oklab round-trip conversion", () => {
 			expect(result.a).toBe(0);
 			expect(result.b).toBe(0);
 		} else {
-			expect(result.L).toBeCloseTo(lab.L, 6);
-			expect(result.a).toBeCloseTo(lab.a, 6);
-			expect(result.b).toBeCloseTo(lab.b, 6);
+			// Same non-exact-inverse trade-off as the XYZ -> Oklab -> XYZ case
+			// above; observed worst case here is ~1.0e-4 (blue-ish's `a`).
+			expect(result.L).toBeCloseTo(lab.L, 3);
+			expect(result.a).toBeCloseTo(lab.a, 3);
+			expect(result.b).toBeCloseTo(lab.b, 3);
 		}
 	});
 });

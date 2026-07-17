@@ -115,8 +115,11 @@ describe("clampToGamut", () => {
 			const outOfGamut: OKLCH = { l: 0.9, c: 0.3, h: 180, a: 1 };
 			const clamped = clampToGamut(outOfGamut);
 
-			expect(clamped.l).toBe(outOfGamut.l);
-			expect(clamped.h).toBe(outOfGamut.h);
+			// The CSS Color 4 §13.2 algorithm's JND early-exit returns a clipped
+			// candidate, which shifts lightness/hue slightly (bounded by the JND);
+			// it no longer preserves them exactly.
+			expect(Math.abs(clamped.l - outOfGamut.l)).toBeLessThan(0.02);
+			expect(Math.abs(clamped.h - outOfGamut.h)).toBeLessThan(3);
 			expect(clamped.a).toBe(outOfGamut.a);
 			expect(clamped.c).toBeLessThan(outOfGamut.c);
 			expect(isInGamut(clamped)).toBe(true);
@@ -140,16 +143,19 @@ describe("clampToGamut", () => {
 	});
 
 	describe("preserves lightness and hue", () => {
-		it("maintains exact lightness value", () => {
+		it("maintains lightness close to original", () => {
+			// The JND early-exit path returns a linear-RGB-clipped candidate
+			// converted back to OKLCH, so lightness shifts by a small,
+			// JND-bounded amount rather than staying bit-for-bit identical.
 			const color: OKLCH = { l: 0.75, c: 0.4, h: 200, a: 1 };
 			const clamped = clampToGamut(color);
-			expect(clamped.l).toBe(color.l);
+			expect(Math.abs(clamped.l - color.l)).toBeLessThan(0.02);
 		});
 
-		it("maintains exact hue value", () => {
+		it("maintains hue close to original", () => {
 			const color: OKLCH = { l: 0.75, c: 0.4, h: 200, a: 1 };
 			const clamped = clampToGamut(color);
-			expect(clamped.h).toBe(color.h);
+			expect(Math.abs(clamped.h - color.h)).toBeLessThan(3);
 		});
 
 		it("maintains exact alpha value", () => {
@@ -194,8 +200,40 @@ describe("clampToGamut", () => {
 			const clamped = clampToGamut(outOfGamut);
 
 			expect(isInGamut(clamped)).toBe(true);
-			expect(clamped.h).toBe(hue);
+			// The spec bounds the CLIPPED result by deltaEOK <= JND (0.02), not by
+			// hue degrees; at the JND boundary that allows several degrees of hue
+			// rotation (observed max ~6.5deg across the sweep).
+			expect(Math.abs(clamped.h - hue)).toBeLessThan(10);
 		});
+	});
+});
+
+describe("clampToGamut chroma boundary precision", () => {
+	it("converges to within 1e-4 of the true gamut boundary chroma for oklch(0.7 0.4 30)", () => {
+		// The CSS Color 4 §13.2 binary search narrows the chroma interval to
+		// within CHROMA_EPSILON (1e-5); with the JND early-exit effectively
+		// disabled (a near-zero jnd), clampToGamut's result should land on
+		// that binary-search boundary rather than the perceptually-adjusted
+		// early-exit candidate.
+		const target: OKLCH = { l: 0.7, c: 0.4, h: 30, a: 1 };
+		const clamped = clampToGamut(target, 1e-9);
+
+		expect(isInGamut(clamped)).toBe(true);
+
+		// Independently re-derive the true boundary chroma via bisection
+		// against isInGamut, to compare against clampToGamut's own output.
+		let lo = 0;
+		let hi = target.c;
+		for (let i = 0; i < 60; i++) {
+			const mid = (lo + hi) / 2;
+			if (isInGamut({ ...target, c: mid })) {
+				lo = mid;
+			} else {
+				hi = mid;
+			}
+		}
+
+		expect(Math.abs(clamped.c - lo)).toBeLessThan(1e-4);
 	});
 });
 
@@ -244,8 +282,9 @@ describe("integration: clamped colors produce valid RGB", () => {
 		const clamped = clampToGamut(oklch);
 
 		expect(isInGamut(clamped)).toBe(true);
-		expect(clamped.l).toBe(oklch.l);
-		expect(clamped.h).toBe(oklch.h);
+		// Lightness/hue may shift slightly via the JND-clipped early-exit path.
+		expect(Math.abs(clamped.l - oklch.l)).toBeLessThan(0.02);
+		expect(Math.abs(clamped.h - oklch.h)).toBeLessThan(3);
 		expect(clamped.a).toBe(oklch.a);
 		expect(clamped.c).toBeLessThanOrEqual(oklch.c);
 	});
@@ -320,8 +359,9 @@ describe("clampToP3Gamut", () => {
 			const outOfGamut: OKLCH = { l: 0.5, c: 0.5, h: 180, a: 1 };
 			const clamped = clampToP3Gamut(outOfGamut);
 
-			expect(clamped.l).toBe(outOfGamut.l);
-			expect(clamped.h).toBe(outOfGamut.h);
+			// The JND-clipped early-exit shifts lightness/hue by a small amount.
+			expect(Math.abs(clamped.l - outOfGamut.l)).toBeLessThan(0.02);
+			expect(Math.abs(clamped.h - outOfGamut.h)).toBeLessThan(3);
 			expect(clamped.a).toBe(outOfGamut.a);
 			expect(clamped.c).toBeLessThan(outOfGamut.c);
 			expect(isInP3Gamut(clamped)).toBe(true);
@@ -356,7 +396,10 @@ describe("clampToP3Gamut", () => {
 			const clamped = clampToP3Gamut(outOfGamut);
 
 			expect(isInP3Gamut(clamped)).toBe(true);
-			expect(clamped.h).toBe(hue);
+			// The spec bounds the CLIPPED result by deltaEOK <= JND (0.02), not by
+			// hue degrees; at the JND boundary that allows several degrees of hue
+			// rotation (observed max ~6.5deg across the sweep).
+			expect(Math.abs(clamped.h - hue)).toBeLessThan(10);
 		});
 	});
 });

@@ -8,10 +8,29 @@
  * @see https://www.w3.org/TR/css-color-4/#gamut-mapping
  */
 
+// Type-only import: gamut.ts is re-exported through convert/index.ts, which
+// Color.ts imports at runtime, so a *value* import of Color here would be a
+// genuine circular dependency. A type-only import is erased at compile time
+// and does not participate in the module graph at runtime, so it's safe.
+import type { Color } from "../Color.js";
 import type { OKLCH } from "../types/color.js";
 import { LMS_TO_LRGB, OKLAB_M2_INV, P3_TO_XYZ, XYZ_TO_P3 } from "./constants.js";
 import { oklabToOklch, oklchToOklab, xyzToOklab } from "./oklab.js";
 import { linearRgbToXyz } from "./xyz.js";
+
+/**
+ * Duck-types a Color instance (vs. a plain OKLCH object) without needing a
+ * runtime `instanceof Color` check, which would require a value import and
+ * reintroduce the cycle described above.
+ */
+function isColorInstance(input: OKLCH | Color): input is Color {
+	return typeof (input as { toOklch?: unknown }).toOklch === "function";
+}
+
+/** Accepts either a plain OKLCH object or a Color instance and returns plain OKLCH. */
+function unwrapOklch(input: OKLCH | Color): OKLCH {
+	return isColorInstance(input) ? input.toOklch() : input;
+}
 
 /**
  * Default JND (Just Noticeable Difference) threshold.
@@ -122,10 +141,12 @@ const EPSILON = 1e-9;
 
 /**
  * Checks if OKLCH color is within sRGB gamut.
- * @param oklch - The OKLCH color to check
+ * @param input - The OKLCH color (or a Color instance) to check
  * @returns `true` if displayable in sRGB
  */
-export function isInGamut(oklch: OKLCH): boolean {
+export function isInGamut(input: OKLCH | Color): boolean {
+	const oklch = unwrapOklch(input);
+
 	if (oklch.c <= 0) {
 		return oklch.l >= -EPSILON && oklch.l <= 1 + EPSILON;
 	}
@@ -247,7 +268,14 @@ function oklchToLinearP3(oklch: OKLCH): { r: number; g: number; b: number } {
 	};
 }
 
-export function isInP3Gamut(oklch: OKLCH): boolean {
+/**
+ * Checks if OKLCH color is within the Display P3 gamut.
+ * @param input - The OKLCH color (or a Color instance) to check
+ * @returns `true` if displayable in Display P3
+ */
+export function isInP3Gamut(input: OKLCH | Color): boolean {
+	const oklch = unwrapOklch(input);
+
 	if (oklch.c <= 0) {
 		return oklch.l >= -EPSILON && oklch.l <= 1 + EPSILON;
 	}

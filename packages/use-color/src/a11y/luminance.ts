@@ -25,8 +25,10 @@
  * ```
  */
 
+import { Color } from "../Color.js";
 import { convert } from "../convert/index.js";
 import { srgbToLinear } from "../convert/linear.js";
+import { tryParseColor } from "../parse/index.js";
 import type { AnyColor } from "../types/ColorObject.js";
 import type { RGBA } from "../types/color.js";
 
@@ -47,19 +49,29 @@ const LUMINANCE_COEFFICIENTS = {
 /**
  * Input types that can be converted to luminance.
  */
-export type LuminanceInput = RGBA | AnyColor;
+export type LuminanceInput = string | Color | RGBA | AnyColor;
 
 /**
  * Check if a color has the 'space' property (is an AnyColor).
  */
-function hasSpaceProperty(color: LuminanceInput): color is AnyColor {
+function hasSpaceProperty(color: RGBA | AnyColor): color is AnyColor {
 	return "space" in color;
 }
 
 /**
- * Normalizes any color input to RGBA.
+ * Normalizes any color input (string, Color instance, or plain color object) to RGBA.
  */
 function toRgba(color: LuminanceInput): RGBA {
+	if (typeof color === "string") {
+		const parsed = tryParseColor(color);
+		if (!parsed.ok) {
+			throw parsed.error;
+		}
+		return toRgba(parsed.value);
+	}
+	if (color instanceof Color) {
+		return color.toRgb();
+	}
 	if (hasSpaceProperty(color)) {
 		if (color.space === "rgb") {
 			return { r: color.r, g: color.g, b: color.b, a: color.a };

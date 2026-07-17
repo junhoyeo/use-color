@@ -38,14 +38,21 @@ export type ColorStringInput<T extends string> =
  * Color object input types.
  * Direct object representations of colors in various color spaces.
  *
+ * Alpha is optional on every variant and defaults to `1` (fully opaque)
+ * when omitted, matching the README-documented `color({ r, g, b })` usage.
+ *
  * @example
  * ```ts
  * const rgba: ColorObjectInput = { r: 255, g: 0, b: 0, a: 1 };
+ * const rgb: ColorObjectInput = { r: 255, g: 0, b: 0 }; // alpha defaults to 1
  * const oklch: ColorObjectInput = { l: 0.5, c: 0.2, h: 180, a: 1 };
  * const hsla: ColorObjectInput = { h: 0, s: 1, l: 0.5, a: 1 };
  * ```
  */
-export type ColorObjectInput = RGBA | OKLCH | HSLA;
+export type ColorObjectInput =
+	| (Omit<RGBA, "a"> & { a?: number })
+	| (Omit<OKLCH, "a"> & { a?: number })
+	| (Omit<HSLA, "a"> & { a?: number });
 
 /**
  * Unified color input type that accepts all valid color string formats

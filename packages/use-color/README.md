@@ -119,7 +119,7 @@ const result = color("#e11d48")
   .alpha(0.9)
   .toHex();
 
-// "#ff2d5c"
+// "#ff583a"
 ```
 
 ### Output Formats
@@ -192,26 +192,26 @@ c.isLight(); // true
 Built-in WCAG 2.1 contrast checking and auto-adjustment.
 
 ```typescript
-import { contrast, isReadable, ensureContrast, luminance } from "use-color";
+import { contrast, isReadable, ensureContrast, luminance, toHex } from "use-color";
 
 const text = "#374151";
 const background = "#ffffff";
 
 // Relative luminance (WCAG formula)
-luminance(text); // 0.18
+luminance(text); // ~0.052
 luminance(background); // 1.0
 
 // Contrast ratio (1-21)
-contrast(text, background); // 7.49
+contrast(text, background); // ~10.31
 
 // Readability checks
 isReadable(text, background); // true (default: AA 4.5:1)
 isReadable(text, background, { level: "AAA" }); // true (7:1)
-isReadable(text, background, { level: "AA", size: "large" }); // true (3:1)
+isReadable(text, background, { level: "AA", isLargeText: true }); // true (3:1)
 
 // Auto-adjust for accessibility
 const adjusted = ensureContrast("#888888", background, 4.5);
-adjusted.toHex(); // "#767676" (meets 4.5:1 ratio)
+toHex(adjusted); // "#767676" (meets 4.5:1 ratio)
 ```
 
 ### APCA (Experimental)
@@ -223,7 +223,7 @@ import { apcaContrast } from "use-color";
 
 // Returns Lc value (-108 to +106)
 apcaContrast("#000000", "#ffffff"); // 106 (maximum contrast)
-apcaContrast("#767676", "#ffffff"); // 63 (good for body text)
+apcaContrast("#767676", "#ffffff"); // 72 (good for body text)
 ```
 
 > **Note:** APCA is still in development and not yet a W3C standard. Use for experimental projects.
@@ -247,16 +247,16 @@ OKLCH is the color space used by [Tailwind CSS v4](https://tailwindcss.com/blog/
 ```typescript
 import { color, isInP3Gamut, clampToP3Gamut } from "use-color";
 
-const vibrant = color("oklch(0.7 0.35 150)");
+const vibrant = color("oklch(0.7 0.25 150)");
 
-// Check gamut
+// Check gamut: outside sRGB, but representable in Display P3
 isInP3Gamut(vibrant); // true (P3 is ~25% larger than sRGB)
 
 // Output for modern displays
-vibrant.toP3String(); // "color(display-p3 0.12 0.87 0.45)"
+vibrant.toP3String(); // "color(display-p3 0.1612 0.7599 0.3015)"
 
 // Fallback for older displays
-vibrant.toHex(); // "#00d96f" (clamped to sRGB)
+vibrant.toHex(); // "#00c14b" (clamped to sRGB)
 ```
 
 ## Tree-Shakeable
@@ -289,6 +289,14 @@ import { parseNamed, NAMED_COLORS } from "use-color/names";
 // Display P3 wide gamut (~3KB gzip)
 import { toP3String, isInP3Gamut } from "use-color/p3";
 ```
+
+> **Note:** `use-color/core` excludes the standalone a11y functions and the
+> standalone named-color/P3 parse helpers (`parseNamed`, `parseP3`, etc.).
+> The `Color` class itself still transitively supports parsing named colors
+> (`color('coral')`) and producing Display P3 output (`c.toP3String()`),
+> since that logic lives inside `Color`'s own parsing/formatting pipeline
+> rather than a separately tree-shakeable module. Import from `use-color/names`
+> or `use-color/p3` only if you need the standalone functions.
 
 | Import            | Size (gzip) | Description                 |
 | ----------------- | ----------- | --------------------------- |

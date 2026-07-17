@@ -3,7 +3,19 @@
  *
  * Minimal core bundle for use-color.
  * Contains the Color class with essential functionality.
- * Excludes: named colors, a11y, p3 wide gamut
+ *
+ * Excludes: standalone a11y functions (`contrast`, `ensureContrast`,
+ * `apcaContrast`, `isReadable`, etc. — import from `use-color` or
+ * `use-color/a11y` instead) and standalone named-color/P3 parse helpers
+ * (`parseNamed`, `parseP3`, etc.).
+ *
+ * Note: the `Color` class itself (and the `color`/`tryColor` factories)
+ * still transitively supports parsing named colors (e.g. `color('coral')`)
+ * and producing Display P3 output (`c.toP3String()`, `c.toAnyColor('p3')`),
+ * since that logic lives inside `Color`'s internal parsing/formatting
+ * pipeline rather than being a separately tree-shakeable module. Only the
+ * *standalone* named-color/P3 parse functions and all a11y functions are
+ * excluded from this bundle.
  *
  * Use this entry point for the smallest bundle size when you only need
  * basic color parsing, manipulation, and formatting.

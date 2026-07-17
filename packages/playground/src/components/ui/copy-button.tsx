@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Check, Copy } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface CopyButtonProps {
 	text: string;
@@ -11,11 +11,23 @@ interface CopyButtonProps {
 
 export function CopyButton({ text, className = "" }: CopyButtonProps) {
 	const [copied, setCopied] = useState(false);
+	const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	useEffect(() => {
+		return () => {
+			if (resetTimeoutRef.current) {
+				clearTimeout(resetTimeoutRef.current);
+			}
+		};
+	}, []);
 
 	const handleCopy = async () => {
 		await navigator.clipboard.writeText(text);
 		setCopied(true);
-		setTimeout(() => setCopied(false), 2000);
+		if (resetTimeoutRef.current) {
+			clearTimeout(resetTimeoutRef.current);
+		}
+		resetTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
 	};
 
 	return (

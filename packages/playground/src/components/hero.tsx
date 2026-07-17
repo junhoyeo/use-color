@@ -30,7 +30,6 @@ export function Hero({ inputValue, currentColor, onInputChange, onRandomColor }:
 	const handleRandom = () => {
 		const randomColor = RANDOM_COLORS[Math.floor(Math.random() * RANDOM_COLORS.length)];
 		onInputChange(randomColor);
-		onRandomColor();
 	};
 
 	return (
